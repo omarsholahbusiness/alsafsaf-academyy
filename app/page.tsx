@@ -570,12 +570,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Floating WhatsApp Button */}
+      {/* Floating WhatsApp Button - hidden on mobile/portrait, visible from md (landscape/tablet+) */}
       <motion.a
         href="https://wa.me/201559973722"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-[#25D366] shadow-lg hover:shadow-xl transition-all flex items-center justify-center group"
+        className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-[#25D366] shadow-lg hover:shadow-xl transition-all hidden md:flex items-center justify-center group"
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 1, duration: 0.5 }}

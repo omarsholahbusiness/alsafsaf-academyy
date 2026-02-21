@@ -416,7 +416,7 @@ export const ChapterForm = ({
                         onClick={onPublish}
                         disabled={isLoading}
                         variant={initialData.isPublished ? "outline" : "default"}
-                        className="w-full sm:w-auto px-8 py-6 text-base font-semibold"
+                        className={`w-full sm:w-auto px-8 py-6 text-base font-semibold ${!initialData.isPublished ? "bg-green-600 hover:bg-green-700 text-white border-0" : ""}`}
                     >
                         {initialData.isPublished ? (
                             <>
