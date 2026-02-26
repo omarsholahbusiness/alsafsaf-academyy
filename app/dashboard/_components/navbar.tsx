@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { NavbarRoutes } from "@/components/navbar-routes"
 import { MobileSidebar } from "./mobile-sidebar"
 import { Logo } from "./logo"
@@ -7,7 +8,9 @@ export const Navbar = () => {
         <div className="p-4 border-b h-full flex items-center bg-card shadow-sm">
             <MobileSidebar />
             <div className="hidden md:flex items-center rtl:mr-4 ltr:ml-4">
-                <Logo />
+                <Link href="/dashboard">
+                    <Logo />
+                </Link>
             </div>
             <div className="flex items-center gap-x-4 rtl:mr-auto ltr:ml-auto">
                 <NavbarRoutes />

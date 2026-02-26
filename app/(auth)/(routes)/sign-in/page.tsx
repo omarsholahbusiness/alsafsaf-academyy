@@ -88,7 +88,7 @@ export default function SignInPage() {
         <div className="relative z-10 flex items-center justify-center w-full">
           <div className="text-center space-y-6 p-8">
             <div className="relative w-64 h-[268px] mx-auto rounded-full border-4 border-brand/20 shadow-2xl overflow-hidden">
-              <div className="absolute inset-0">
+              <div className="absolute inset-8">
                 <Image
                   src="/logo.png"
                   alt="Teacher"

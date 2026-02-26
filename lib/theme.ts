@@ -7,11 +7,11 @@
 
 export const theme = {
   // Main brand color - change this to update the entire theme
-  brand: "#75012a",
+  brand: "#6d00a8",
   
   // Brand color variations (automatically generated from brand color)
-  brandLight: "#9e0138", // Lighter variant
-  brandDark: "#4d011c",  // Darker variant
+  brandLight: "#8a00d6", // Lighter variant
+  brandDark: "#4b0075",  // Darker variant
   
   // Legacy green colors (for reference, will be replaced)
   // green: "#10B981",

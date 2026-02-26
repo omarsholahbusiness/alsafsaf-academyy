@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useSession, signOut } from "next-auth/react";
 import { ScrollProgress } from "@/components/scroll-progress";
 import { LogOut } from "lucide-react";
+import { LogoCard } from "@/components/logo-card";
 
 export const Navbar = () => {
   const { data: session } = useSession();
@@ -15,23 +15,16 @@ export const Navbar = () => {
   };
 
   return (
-    <div className="fixed top-0 w-full z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/logo.png"
-              alt="Logo"
-              width={150}
-              height={150}
-              className="ml-2"
-              unoptimized
-            />
-          </Link>
+    <div className="fixed top-0 w-full z-50 bg-white overflow-visible">
+      <div className="container mx-auto px-4 overflow-visible">
+        <div className="flex items-start justify-between h-20 overflow-visible">
+          {/* Logo in card that extends beyond navbar height */}
+          <div className="rtl:ml-4 ltr:mr-4">
+            <LogoCard href="/" />
+          </div>
 
           {/* Right side items */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 h-20">
             {!session ? (
               <>
                 <Button className="bg-brand hover:bg-brand/90 text-white" asChild>
