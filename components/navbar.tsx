@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useSession, signOut } from "next-auth/react";
 import { ScrollProgress } from "@/components/scroll-progress";
@@ -18,9 +19,21 @@ export const Navbar = () => {
     <div className="fixed top-0 w-full z-50 bg-white overflow-visible">
       <div className="container mx-auto px-4 overflow-visible">
         <div className="flex items-start justify-between h-20 overflow-visible">
-          {/* Logo in card that extends beyond navbar height */}
-          <div className="rtl:ml-4 ltr:mr-4">
-            <LogoCard href="/" />
+          {/* Mobile: plain logo icon. Desktop: logo card */}
+          <div className="rtl:ml-4 ltr:mr-4 flex items-center h-20 md:h-auto md:items-start">
+            <Link href="/" className="md:hidden flex items-center shrink-0">
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={48}
+                height={48}
+                className="object-contain h-12 w-12"
+                unoptimized
+              />
+            </Link>
+            <div className="hidden md:block">
+              <LogoCard href="/" />
+            </div>
           </div>
 
           {/* Right side items */}
