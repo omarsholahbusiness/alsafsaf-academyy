@@ -20,7 +20,7 @@ const config = {
     },
     extend: {
       fontFamily: {
-        'playpen-sans-arabic': ['var(--font-playpen-sans-arabic)'],
+        'playpen-sans-arabic': ['var(--font-cairo)'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -94,3 +94,4 @@ const config = {
 } satisfies Config
 
 export default config 
+
