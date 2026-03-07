@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Search, Eye, BookOpen, CheckCircle, Clock } from "lucide-react";
 import { format } from "date-fns";
-import { ar } from "date-fns/locale";
+import { useLanguage } from "@/components/providers/rtl-provider";
+import { getDateFnsLocale } from "@/lib/i18n";
 
 interface User {
     id: string;
@@ -59,6 +60,8 @@ interface Purchase {
 }
 
 const ProgressPage = () => {
+    const { locale } = useLanguage();
+    const dateLocale = getDateFnsLocale(locale);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -265,7 +268,7 @@ const ProgressPage = () => {
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell>
-                                                        {format(new Date(purchase.createdAt), "dd/MM/yyyy", { locale: ar })}
+                                                        {format(new Date(purchase.createdAt), "dd/MM/yyyy", { locale: dateLocale })}
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
@@ -322,7 +325,7 @@ const ProgressPage = () => {
                                                         </TableCell>
                                                         <TableCell>
                                                             {progress ? (
-                                                                format(new Date(progress.updatedAt), "dd/MM/yyyy", { locale: ar })
+                                                                format(new Date(progress.updatedAt), "dd/MM/yyyy", { locale: dateLocale })
                                                             ) : (
                                                                 "-"
                                                             )}

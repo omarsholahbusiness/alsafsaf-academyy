@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import "plyr/dist/plyr.css";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface PlyrVideoPlayerProps {
   videoUrl?: string;
@@ -20,6 +21,7 @@ export const PlyrVideoPlayer = ({
   onEnded,
   onTimeUpdate
 }: PlyrVideoPlayerProps) => {
+  const { locale } = useLanguage();
   const html5VideoRef = useRef<HTMLVideoElement>(null);
   const youtubeEmbedRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
@@ -101,7 +103,7 @@ export const PlyrVideoPlayer = ({
   if (!hasVideo) {
     return (
       <div className={`aspect-video bg-muted rounded-lg flex items-center justify-center ${className || ""}`}>
-        <div className="text-muted-foreground">لا يوجد فيديو</div>
+        <div className="text-muted-foreground">{locale === "ar" ? "لا يوجد فيديو" : "No video"}</div>
       </div>
     );
   }

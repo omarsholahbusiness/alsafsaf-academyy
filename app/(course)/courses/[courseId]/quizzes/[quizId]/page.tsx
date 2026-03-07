@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { ArrowLeft, Clock, AlertCircle } from "lucide-react";
 import { parseQuizOptions } from "@/lib/utils";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface Question {
     id: string;
@@ -45,6 +45,8 @@ export default function QuizPage({
     params: Promise<{ courseId: string; quizId: string }>;
 }) {
     const router = useRouter();
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const { courseId, quizId } = use(params);
     const [quiz, setQuiz] = useState<Quiz | null>(null);
     const [loading, setLoading] = useState(true);
@@ -92,16 +94,16 @@ export default function QuizPage({
             } else {
                 const errorText = await response.text();
                 if (errorText.includes("Maximum attempts reached")) {
-                    toast.error("لقد استنفذت جميع المحاولات المسموحة لهذا الاختبار");
+                    toast.error(tr("لقد استنفذت جميع المحاولات المسموحة لهذا الاختبار", "You have used all allowed attempts for this quiz"));
                     // Set flag to redirect to result page when no attempts remaining
                     setRedirectToResult(true);
                 } else {
-                    toast.error("حدث خطأ أثناء تحميل الاختبار");
+                    toast.error(tr("حدث خطأ أثناء تحميل الاختبار", "An error occurred while loading the quiz"));
                 }
             }
         } catch (error) {
             console.error("Error fetching quiz:", error);
-            toast.error("حدث خطأ أثناء تحميل الاختبار");
+            toast.error(tr("حدث خطأ أثناء تحميل الاختبار", "An error occurred while loading the quiz"));
         } finally {
             setLoading(false);
         }
@@ -145,15 +147,15 @@ export default function QuizPage({
 
             if (response.ok) {
                 const result = await response.json();
-                toast.success("تم إرسال الاختبار بنجاح!");
+                toast.success(tr("تم إرسال الاختبار بنجاح!", "Quiz submitted successfully!"));
                 router.push(`/courses/${courseId}/quizzes/${quizId}/result`);
             } else {
                 const error = await response.text();
-                toast.error(error || "حدث خطأ أثناء إرسال الاختبار");
+                toast.error(error || tr("حدث خطأ أثناء إرسال الاختبار", "An error occurred while submitting the quiz"));
             }
         } catch (error) {
             console.error("Error submitting quiz:", error);
-            toast.error("حدث خطأ أثناء إرسال الاختبار");
+            toast.error(tr("حدث خطأ أثناء إرسال الاختبار", "An error occurred while submitting the quiz"));
         } finally {
             setSubmitting(false);
         }
@@ -200,7 +202,7 @@ export default function QuizPage({
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-muted-foreground">جاري تحميل النتيجة...</p>
+                    <p className="text-muted-foreground">{tr("جاري تحميل النتيجة...", "Loading result...")}</p>
                 </div>
             </div>
         );
@@ -210,8 +212,8 @@ export default function QuizPage({
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold mb-4">الاختبار غير موجود</h1>
-                    <Button onClick={() => router.back()}>العودة</Button>
+                    <h1 className="text-2xl font-bold mb-4">{tr("الاختبار غير موجود", "Quiz not found")}</h1>
+                    <Button onClick={() => router.back()}>{tr("العودة", "Back")}</Button>
                 </div>
             </div>
         );
@@ -231,8 +233,8 @@ export default function QuizPage({
                             onClick={() => router.back()}
                             className="flex items-center gap-2"
                         >
-                            <ArrowLeft className="h-4 w-4" />
-                            رجوع
+                            <ArrowLeft className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
+                            {tr("رجوع", "Back")}
                         </Button>
                         <div className="flex items-center gap-4">
                             {quiz.timer && (
@@ -242,11 +244,11 @@ export default function QuizPage({
                                 </div>
                             )}
                             <Badge variant="secondary">
-                                السؤال {currentQuestion + 1} من {quiz.questions.length}
+                                {tr("السؤال", "Question")} {currentQuestion + 1} {tr("من", "of")} {quiz.questions.length}
                             </Badge>
                             {quiz.maxAttempts > 1 && (
                                 <Badge variant="outline">
-                                    المحاولة {quiz.currentAttempt || 1} من {quiz.maxAttempts}
+                                    {tr("المحاولة", "Attempt")} {quiz.currentAttempt || 1} {tr("من", "of")} {quiz.maxAttempts}
                                 </Badge>
                             )}
                         </div>
@@ -272,8 +274,8 @@ export default function QuizPage({
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                السؤال {currentQuestion + 1}
-                                <Badge variant="outline">{currentQuestionData.points} درجة</Badge>
+                                {tr("السؤال", "Question")} {currentQuestion + 1}
+                                <Badge variant="outline">{currentQuestionData.points} {tr("درجة", "points")}</Badge>
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
@@ -311,18 +313,18 @@ export default function QuizPage({
                                 >
                                     <div className="flex items-center space-x-2">
                                         <RadioGroupItem value="true" id="true" />
-                                        <Label htmlFor="true">صح</Label>
+                                        <Label htmlFor="true">{tr("صح", "True")}</Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
                                         <RadioGroupItem value="false" id="false" />
-                                        <Label htmlFor="false">خطأ</Label>
+                                        <Label htmlFor="false">{tr("خطأ", "False")}</Label>
                                     </div>
                                 </RadioGroup>
                             )}
 
                             {currentQuestionData.type === "SHORT_ANSWER" && (
                                 <Textarea
-                                    placeholder="اكتب إجابتك هنا..."
+                                    placeholder={tr("اكتب إجابتك هنا...", "Write your answer here...")}
                                     value={answers.find(a => a.questionId === currentQuestionData.id)?.answer || ""}
                                     onChange={(e) => handleAnswerChange(currentQuestionData.id, e.target.value)}
                                     rows={4}
@@ -338,7 +340,7 @@ export default function QuizPage({
                             onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
                             disabled={currentQuestion === 0}
                         >
-                            السابق
+                            {tr("السابق", "Previous")}
                         </Button>
 
                         <div className="flex items-center gap-2">
@@ -348,14 +350,14 @@ export default function QuizPage({
                                     disabled={submitting}
                                     className="bg-primary hover:bg-primary/90"
                                 >
-                                    {submitting ? "جاري الإرسال..." : "إنهاء الاختبار"}
+                                    {submitting ? tr("جاري الإرسال...", "Submitting...") : tr("إنهاء الاختبار", "Finish quiz")}
                                 </Button>
                             ) : (
                                 <Button
                                     onClick={() => setCurrentQuestion(currentQuestion + 1)}
                                     className="bg-primary hover:bg-primary/90"
                                 >
-                                    التالي
+                                    {tr("التالي", "Next")}
                                 </Button>
                             )}
                         </div>
@@ -366,12 +368,15 @@ export default function QuizPage({
                         <CardContent className="pt-6">
                             <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
                                 <AlertCircle className="h-5 w-5" />
-                                <span className="font-medium">تنبيه</span>
+                                <span className="font-medium">{tr("تنبيه", "Note")}</span>
                             </div>
                             <p className="text-amber-700 dark:text-amber-200 mt-2">
                                 {quiz.maxAttempts > 1 
-                                    ? `تأكد من إجابة جميع الأسئلة قبل إنهاء الاختبار. يمكنك إعادة الاختبار ${quiz.maxAttempts - (quiz.currentAttempt || 1)} مرات أخرى.`
-                                    : "تأكد من إجابة جميع الأسئلة قبل إنهاء الاختبار. لا يمكنك العودة للاختبار بعد الإرسال."
+                                    ? tr(
+                                        `تأكد من إجابة جميع الأسئلة قبل إنهاء الاختبار. يمكنك إعادة الاختبار ${quiz.maxAttempts - (quiz.currentAttempt || 1)} مرات أخرى.`,
+                                        `Make sure you answer all questions before finishing. You can retake this quiz ${quiz.maxAttempts - (quiz.currentAttempt || 1)} more times.`
+                                      )
+                                    : tr("تأكد من إجابة جميع الأسئلة قبل إنهاء الاختبار. لا يمكنك العودة للاختبار بعد الإرسال.", "Make sure you answer all questions before finishing. You cannot return after submission.")
                                 }
                             </p>
                         </CardContent>
@@ -385,7 +390,7 @@ export default function QuizPage({
                             disabled={!navigation?.previousContentId}
                             className="flex items-center gap-2"
                         >
-                            المحتوى السابق
+                            {tr("المحتوى السابق", "Previous content")}
                         </Button>
 
                         <Button
@@ -393,7 +398,7 @@ export default function QuizPage({
                             disabled={!navigation?.nextContentId}
                             className="flex items-center gap-2"
                         >
-                            المحتوى التالي
+                            {tr("المحتوى التالي", "Next content")}
                         </Button>
                     </div>
                 </div>

@@ -8,9 +8,9 @@ import Image from "next/image";
 import { Navbar } from "@/components/navbar";
 import { ScrollProgress } from "@/components/scroll-progress";
 import { useEffect, useState } from "react";
-import { db } from "@/lib/db"; // Import db client
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 // Define types based on Prisma schema
 type Course = {
@@ -47,6 +47,22 @@ export default function HomePage() {
   const [showScrollIndicator, setShowScrollIndicator] = useState(true);
   const { data: session } = useSession();
   const router = useRouter();
+  const { t } = useLanguage();
+
+  const testimonials = [
+    {
+      name: t("home.testimonial1Name"),
+      testimonial: t("home.testimonial1Text")
+    },
+    {
+      name: t("home.testimonial2Name"),
+      testimonial: t("home.testimonial2Text")
+    },
+    {
+      name: t("home.testimonial3Name"),
+      testimonial: t("home.testimonial3Text")
+    }
+  ];
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -124,7 +140,7 @@ export default function HomePage() {
             <div className="relative w-64 h-64 md:w-80 md:h-80">
               <Image
                 src="/teacher-image.png"
-                alt="Dr.Awadia Nasr"
+                alt={t("home.teacherImageAlt")}
                 fill
                 priority
                 className="object-cover rounded-full border-4 border-brand/20 shadow-lg object-[30%_center]"
@@ -159,7 +175,7 @@ export default function HomePage() {
             >
               <Image
                 src="/graduation-hat.png"
-                alt="حصيلة"
+                alt={t("home.graduationHatAlt")}
                 width={50}
                 height={50}
                 className="object-contain"
@@ -192,7 +208,7 @@ export default function HomePage() {
             >
               <Image
                 src="/medal.png"
-                alt="ميدالية"
+                alt={t("home.medalAlt")}
                 width={40}
                 height={40}
                 className="object-contain"
@@ -225,7 +241,7 @@ export default function HomePage() {
             >
               <Image
                 src="/notebook.png"
-                alt="دفتر"
+                alt={t("home.notebookAlt")}
                 width={55}
                 height={55}
                 className="object-contain"
@@ -244,11 +260,11 @@ export default function HomePage() {
             <span className="text-brand">Dr.Awadia Nasr</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-              دكتوراه تربية خاصة
+              {t("home.degree")}
             </p>
             <Button size="lg" asChild className="bg-brand hover:bg-brand/90 text-white">
               <Link href="/sign-up">
-                ابدأ الآن <ArrowRight className="mr-2 h-4 w-4" />
+                {t("home.startNow")} <ArrowRight className="rtl:mr-2 ltr:ml-2 h-4 w-4" />
               </Link>
             </Button>
           </motion.div>
@@ -304,8 +320,8 @@ export default function HomePage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold mb-4">الكورسات المتاحة</h2>
-            <p className="text-muted-foreground">اكتشف مجموعة متنوعة من الكورسات التعليمية المميزة</p>
+            <h2 className="text-3xl font-bold mb-4">{t("home.coursesSectionTitle")}</h2>
+            <p className="text-muted-foreground">{t("home.coursesSectionSubtitle")}</p>
           </motion.div>
 
           <motion.div
@@ -336,9 +352,9 @@ export default function HomePage() {
                     <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                       <BookOpen className="h-8 w-8 text-muted-foreground" />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">لا توجد كورسات متاحة حالياً</h3>
+                    <h3 className="text-lg font-semibold mb-2">{t("home.noCoursesTitle")}</h3>
                     <p className="text-muted-foreground mb-4">
-                      سيتم إضافة الكورسات قريباً. تحقق من هذه الصفحة لاحقاً للاطلاع على أحدث الكورسات التعليمية.
+                      {t("home.noCoursesDescription")}
                     </p>
                     <Button 
                       variant="outline" 
@@ -346,7 +362,7 @@ export default function HomePage() {
                       className="bg-brand hover:bg-brand/90 text-white border-brand"
                     >
                       <Link href="/sign-up">
-                        سجل الآن للوصول المبكر
+                        {t("home.earlyAccess")}
                       </Link>
                     </Button>
                   </div>
@@ -377,9 +393,9 @@ export default function HomePage() {
                       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                         <BookOpen className="h-4 w-4" />
                         <span>
-                          {course.chapters?.length || 0} {course.chapters?.length === 1 ? "فصل" : "فصول"}
+                          {course.chapters?.length || 0} {course.chapters?.length === 1 ? t("home.chapterSingle") : t("home.chapterPlural")}
                           {course.quizzes && course.quizzes.length > 0 && (
-                            <span className="mr-2">، {course.quizzes.length} {course.quizzes.length === 1 ? "اختبار" : "اختبارات"}</span>
+                            <span className="rtl:mr-2 ltr:ml-2">, {course.quizzes.length} {course.quizzes.length === 1 ? t("home.quizSingle") : t("home.quizPlural")}</span>
                           )}
                         </span>
                       </div>
@@ -397,7 +413,7 @@ export default function HomePage() {
                           router.push(courseUrl);
                         }}
                       >
-                        {course.progress === 100 ? "عرض الكورس" : "عرض الكورس"}
+                        {course.progress === 100 ? t("home.viewCourse") : t("home.viewCourse")}
                       </Button>
                     </div>
                   </motion.div>
@@ -418,27 +434,11 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">آراء الطلاب</h2>
-            <p className="text-muted-foreground">ماذا يقول طلابنا عن تجربتهم معنا</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("home.testimonialsTitle")}</h2>
+            <p className="text-muted-foreground">{t("home.testimonialsSubtitle")}</p>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                name: "عصام اسامة",
-                grade: "الصف الأول الثانوي",
-                testimonial: "تجربة رائعة مع اكاديمية الصفصاف، المحتوى غني والشرح مبسط"
-              },
-              {
-                name: "سيف طارق",
-                grade: "الصف الثاني الثانوي",
-                testimonial: "المنهج منظم جداً والشرح واضح، ساعدني في الفهم أفضل"
-              },
-              {
-                name: "عمر جمال",
-                grade: "الصف الأول الثانوي",
-                testimonial: "أفضل منصة تعليمية استخدمتها، المحتوى غني والشرح مبسط"
-              }
-            ].map((testimonial, index) => (
+            {testimonials.map((testimonial, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
@@ -456,9 +456,8 @@ export default function HomePage() {
                       className="object-cover"
                     />
                   </div>
-                  <div className="mr-4">
+                  <div className="rtl:mr-4 ltr:ml-4">
                     <h4 className="font-semibold">{testimonial.name}</h4>
-                    <p className="text-sm text-muted-foreground">{testimonial.grade}</p>
                   </div>
                 </div>
                 <p className="text-muted-foreground">
@@ -491,8 +490,8 @@ export default function HomePage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold mb-4">مميزات المنصة</h2>
-            <p className="text-muted-foreground">اكتشف ما يجعل منصتنا مميزة</p>
+            <h2 className="text-3xl font-bold mb-4">{t("home.featuresTitle")}</h2>
+            <p className="text-muted-foreground">{t("home.featuresSubtitle")}</p>
           </motion.div>
 
           <motion.div
@@ -512,8 +511,8 @@ export default function HomePage() {
               <div className="w-12 h-12 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Star className="h-6 w-6 text-brand" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">جودة عالية</h3>
-              <p className="text-muted-foreground">أفضل منصة متخصصة  لتعليم اللغة العربية لغير الناطقين بها</p>
+              <h3 className="text-xl font-semibold mb-2">{t("home.featureQualityTitle")}</h3>
+              <p className="text-muted-foreground">{t("home.featureQualityText")}</p>
             </motion.div>
 
             <motion.div
@@ -526,8 +525,8 @@ export default function HomePage() {
               <div className="w-12 h-12 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="h-6 w-6 text-brand" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">مجتمع نشط</h3>
-              <p className="text-muted-foreground">انضم إلى مجتمع من الطلاب النشطين والمتفوقين والأوائل</p>
+              <h3 className="text-xl font-semibold mb-2">{t("home.featureCommunityTitle")}</h3>
+              <p className="text-muted-foreground">{t("home.featureCommunityText")}</p>
             </motion.div>
 
             <motion.div
@@ -540,8 +539,8 @@ export default function HomePage() {
               <div className="w-12 h-12 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Award className="h-6 w-6 text-brand" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">شهادات تقدير</h3>
-              <p className="text-muted-foreground">احصل على شهادات تقدير عند إكمال الكورسات</p>
+              <h3 className="text-xl font-semibold mb-2">{t("home.featureCertificatesTitle")}</h3>
+              <p className="text-muted-foreground">{t("home.featureCertificatesText")}</p>
             </motion.div>
           </motion.div>
         </motion.div>
@@ -557,13 +556,13 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">ابدأ رحلة التعلم معنا</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("home.ctaTitle")}</h2>
             <p className="text-muted-foreground mb-8">
-              انضم إلينا اليوم وابدأ رحلة النجاح
+              {t("home.ctaSubtitle")}
             </p>
             <Button size="lg" asChild className="bg-brand hover:bg-brand/90 text-white">
               <Link href="/sign-up">
-                سجل الآن <ArrowRight className="mr-2 h-4 w-4" />
+                {t("home.registerNow")} <ArrowRight className="rtl:mr-2 ltr:ml-2 h-4 w-4" />
               </Link>
             </Button>
           </motion.div>
@@ -584,7 +583,7 @@ export default function HomePage() {
       >
         <Image
           src="/whatsapp.png"
-          alt="واتساب"
+          alt={t("home.whatsappAlt")}
           width={32}
           height={32}
           className="object-contain"

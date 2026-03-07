@@ -6,6 +6,7 @@ import { Grip } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Trash2 } from "lucide-react";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface CourseItem {
     id: string;
@@ -23,11 +24,15 @@ interface CourseContentListProps {
     onDelete: (id: string, type: "chapter" | "quiz") => void;
 }
 
-const getActionLabel = (type: "chapter" | "quiz", isPublished: boolean) => {
+const getActionLabel = (
+    type: "chapter" | "quiz",
+    isPublished: boolean,
+    tr: (arText: string, enText: string) => string
+) => {
     if (type === "chapter") {
-        return isPublished ? "تعديل فيديو" : "اضافة فيديو";
+        return isPublished ? tr("تعديل فيديو", "Edit video") : tr("اضافة فيديو", "Add video");
     }
-    return isPublished ? "تعديل اختبار" : "اضافة اختبار";
+    return isPublished ? tr("تعديل اختبار", "Edit quiz") : tr("اضافة اختبار", "Add quiz");
 };
 
 export const CourseContentList = ({
@@ -36,6 +41,8 @@ export const CourseContentList = ({
     onEdit,
     onDelete
 }: CourseContentListProps) => {
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const onDragEnd = (result: DropResult) => {
         if (!result.destination) return;
 
@@ -85,14 +92,14 @@ export const CourseContentList = ({
                                             <div className="flex items-center gap-x-2">
                                                 <span>{item.title}</span>
                                                 <Badge variant="outline" className="text-xs">
-                                                    {item.type === "chapter" ? "فصل" : "اختبار"}
+                                                    {item.type === "chapter" ? tr("فصل", "Chapter") : tr("اختبار", "Quiz")}
                                                 </Badge>
                                             </div>
                                         </div>
-                                        <div className="ml-auto pr-2 flex items-center gap-x-2">
+                                        <div className="rtl:mr-auto ltr:ml-auto rtl:pl-2 ltr:pr-2 flex items-center gap-x-2">
                                                                                          {item.type === "chapter" && item.isFree && (
                                                  <Badge>
-                                                     مجاني
+                                                     {tr("مجاني", "Free")}
                                                  </Badge>
                                              )}
                                             <Badge
@@ -101,13 +108,13 @@ export const CourseContentList = ({
                                                     item.isPublished && "bg-primary text-primary-foreground"
                                                 )}
                                             >
-                                                {item.isPublished ? "تم النشر" : "مسودة"}
+                                                {item.isPublished ? tr("تم النشر", "Published") : tr("مسودة", "Draft")}
                                             </Badge>
                                             <button
                                                 onClick={() => onEdit(item.id, item.type)}
                                                 className="text-brand text-xs font-semibold hover:underline transition"
                                             >
-                                                {getActionLabel(item.type, item.isPublished)}
+                                                {getActionLabel(item.type, item.isPublished, tr)}
                                             </button>
                                             <Trash2
                                                 onClick={() => onDelete(item.id, item.type)}

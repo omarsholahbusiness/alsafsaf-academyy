@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Search, Plus, Pencil, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigationRouter } from "@/lib/hooks/use-navigation-router";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface Quiz {
   id: string;
@@ -24,6 +25,8 @@ interface Quiz {
 
 export default function AdminQuizzesPage() {
   const router = useNavigationRouter();
+  const { locale } = useLanguage();
+  const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,10 +41,10 @@ export default function AdminQuizzesPage() {
           const data = await response.json();
           setQuizzes(data);
         } else {
-          toast.error("تعذر تحميل الاختبارات");
+          toast.error(tr("تعذر تحميل الاختبارات", "Failed to load quizzes"));
         }
       } catch (e) {
-        toast.error("حدث خطأ أثناء التحميل");
+        toast.error(tr("حدث خطأ أثناء التحميل", "An error occurred while loading"));
       } finally {
         setLoading(false);
       }
@@ -71,24 +74,28 @@ export default function AdminQuizzesPage() {
       });
 
       if (!response.ok) {
-        throw new Error("حدث خطأ أثناء تحديث حالة الاختبار");
+        throw new Error(tr("حدث خطأ أثناء تحديث حالة الاختبار", "An error occurred while updating quiz status"));
       }
 
-      toast.success(quiz.isPublished ? "تم إلغاء النشر" : "تم النشر بنجاح");
+      toast.success(quiz.isPublished ? tr("تم إلغاء النشر", "Unpublished successfully") : tr("تم النشر بنجاح", "Published successfully"));
       setQuizzes((prev) =>
         prev.map((item) =>
           item.id === quiz.id ? { ...item, isPublished: !quiz.isPublished } : item
         )
       );
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "حدث خطأ");
+      toast.error(error instanceof Error ? error.message : tr("حدث خطأ", "An error occurred"));
     } finally {
       setPublishingId(null);
     }
   };
 
   const handleDelete = async (quizId: string, quizTitle: string) => {
-    const confirmed = window.confirm(`هل أنت متأكد من حذف الاختبار "${quizTitle}"؟ سيتم حذف جميع الأسئلة المرتبطة به.`);
+    const confirmed = window.confirm(
+      locale === "ar"
+        ? `هل أنت متأكد من حذف الاختبار "${quizTitle}"؟ سيتم حذف جميع الأسئلة المرتبطة به.`
+        : `Are you sure you want to delete quiz "${quizTitle}"? All related questions will be deleted.`
+    );
     if (!confirmed) {
       return;
     }
@@ -101,14 +108,14 @@ export default function AdminQuizzesPage() {
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
-        throw new Error(error.error || "تعذر حذف الاختبار");
+        throw new Error(error.error || tr("تعذر حذف الاختبار", "Failed to delete quiz"));
       }
 
       setQuizzes((previous) => previous.filter((quiz) => quiz.id !== quizId));
-      toast.success("تم حذف الاختبار بنجاح");
+      toast.success(tr("تم حذف الاختبار بنجاح", "Quiz deleted successfully"));
     } catch (error) {
       console.error("[ADMIN_DELETE_QUIZ]", error);
-      toast.error(error instanceof Error ? error.message : "تعذر حذف الاختبار");
+      toast.error(error instanceof Error ? error.message : tr("تعذر حذف الاختبار", "Failed to delete quiz"));
     } finally {
       setDeletingId(null);
     }
@@ -117,7 +124,7 @@ export default function AdminQuizzesPage() {
   if (loading) {
     return (
       <div className="p-6">
-        <div className="text-center">جاري التحميل...</div>
+        <div className="text-center">{tr("جاري التحميل...", "Loading...")}</div>
       </div>
     );
   }
@@ -125,20 +132,20 @@ export default function AdminQuizzesPage() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">كل الاختبارات</h1>
+        <h1 className="text-3xl font-bold">{tr("كل الاختبارات", "All quizzes")}</h1>
         <Button onClick={() => router.push("/dashboard/admin/quizzes/create")} className="bg-brand hover:bg-brand/90 text-white">
           <Plus className="h-4 w-4" />
-          إنشاء اختبار
+          {tr("إنشاء اختبار", "Create quiz")}
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>الاختبارات</CardTitle>
-          <div className="flex items-center space-x-2">
+          <CardTitle>{tr("الاختبارات", "Quizzes")}</CardTitle>
+          <div className="flex items-center rtl:space-x-reverse space-x-2">
             <Search className="h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="البحث في الاختبارات..."
+              placeholder={tr("البحث في الاختبارات...", "Search quizzes...")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-sm"
@@ -149,13 +156,13 @@ export default function AdminQuizzesPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-right">عنوان الاختبار</TableHead>
-                <TableHead className="text-right">الكورس</TableHead>
-                <TableHead className="text-right">الموقع</TableHead>
-                <TableHead className="text-right">الحالة</TableHead>
-                <TableHead className="text-right">عدد الأسئلة</TableHead>
-                <TableHead className="text-right">تاريخ الإنشاء</TableHead>
-                <TableHead className="text-right">الإجراءات</TableHead>
+                <TableHead className="text-right">{tr("عنوان الاختبار", "Quiz title")}</TableHead>
+                <TableHead className="text-right">{tr("الكورس", "Course")}</TableHead>
+                <TableHead className="text-right">{tr("الموقع", "Position")}</TableHead>
+                <TableHead className="text-right">{tr("الحالة", "Status")}</TableHead>
+                <TableHead className="text-right">{tr("عدد الأسئلة", "Questions count")}</TableHead>
+                <TableHead className="text-right">{tr("تاريخ الإنشاء", "Created at")}</TableHead>
+                <TableHead className="text-right">{tr("الإجراءات", "Actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -170,14 +177,14 @@ export default function AdminQuizzesPage() {
                   </TableCell>
                   <TableCell>
                     <Badge variant={quiz.isPublished ? "default" : "secondary"}>
-                      {quiz.isPublished ? "منشور" : "مسودة"}
+                      {quiz.isPublished ? tr("منشور", "Published") : tr("مسودة", "Draft")}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{quiz.questions.length} سؤال</Badge>
+                    <Badge variant="secondary">{quiz.questions.length} {tr("سؤال", "questions")}</Badge>
                   </TableCell>
                   <TableCell>
-                    {new Date(quiz.createdAt).toLocaleDateString("ar-EG")}
+                    {new Date(quiz.createdAt).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US")}
                   </TableCell>
                   <TableCell className="flex flex-wrap items-center justify-end gap-2">
                     <Button
@@ -186,7 +193,7 @@ export default function AdminQuizzesPage() {
                       onClick={() => handleViewQuiz(quiz)}
                     >
                       <Eye className="h-4 w-4" />
-                      عرض
+                      {tr("عرض", "View")}
                     </Button>
                     <Button
                       className="bg-brand hover:bg-brand/90 text-white"
@@ -194,7 +201,7 @@ export default function AdminQuizzesPage() {
                       onClick={() => router.push(`/dashboard/admin/quizzes/${quiz.id}/edit`)}
                     >
                       <Pencil className="h-4 w-4" />
-                      تعديل
+                      {tr("تعديل", "Edit")}
                     </Button>
                     <Button
                       variant={quiz.isPublished ? "destructive" : "default"}
@@ -204,10 +211,10 @@ export default function AdminQuizzesPage() {
                       onClick={() => handleTogglePublish(quiz)}
                     >
                       {publishingId === quiz.id
-                        ? "جاري التحديث..."
+                        ? tr("جاري التحديث...", "Updating...")
                         : quiz.isPublished
-                        ? "إلغاء النشر"
-                        : "نشر"}
+                        ? tr("إلغاء النشر", "Unpublish")
+                        : tr("نشر", "Publish")}
                     </Button>
                     <Button
                       variant="destructive"
@@ -216,7 +223,7 @@ export default function AdminQuizzesPage() {
                       onClick={() => handleDelete(quiz.id, quiz.title)}
                     >
                       <Trash2 className="h-4 w-4" />
-                      {deletingId === quiz.id ? "جاري الحذف..." : "حذف"}
+                      {deletingId === quiz.id ? tr("جاري الحذف...", "Deleting...") : tr("حذف", "Delete")}
                     </Button>
                   </TableCell>
                 </TableRow>

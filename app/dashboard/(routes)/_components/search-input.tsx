@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 export const SearchInput = () => {
+    const { locale } = useLanguage();
     const router = useRouter();
     const searchParams = useSearchParams();
     const [searchValue, setSearchValue] = useState("");
@@ -35,7 +37,7 @@ export const SearchInput = () => {
         <form onSubmit={onSubmit} className="flex items-center gap-x-2">
             <Input
                 name="title"
-                placeholder="ابحث عن كورسات..."
+                placeholder={locale === "ar" ? "ابحث عن كورسات..." : "Search courses..."}
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 className="h-10"

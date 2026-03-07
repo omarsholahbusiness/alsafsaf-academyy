@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Link as LinkIcon, XCircle } from "lucide-react";
+import { CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface PaymentResponse {
   status: "COMPLETED" | "FAILED" | "PENDING" | "CANCELED";
@@ -16,6 +17,8 @@ interface PaymentResponse {
 
 const PaymentStatusPage = () => {
   const router = useRouter();
+  const { locale } = useLanguage();
+  const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
   const searchParams = useSearchParams();
   const routeParams = useParams();
   const purchaseId = searchParams.get("purchaseId");
@@ -145,9 +148,9 @@ const PaymentStatusPage = () => {
       <div className="h-full flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <h1 className="text-2xl font-bold mb-2">يتم تأكيد عملية الدفع</h1>
-          <p className="text-muted-foreground">الرجاء الأنتظار حتي نتأكد من عملية الدفع</p>
-          <p className="text-xs text-muted-foreground mt-2">محاولة التأكد: {checkCount}/{MAX_CHECKS}</p>
+          <h1 className="text-2xl font-bold mb-2">{tr("يتم تأكيد عملية الدفع", "Confirming payment")}</h1>
+          <p className="text-muted-foreground">{tr("الرجاء الانتظار حتى نتأكد من عملية الدفع", "Please wait while we verify your payment")}</p>
+          <p className="text-xs text-muted-foreground mt-2">{tr("محاولة التأكد", "Verification attempt")}: {checkCount}/{MAX_CHECKS}</p>
         </div>
       </div>
     );
@@ -158,13 +161,13 @@ const PaymentStatusPage = () => {
       <div className="h-full flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
           <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-2">تم الدفع بنجاح!</h1>
+          <h1 className="text-2xl font-bold mb-2">{tr("تم الدفع بنجاح!", "Payment successful!")}</h1>
           <p className="text-muted-foreground mb-6">
-              تمت معالجة دفعتك بنجاح. لديك الآن وصول كامل إلى الكورس.
+              {tr("تمت معالجة دفعتك بنجاح. لديك الآن وصول كامل إلى الكورس.", "Your payment has been processed successfully. You now have full access to the course.")}
           </p>
           <Button asChild size="lg" className="w-full">
             <Link href="/dashboard">
-              لوحة التحكم
+              {tr("لوحة التحكم", "Dashboard")}
             </Link>
           </Button>
         </div>
@@ -176,12 +179,12 @@ const PaymentStatusPage = () => {
     <div className="h-full flex items-center justify-center">
       <div className="text-center max-w-md mx-auto p-6">
         <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-        <h1 className="text-2xl font-bold mb-2">فشل الدفع</h1>
+        <h1 className="text-2xl font-bold mb-2">{tr("فشل الدفع", "Payment failed")}</h1>
         <p className="text-muted-foreground mb-6">
-          تم إلغاء عملية الدفع أو فشلت. يمكنك المحاولة مرة أخرى.
+          {tr("تم إلغاء عملية الدفع أو فشلت. يمكنك المحاولة مرة أخرى.", "The payment was canceled or failed. You can try again.")}
         </p>
         <Button onClick={handleTryAgain} size="lg" className="w-full">
-          حاول مرة اخري
+          {tr("حاول مرة أخرى", "Try again")}
         </Button>
       </div>
     </div>

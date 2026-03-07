@@ -11,9 +11,12 @@ import axios, { AxiosError } from "axios";
 import { Check, X, Eye, EyeOff, ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import ReCAPTCHA from "react-google-recaptcha";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { locale } = useLanguage();
+  const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -48,13 +51,13 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     if (!passwordChecks.isValid) {
-      toast.error("كلمات المرور غير متطابقة");
+      toast.error(tr("كلمات المرور غير متطابقة", "Passwords do not match"));
       setIsLoading(false);
       return;
     }
 
     if (!recaptchaToken) {
-      toast.error("يرجى إكمال التحقق من reCaptcha");
+      toast.error(tr("يرجى إكمال التحقق من reCaptcha", "Please complete the reCAPTCHA verification"));
       setIsLoading(false);
       return;
     }
@@ -66,7 +69,7 @@ export default function SignUpPage() {
       });
       
       if (response.data.success) {
-        toast.success("تم إنشاء الحساب بنجاح");
+        toast.success(tr("تم إنشاء الحساب بنجاح", "Account created successfully"));
         router.push("/sign-in");
       }
     } catch (error) {
@@ -74,18 +77,18 @@ export default function SignUpPage() {
       if (axiosError.response?.status === 400) {
         const errorMessage = axiosError.response.data as string;
         if (errorMessage.includes("Phone number already exists")) {
-          toast.error("رقم الهاتف مسجل مسبقاً");
+          toast.error(tr("رقم الهاتف مسجل مسبقاً", "Phone number is already registered"));
         } else if (errorMessage.includes("Passwords do not match")) {
-          toast.error("كلمات المرور غير متطابقة");
+          toast.error(tr("كلمات المرور غير متطابقة", "Passwords do not match"));
         } else if (errorMessage.includes("reCAPTCHA")) {
-          toast.error("فشل التحقق من reCaptcha. يرجى المحاولة مرة أخرى");
+          toast.error(tr("فشل التحقق من reCaptcha. يرجى المحاولة مرة أخرى", "reCAPTCHA verification failed. Please try again."));
           recaptchaRef.current?.reset();
           setRecaptchaToken(null);
         } else {
-          toast.error("حدث خطأ أثناء إنشاء الحساب");
+          toast.error(tr("حدث خطأ أثناء إنشاء الحساب", "An error occurred while creating your account"));
         }
       } else {
-        toast.error("حدث خطأ أثناء إنشاء الحساب");
+        toast.error(tr("حدث خطأ أثناء إنشاء الحساب", "An error occurred while creating your account"));
       }
     } finally {
       setIsLoading(false);
@@ -94,10 +97,10 @@ export default function SignUpPage() {
 
   return (
     <div className="flex min-h-screen bg-background overflow-y-auto">
-      <div className="absolute top-4 left-4 z-10">
+      <div className="absolute top-4 rtl:left-4 ltr:right-4 z-10">
         <Button variant="ghost" size="lg" asChild>
           <Link href="/">
-            <ChevronLeft className="h-10 w-10" />
+            <ChevronLeft className="h-10 w-10 rtl:rotate-0 ltr:rotate-180" />
           </Link>
         </Button>
       </div>
@@ -111,7 +114,7 @@ export default function SignUpPage() {
               <div className="absolute inset-8">
                 <Image
                   src="/logo.png"
-                  alt="Teacher"
+                  alt={tr("شعار المنصة", "Platform logo")}
                   fill
                   className="object-contain"
                   unoptimized
@@ -120,10 +123,10 @@ export default function SignUpPage() {
             </div>
             <div className="space-y-4">
               <h3 className="text-2xl font-bold text-brand">
-                مرحباً بك في اكاديمية الصفصاف التعليمية
+                {tr("مرحباً بك في اكاديمية الصفصاف التعليمية", "Welcome to Alsafsaf Academy")}
               </h3>
               <p className="text-lg text-muted-foreground max-w-md">
-                انضم إلينا اليوم وابدأ رحلة التعلم مع أفضل المدرسين
+                {tr("انضم إلينا اليوم وابدأ رحلة التعلم مع أفضل المدرسين", "Join us today and start your learning journey with the best teachers")}
               </p>
             </div>
           </div>
@@ -135,15 +138,15 @@ export default function SignUpPage() {
         <div className="w-full max-w-md space-y-6 py-8 mt-8">
           <div className="space-y-2 text-center">
             <h2 className="text-3xl font-bold tracking-tight mt-8">
-              إنشاء حساب جديد
+              {tr("إنشاء حساب جديد", "Create a new account")}
             </h2>
             <p className="text-sm text-muted-foreground">
-              أدخل بياناتك لإنشاء حساب جديد
+              {tr("أدخل بياناتك لإنشاء حساب جديد", "Enter your details to create a new account")}
             </p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">الاسم الكامل</Label>
+              <Label htmlFor="fullName">{tr("الاسم الكامل", "Full name")}</Label>
               <Input
                 id="fullName"
                 name="fullName"
@@ -157,7 +160,7 @@ export default function SignUpPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phoneNumber">رقم الهاتف</Label>
+              <Label htmlFor="phoneNumber">{tr("رقم الهاتف", "Phone number")}</Label>
               <Input
                 id="phoneNumber"
                 name="phoneNumber"
@@ -172,7 +175,7 @@ export default function SignUpPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">كلمة المرور</Label>
+              <Label htmlFor="password">{tr("كلمة المرور", "Password")}</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -189,7 +192,7 @@ export default function SignUpPage() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
+                  className="absolute rtl:left-0 ltr:right-0 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -202,7 +205,7 @@ export default function SignUpPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
+              <Label htmlFor="confirmPassword">{tr("تأكيد كلمة المرور", "Confirm password")}</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
@@ -219,7 +222,7 @@ export default function SignUpPage() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
+                  className="absolute rtl:left-0 ltr:right-0 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
                   {showConfirmPassword ? (
@@ -238,7 +241,7 @@ export default function SignUpPage() {
                 ) : (
                   <X className="h-4 w-4 text-red-500" />
                 )}
-                <span className="text-sm text-muted-foreground">كلمات المرور متطابقة</span>
+                <span className="text-sm text-muted-foreground">{tr("كلمات المرور متطابقة", "Passwords match")}</span>
               </div>
             </div>
 
@@ -250,7 +253,7 @@ export default function SignUpPage() {
                 onExpired={() => setRecaptchaToken(null)}
                 onError={() => {
                   setRecaptchaToken(null);
-                  toast.error("حدث خطأ في التحقق من reCaptcha");
+                  toast.error(tr("حدث خطأ في التحقق من reCaptcha", "An error occurred while verifying reCAPTCHA"));
                 }}
               />
             </div>
@@ -260,16 +263,16 @@ export default function SignUpPage() {
               className="w-full h-10 bg-brand hover:bg-brand/90 text-white"
               disabled={isLoading || !passwordChecks.isValid || !recaptchaToken}
             >
-              {isLoading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
+              {isLoading ? tr("جاري إنشاء الحساب...", "Creating account...") : tr("إنشاء حساب", "Create account")}
             </Button>
           </form>
           <div className="text-center text-sm">
-            <span className="text-muted-foreground">لديك حساب بالفعل؟ </span>
+            <span className="text-muted-foreground">{tr("لديك حساب بالفعل؟ ", "Already have an account? ")}</span>
             <Link 
               href="/sign-in" 
               className="text-primary hover:underline transition-colors"
             >
-              تسجيل الدخول
+              {tr("تسجيل الدخول", "Sign in")}
             </Link>
           </div>
         </div>

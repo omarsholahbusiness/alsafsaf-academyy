@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Eye, EyeOff, UserPlus, ArrowLeft, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import axios, { AxiosError } from "axios";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface CreatedUser {
   id: string;
@@ -20,6 +21,8 @@ interface CreatedUser {
 
 export default function CreateAccountPage() {
   const router = useRouter();
+  const { locale } = useLanguage();
+  const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -53,7 +56,7 @@ export default function CreateAccountPage() {
     setIsLoading(true);
 
     if (!passwordChecks.isValid) {
-      toast.error("كلمات المرور غير متطابقة");
+      toast.error(tr("كلمات المرور غير متطابقة", "Passwords do not match"));
       setIsLoading(false);
       return;
     }
@@ -63,7 +66,7 @@ export default function CreateAccountPage() {
       
       if (response.data.success) {
         setCreatedUser(response.data.user);
-        toast.success("تم إنشاء حساب الطالب بنجاح");
+        toast.success(tr("تم إنشاء حساب الطالب بنجاح", "Student account created successfully"));
         // Reset form
         setFormData({
           fullName: "",
@@ -77,14 +80,14 @@ export default function CreateAccountPage() {
       if (axiosError.response?.status === 400) {
         const errorMessage = axiosError.response.data as string;
         if (errorMessage.includes("Phone number already exists")) {
-          toast.error("رقم الهاتف مسجل مسبقاً");
+          toast.error(tr("رقم الهاتف مسجل مسبقاً", "Phone number is already registered"));
         } else if (errorMessage.includes("Passwords do not match")) {
-          toast.error("كلمات المرور غير متطابقة");
+          toast.error(tr("كلمات المرور غير متطابقة", "Passwords do not match"));
         } else {
-          toast.error("حدث خطأ أثناء إنشاء الحساب");
+          toast.error(tr("حدث خطأ أثناء إنشاء الحساب", "An error occurred while creating account"));
         }
       } else {
-        toast.error("حدث خطأ أثناء إنشاء الحساب");
+        toast.error(tr("حدث خطأ أثناء إنشاء الحساب", "An error occurred while creating account"));
       }
     } finally {
       setIsLoading(false);
@@ -108,11 +111,11 @@ export default function CreateAccountPage() {
           <Button variant="ghost" size="sm" asChild>
             <Link href="/dashboard/admin/users">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              العودة
+              {tr("العودة", "Back")}
             </Link>
           </Button>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            إنشاء حساب طالب جديد
+            {tr("إنشاء حساب طالب جديد", "Create a new student account")}
           </h1>
         </div>
       </div>
@@ -123,27 +126,27 @@ export default function CreateAccountPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-300">
                 <CheckCircle className="h-5 w-5" />
-                تم إنشاء الحساب بنجاح
+                {tr("تم إنشاء الحساب بنجاح", "Account created successfully")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium text-green-700 dark:text-green-300">الاسم الكامل</Label>
+                  <Label className="text-sm font-medium text-green-700 dark:text-green-300">{tr("الاسم الكامل", "Full name")}</Label>
                   <p className="text-green-800 dark:text-green-200 font-semibold">{createdUser.fullName}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-green-700 dark:text-green-300">رقم الهاتف</Label>
+                  <Label className="text-sm font-medium text-green-700 dark:text-green-300">{tr("رقم الهاتف", "Phone number")}</Label>
                   <p className="text-green-800 dark:text-green-200 font-semibold">{createdUser.phoneNumber}</p>
                 </div>
               </div>
               <div className="flex gap-4">
                 <Button onClick={resetForm} className="bg-green-600 hover:bg-green-700 text-white">
-                  إنشاء حساب آخر
+                  {tr("إنشاء حساب آخر", "Create another account")}
                 </Button>
                 <Button variant="outline" asChild>
                   <Link href="/dashboard/admin/users">
-                    عرض جميع المستخدمين
+                    {tr("عرض جميع المستخدمين", "View all users")}
                   </Link>
                 </Button>
               </div>
@@ -154,34 +157,34 @@ export default function CreateAccountPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <UserPlus className="h-5 w-5" />
-                معلومات الطالب
+                {tr("معلومات الطالب", "Student information")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="fullName">الاسم الكامل *</Label>
+                    <Label htmlFor="fullName">{tr("الاسم الكامل", "Full name")} *</Label>
                     <Input
                       id="fullName"
                       name="fullName"
                       type="text"
                       value={formData.fullName}
                       onChange={handleInputChange}
-                      placeholder="أدخل الاسم الكامل"
+                      placeholder={tr("أدخل الاسم الكامل", "Enter full name")}
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phoneNumber">رقم الهاتف *</Label>
+                    <Label htmlFor="phoneNumber">{tr("رقم الهاتف", "Phone number")} *</Label>
                     <Input
                       id="phoneNumber"
                       name="phoneNumber"
                       type="tel"
                       value={formData.phoneNumber}
                       onChange={handleInputChange}
-                      placeholder="أدخل رقم الهاتف"
+                      placeholder={tr("أدخل رقم الهاتف", "Enter phone number")}
                       required
                     />
                   </div>
@@ -189,7 +192,7 @@ export default function CreateAccountPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="password">كلمة المرور *</Label>
+                    <Label htmlFor="password">{tr("كلمة المرور", "Password")} *</Label>
                     <div className="relative">
                       <Input
                         id="password"
@@ -197,14 +200,14 @@ export default function CreateAccountPage() {
                         type={showPassword ? "text" : "password"}
                         value={formData.password}
                         onChange={handleInputChange}
-                        placeholder="أدخل كلمة المرور"
+                        placeholder={tr("أدخل كلمة المرور", "Enter password")}
                         required
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute left-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className="absolute rtl:left-0 ltr:right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
@@ -217,7 +220,7 @@ export default function CreateAccountPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">تأكيد كلمة المرور *</Label>
+                    <Label htmlFor="confirmPassword">{tr("تأكيد كلمة المرور", "Confirm password")} *</Label>
                     <div className="relative">
                       <Input
                         id="confirmPassword"
@@ -225,14 +228,14 @@ export default function CreateAccountPage() {
                         type={showConfirmPassword ? "text" : "password"}
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
-                        placeholder="أكد كلمة المرور"
+                        placeholder={tr("أكد كلمة المرور", "Confirm password")}
                         required
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute left-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className="absolute rtl:left-0 ltr:right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       >
                         {showConfirmPassword ? (
@@ -250,12 +253,12 @@ export default function CreateAccountPage() {
                     {passwordChecks.match ? (
                       <span className="flex items-center gap-1">
                         <span className="w-2 h-2 bg-green-600 rounded-full"></span>
-                        كلمات المرور متطابقة
+                        {tr("كلمات المرور متطابقة", "Passwords match")}
                       </span>
                     ) : (
                       <span className="flex items-center gap-1">
                         <span className="w-2 h-2 bg-red-600 rounded-full"></span>
-                        كلمات المرور غير متطابقة
+                        {tr("كلمات المرور غير متطابقة", "Passwords do not match")}
                       </span>
                     )}
                   </div>
@@ -267,14 +270,14 @@ export default function CreateAccountPage() {
                     disabled={isLoading || !passwordChecks.isValid}
                     className="flex-1 bg-brand hover:bg-brand/90 text-white"
                   >
-                    {isLoading ? "جاري الإنشاء..." : "إنشاء الحساب"}
+                    {isLoading ? tr("جاري الإنشاء...", "Creating...") : tr("إنشاء الحساب", "Create account")}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
                     onClick={resetForm}
                   >
-                    إعادة تعيين
+                    {tr("إعادة تعيين", "Reset")}
                   </Button>
                 </div>
               </form>

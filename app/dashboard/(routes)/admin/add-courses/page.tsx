@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, BookOpen, User, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface User {
     id: string;
@@ -29,6 +30,8 @@ interface Course {
 }
 
 const AddCoursesPage = () => {
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const [users, setUsers] = useState<User[]>([]);
     const [courses, setCourses] = useState<Course[]>([]);
     const [ownedCourses, setOwnedCourses] = useState<Course[]>([]);
@@ -98,7 +101,7 @@ const AddCoursesPage = () => {
 
     const handleAddCourse = async () => {
         if (!selectedUser || !selectedCourse) {
-            toast.error("يرجى اختيار الطالب والكورس");
+            toast.error(tr("يرجى اختيار الطالب والكورس", "Please select student and course"));
             return;
         }
 
@@ -113,17 +116,17 @@ const AddCoursesPage = () => {
             });
 
             if (response.ok) {
-                toast.success("تم إضافة الكورس للطالب بنجاح");
+                toast.success(tr("تم إضافة الكورس للطالب بنجاح", "Course added to student successfully"));
                 setIsDialogOpen(false);
                 setSelectedUser(null);
                 setSelectedCourse("");
             } else {
                 const error = await response.json();
-                toast.error(error.message || "حدث خطأ أثناء إضافة الكورس");
+                toast.error(error.message || tr("حدث خطأ أثناء إضافة الكورس", "An error occurred while adding course"));
             }
         } catch (error) {
             console.error("Error adding course:", error);
-            toast.error("حدث خطأ أثناء إضافة الكورس");
+            toast.error(tr("حدث خطأ أثناء إضافة الكورس", "An error occurred while adding course"));
         } finally {
             setIsAddingCourse(false);
         }
@@ -131,7 +134,7 @@ const AddCoursesPage = () => {
 
     const handleDeleteCourse = async () => {
         if (!selectedUser || !selectedCourse) {
-            toast.error("يرجى اختيار الطالب والكورس");
+            toast.error(tr("يرجى اختيار الطالب والكورس", "Please select student and course"));
             return;
         }
 
@@ -143,18 +146,18 @@ const AddCoursesPage = () => {
                 body: JSON.stringify({ courseId: selectedCourse })
             });
             if (res.ok) {
-                toast.success("تم حذف الكورس من الطالب بنجاح");
+                toast.success(tr("تم حذف الكورس من الطالب بنجاح", "Course removed from student successfully"));
                 setIsDialogOpen(false);
                 setSelectedCourse("");
                 setSelectedUser(null);
                 fetchUsers();
             } else {
                 const data = await res.json().catch(() => ({} as any));
-                toast.error((data as any).error || "حدث خطأ أثناء حذف الكورس");
+                toast.error((data as any).error || tr("حدث خطأ أثناء حذف الكورس", "An error occurred while removing course"));
             }
         } catch (error) {
             console.error("Error deleting course:", error);
-            toast.error("حدث خطأ أثناء حذف الكورس");
+            toast.error(tr("حدث خطأ أثناء حذف الكورس", "An error occurred while removing course"));
         } finally {
             setIsDeletingCourse(false);
         }
@@ -168,7 +171,7 @@ const AddCoursesPage = () => {
     if (loading) {
         return (
             <div className="p-6">
-                <div className="text-center">جاري التحميل...</div>
+                <div className="text-center">{tr("جاري التحميل...", "Loading...")}</div>
             </div>
         );
     }
@@ -177,17 +180,17 @@ const AddCoursesPage = () => {
         <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                    اضافة و حذف الكورسات للطلاب
+                    {tr("اضافة و حذف الكورسات للطلاب", "Add or remove courses for students")}
                 </h1>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>قائمة الطلاب</CardTitle>
-                    <div className="flex items-center space-x-2">
+                    <CardTitle>{tr("قائمة الطلاب", "Students list")}</CardTitle>
+                    <div className="flex items-center rtl:space-x-reverse space-x-2">
                         <Search className="h-4 w-4 text-muted-foreground" />
                         <Input
-                            placeholder="البحث بالاسم أو رقم الهاتف..."
+                            placeholder={tr("البحث بالاسم أو رقم الهاتف...", "Search by name or phone number...")}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="max-w-sm"
@@ -198,11 +201,11 @@ const AddCoursesPage = () => {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="text-right">الاسم</TableHead>
-                                <TableHead className="text-right">رقم الهاتف</TableHead>
-                                <TableHead className="text-right">الدور</TableHead>
-                                <TableHead className="text-right">الكورسات المشتراة</TableHead>
-                                <TableHead className="text-right">الإجراءات</TableHead>
+                                <TableHead className="text-right">{tr("الاسم", "Name")}</TableHead>
+                                <TableHead className="text-right">{tr("رقم الهاتف", "Phone number")}</TableHead>
+                                <TableHead className="text-right">{tr("الدور", "Role")}</TableHead>
+                                <TableHead className="text-right">{tr("الكورسات المشتراة", "Purchased courses")}</TableHead>
+                                <TableHead className="text-right">{tr("الإجراءات", "Actions")}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -214,7 +217,7 @@ const AddCoursesPage = () => {
                                     <TableCell>{user.phoneNumber}</TableCell>
                                     <TableCell>
                                         <Badge variant="secondary">
-                                            طالب
+                                            {tr("طالب", "Student")}
                                         </Badge>
                                     </TableCell>
                                     <TableCell>
@@ -233,7 +236,7 @@ const AddCoursesPage = () => {
                                                 }}
                                             >
                                                 <Plus className="h-4 w-4" />
-                                                إضافة كورس
+                                                {tr("إضافة كورس", "Add course")}
                                             </Button>
                                             <Button 
                                                 size="sm" 
@@ -245,7 +248,7 @@ const AddCoursesPage = () => {
                                                     setIsDialogOpen(true);
                                                 }}
                                             >
-                                                حذف الكورس
+                                                {tr("حذف الكورس", "Remove course")}
                                             </Button>
                                         </div>
                                     </TableCell>
@@ -271,18 +274,18 @@ const AddCoursesPage = () => {
                     <DialogHeader>
                         <DialogTitle>
                             {dialogMode === "add" ? (
-                                <>إضافة كورس لـ {selectedUser?.fullName}</>
+                                <>{tr("إضافة كورس لـ", "Add course to")} {selectedUser?.fullName}</>
                             ) : (
-                                <>حذف كورس من {selectedUser?.fullName}</>
+                                <>{tr("حذف كورس من", "Remove course from")} {selectedUser?.fullName}</>
                             )}
                         </DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">اختر الكورس</label>
+                            <label className="text-sm font-medium">{tr("اختر الكورس", "Select course")}</label>
                             <Select value={selectedCourse} onValueChange={setSelectedCourse}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="اختر كورس..." />
+                                    <SelectValue placeholder={tr("اختر كورس...", "Select a course...")} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {(dialogMode === "delete" ? ownedCourses : courses).map((course) => (
@@ -290,8 +293,8 @@ const AddCoursesPage = () => {
                                             <div className="flex items-center justify-between w-full">
                                                 <span>{course.title}</span>
                                                 {typeof course.price === "number" && (
-                                                    <Badge variant="outline" className="mr-2">
-                                                        {course.price} جنيه
+                                                    <Badge variant="outline" className="rtl:mr-2 ltr:ml-2">
+                                                        {course.price} {tr("جنيه", "EGP")}
                                                     </Badge>
                                                 )}
                                             </div>
@@ -300,7 +303,7 @@ const AddCoursesPage = () => {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="flex justify-end space-x-2">
+                        <div className="flex justify-end rtl:space-x-reverse space-x-2">
                             <Button
                                 variant="outline"
                                 onClick={() => {
@@ -310,14 +313,14 @@ const AddCoursesPage = () => {
                                     setDialogMode("add");
                                 }}
                             >
-                                إلغاء
+                                {tr("إلغاء", "Cancel")}
                             </Button>
                             {dialogMode === "add" ? (
                                 <Button 
                                     onClick={handleAddCourse}
                                     disabled={!selectedCourse || isAddingCourse}
                                 >
-                                    {isAddingCourse ? "جاري الإضافة..." : "إضافة الكورس"}
+                                    {isAddingCourse ? tr("جاري الإضافة...", "Adding...") : tr("إضافة الكورس", "Add course")}
                                 </Button>
                             ) : (
                                 <Button 
@@ -325,7 +328,7 @@ const AddCoursesPage = () => {
                                     onClick={handleDeleteCourse}
                                     disabled={!selectedCourse || isDeletingCourse}
                                 >
-                                    {isDeletingCourse ? "جاري الحذف..." : "حذف الكورس"}
+                                    {isDeletingCourse ? tr("جاري الحذف...", "Removing...") : tr("حذف الكورس", "Remove course")}
                                 </Button>
                             )}
                         </div>

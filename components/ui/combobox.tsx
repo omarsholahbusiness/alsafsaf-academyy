@@ -18,6 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface ComboBoxProps {
     options: {label: string; value: string;}[];
@@ -30,6 +31,8 @@ export const ComboBox = ({
     value,
     onChange,
 }: ComboBoxProps) => {
+  const { locale } = useLanguage();
+  const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
   const [open, setOpen] = React.useState(false)
 
   return (
@@ -43,15 +46,15 @@ export const ComboBox = ({
         >
           {value
             ? options.find((option) => option.value === value)?.label
-            : "اختر الخيار..."}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            : tr("اختر الخيار...", "Select an option...")}
+          <ChevronsUpDown className="rtl:mr-2 ltr:ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0">
         <Command>
-          <CommandInput placeholder="ابحث عن خيار..." />
+          <CommandInput placeholder={tr("ابحث عن خيار...", "Search option...")} />
           <CommandList>
-            <CommandEmpty>لا يوجد خيارات.</CommandEmpty>
+            <CommandEmpty>{tr("لا يوجد خيارات.", "No options found.")}</CommandEmpty>
             <CommandGroup>
               {options.map((option) => (
                 <CommandItem
@@ -64,7 +67,7 @@ export const ComboBox = ({
                 >
                   <Check
                     className={cn(
-                      "mr-2 h-4 w-4",
+                      "rtl:mr-2 ltr:ml-2 h-4 w-4",
                       value === option.value ? "opacity-100" : "opacity-0"
                     )}
                   />

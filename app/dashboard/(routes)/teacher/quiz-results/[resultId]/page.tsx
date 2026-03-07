@@ -9,6 +9,7 @@ import { ArrowLeft, CheckCircle, XCircle, FileText, User, Calendar, Clock } from
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { parseQuizOptions } from "@/lib/utils";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface QuizResult {
     id: string;
@@ -49,6 +50,8 @@ interface QuizAnswer {
 
 const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }> }) => {
     const router = useRouter();
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const [result, setResult] = useState<QuizResult | null>(null);
     const [loading, setLoading] = useState(true);
     
@@ -78,12 +81,12 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
                 };
                 setResult(parsedData);
             } else {
-                toast.error("لم يتم العثور على النتيجة");
+                toast.error(tr("لم يتم العثور على النتيجة", "Result not found"));
                 router.push("/dashboard/teacher/quiz-results");
             }
         } catch (error) {
             console.error("Error fetching quiz result:", error);
-            toast.error("حدث خطأ أثناء تحميل النتيجة");
+            toast.error(tr("حدث خطأ أثناء تحميل النتيجة", "An error occurred while loading the result"));
         } finally {
             setLoading(false);
         }
@@ -102,18 +105,18 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
     };
 
     const getGradeBadge = (percentage: number) => {
-        if (percentage >= 90) return { variant: "default" as const, text: "ممتاز" };
-        if (percentage >= 80) return { variant: "default" as const, text: "جيد جداً" };
-        if (percentage >= 70) return { variant: "secondary" as const, text: "جيد" };
-        if (percentage >= 60) return { variant: "outline" as const, text: "مقبول" };
-        return { variant: "destructive" as const, text: "ضعيف" };
+        if (percentage >= 90) return { variant: "default" as const, text: tr("ممتاز", "Excellent") };
+        if (percentage >= 80) return { variant: "default" as const, text: tr("جيد جداً", "Very good") };
+        if (percentage >= 70) return { variant: "secondary" as const, text: tr("جيد", "Good") };
+        if (percentage >= 60) return { variant: "outline" as const, text: tr("مقبول", "Pass") };
+        return { variant: "destructive" as const, text: tr("ضعيف", "Weak") };
     };
 
     const renderQuestionChoices = (answer: QuizAnswer) => {
         if (answer.question.type === "MULTIPLE_CHOICE" && answer.question.options) {
             return (
                 <div className="space-y-2">
-                    <h5 className="font-medium text-sm">الخيارات:</h5>
+                    <h5 className="font-medium text-sm">{tr("الخيارات:", "Options:")}</h5>
                     <div className="space-y-1">
                         {answer.question.options.map((option: string, optionIndex: number) => (
                             <div
@@ -132,12 +135,12 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
                                     {optionIndex + 1}. {option}
                                     {option === answer.answer && (
                                         <Badge variant={answer.isCorrect ? "default" : "destructive"} className="mr-2">
-                                            إجابة الطالب
+                                            {tr("إجابة الطالب", "Student answer")}
                                         </Badge>
                                     )}
                                     {option === answer.question.correctAnswer && option !== answer.answer && (
                                         <Badge variant="default" className="mr-2">
-                                            الإجابة الصحيحة
+                                            {tr("الإجابة الصحيحة", "Correct answer")}
                                         </Badge>
                                     )}
                                 </span>
@@ -153,7 +156,7 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
     if (loading) {
         return (
             <div className="p-6">
-                <div className="text-center">جاري التحميل...</div>
+                <div className="text-center">{tr("جاري التحميل...", "Loading...")}</div>
             </div>
         );
     }
@@ -161,7 +164,7 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
     if (!result) {
         return (
             <div className="p-6">
-                <div className="text-center">لم يتم العثور على النتيجة</div>
+                <div className="text-center">{tr("لم يتم العثور على النتيجة", "Result not found")}</div>
             </div>
         );
     }
@@ -172,16 +175,16 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
     return (
         <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center rtl:space-x-reverse space-x-4">
                     <Button
                         variant="outline"
                         onClick={() => router.push("/dashboard/teacher/quiz-results")}
                     >
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        العودة
+                        <ArrowLeft className="h-4 w-4 rtl:ml-2 ltr:mr-2 rtl:rotate-0 ltr:rotate-180" />
+                        {tr("العودة", "Back")}
                     </Button>
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                        تفاصيل النتيجة
+                        {tr("تفاصيل النتيجة", "Result details")}
                     </h1>
                 </div>
             </div>
@@ -190,41 +193,41 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
                 <div className="md:col-span-2 space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>معلومات الطالب والاختبار</CardTitle>
+                            <CardTitle>{tr("معلومات الطالب والاختبار", "Student and quiz information")}</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="flex items-center space-x-3">
+                                <div className="flex items-center rtl:space-x-reverse space-x-3">
                                     <User className="h-5 w-5 text-muted-foreground" />
                                     <div>
-                                        <h4 className="font-medium">الطالب</h4>
+                                        <h4 className="font-medium">{tr("الطالب", "Student")}</h4>
                                         <p className="text-sm text-muted-foreground">{result.user.fullName}</p>
                                         <p className="text-xs text-muted-foreground">{result.user.phoneNumber}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center space-x-3">
+                                <div className="flex items-center rtl:space-x-reverse space-x-3">
                                     <FileText className="h-5 w-5 text-muted-foreground" />
                                     <div>
-                                        <h4 className="font-medium">الاختبار</h4>
+                                        <h4 className="font-medium">{tr("الاختبار", "Quiz")}</h4>
                                         <p className="text-sm text-muted-foreground">{result.quiz.title}</p>
                                         <p className="text-xs text-muted-foreground">{result.quiz.course.title}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center space-x-3">
+                                <div className="flex items-center rtl:space-x-reverse space-x-3">
                                     <Calendar className="h-5 w-5 text-muted-foreground" />
                                     <div>
-                                        <h4 className="font-medium">تاريخ التقديم</h4>
+                                        <h4 className="font-medium">{tr("تاريخ التقديم", "Submission date")}</h4>
                                         <p className="text-sm text-muted-foreground">
-                                            {new Date(result.submittedAt).toLocaleDateString("ar-EG")}
+                                            {new Date(result.submittedAt).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US")}
                                         </p>
                                     </div>
                                 </div>
-                                <div className="flex items-center space-x-3">
+                                <div className="flex items-center rtl:space-x-reverse space-x-3">
                                     <Clock className="h-5 w-5 text-muted-foreground" />
                                     <div>
-                                        <h4 className="font-medium">وقت التقديم</h4>
+                                        <h4 className="font-medium">{tr("وقت التقديم", "Submission time")}</h4>
                                         <p className="text-sm text-muted-foreground">
-                                            {new Date(result.submittedAt).toLocaleTimeString("ar-EG")}
+                                            {new Date(result.submittedAt).toLocaleTimeString(locale === "ar" ? "ar-EG" : "en-US")}
                                         </p>
                                     </div>
                                 </div>
@@ -234,25 +237,25 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>النتيجة النهائية</CardTitle>
+                            <CardTitle>{tr("النتيجة النهائية", "Final result")}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="text-center p-4 border rounded-lg">
                                     <div className="text-2xl font-bold">{result.score} / {result.totalPoints}</div>
-                                    <p className="text-sm text-muted-foreground">الدرجة</p>
+                                    <p className="text-sm text-muted-foreground">{tr("الدرجة", "Score")}</p>
                                 </div>
                                 <div className="text-center p-4 border rounded-lg">
                                     <div className={`text-2xl font-bold ${getGradeColor(percentage)}`}>
                                         {percentage}%
                                     </div>
-                                    <p className="text-sm text-muted-foreground">النسبة المئوية</p>
+                                    <p className="text-sm text-muted-foreground">{tr("النسبة المئوية", "Percentage")}</p>
                                 </div>
                                 <div className="text-center p-4 border rounded-lg">
                                     <Badge variant={grade.variant} className="text-lg px-4 py-2">
                                         {grade.text}
                                     </Badge>
-                                    <p className="text-sm text-muted-foreground mt-2">التقييم</p>
+                                    <p className="text-sm text-muted-foreground mt-2">{tr("التقييم", "Evaluation")}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -260,15 +263,15 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>تفاصيل الإجابات</CardTitle>
+                            <CardTitle>{tr("تفاصيل الإجابات", "Answer details")}</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {result.answers.map((answer, index) => (
                                 <div key={answer.id} className="border rounded-lg p-4">
                                     <div className="flex items-center justify-between mb-3">
-                                        <h4 className="font-medium">السؤال {index + 1}</h4>
-                                        <div className="flex items-center space-x-2">
-                                            <Badge variant="outline">{answer.question.points} درجة</Badge>
+                                        <h4 className="font-medium">{tr("السؤال", "Question")} {index + 1}</h4>
+                                        <div className="flex items-center rtl:space-x-reverse space-x-2">
+                                            <Badge variant="outline">{answer.question.points} {tr("درجة", "points")}</Badge>
                                             {answer.isCorrect ? (
                                                 <CheckCircle className="h-5 w-5 text-green-600" />
                                             ) : (
@@ -294,16 +297,16 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
                                     
                                     {answer.question.type === "TRUE_FALSE" && (
                                         <div className="space-y-2">
-                                            <h5 className="font-medium text-sm">الإجابة الصحيحة:</h5>
+                                            <h5 className="font-medium text-sm">{tr("الإجابة الصحيحة:", "Correct answer:")}</h5>
                                             <div className="space-y-1">
                                                 <div className={`p-2 rounded border ${
                                                     answer.question.correctAnswer === "true"
                                                         ? "bg-green-50 border-green-200"
                                                         : "bg-gray-50"
                                                 }`}>
-                                                    <span className="text-sm">صح</span>
+                                                    <span className="text-sm">{tr("صح", "True")}</span>
                                                     {answer.question.correctAnswer === "true" && (
-                                                        <Badge variant="default" className="mr-2">الإجابة الصحيحة</Badge>
+                                                        <Badge variant="default" className="mr-2">{tr("الإجابة الصحيحة", "Correct answer")}</Badge>
                                                     )}
                                                 </div>
                                                 <div className={`p-2 rounded border ${
@@ -311,16 +314,16 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
                                                         ? "bg-green-50 border-green-200"
                                                         : "bg-gray-50"
                                                 }`}>
-                                                    <span className="text-sm">خطأ</span>
+                                                    <span className="text-sm">{tr("خطأ", "False")}</span>
                                                     {answer.question.correctAnswer === "false" && (
-                                                        <Badge variant="default" className="mr-2">الإجابة الصحيحة</Badge>
+                                                        <Badge variant="default" className="mr-2">{tr("الإجابة الصحيحة", "Correct answer")}</Badge>
                                                     )}
                                                 </div>
                                             </div>
                                             <div className="mt-2">
-                                                <span className="text-sm font-medium">إجابة الطالب: </span>
+                                                <span className="text-sm font-medium">{tr("إجابة الطالب", "Student answer")}: </span>
                                                 <Badge variant={answer.isCorrect ? "default" : "destructive"}>
-                                                    {answer.answer === "true" ? "صح" : "خطأ"}
+                                                    {answer.answer === "true" ? tr("صح", "True") : tr("خطأ", "False")}
                                                 </Badge>
                                             </div>
                                         </div>
@@ -328,12 +331,12 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
                                     
                                     {answer.question.type === "SHORT_ANSWER" && (
                                         <div className="space-y-2">
-                                            <h5 className="font-medium text-sm">الإجابة الصحيحة:</h5>
+                                            <h5 className="font-medium text-sm">{tr("الإجابة الصحيحة:", "Correct answer:")}</h5>
                                             <p className="text-sm bg-green-50 p-2 rounded border border-green-200">
                                                 {answer.question.correctAnswer}
                                             </p>
                                             <div className="mt-2">
-                                                <span className="text-sm font-medium">إجابة الطالب: </span>
+                                                <span className="text-sm font-medium">{tr("إجابة الطالب", "Student answer")}: </span>
                                                 <p className={`text-sm p-2 rounded border ${
                                                     answer.isCorrect 
                                                         ? "bg-green-50 border-green-200" 
@@ -347,7 +350,7 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
                                     
                                     <div className="mt-3 pt-3 border-t">
                                         <div className="flex items-center justify-between">
-                                            <span className="text-sm font-medium">الدرجات المكتسبة:</span>
+                                            <span className="text-sm font-medium">{tr("الدرجات المكتسبة", "Earned points")}:</span>
                                             <span className={`text-sm font-medium ${answer.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
                                                 {answer.points} / {answer.question.points}
                                             </span>
@@ -362,31 +365,31 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
                 <div className="space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>ملخص النتيجة</CardTitle>
+                            <CardTitle>{tr("ملخص النتيجة", "Result summary")}</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <span>إجمالي الدرجات</span>
-                                <Badge variant="default">{result.totalPoints} درجة</Badge>
+                                <span>{tr("إجمالي الدرجات", "Total points")}</span>
+                                <Badge variant="default">{result.totalPoints} {tr("درجة", "points")}</Badge>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span>الدرجات المكتسبة</span>
-                                <Badge variant="secondary">{result.score} درجة</Badge>
+                                <span>{tr("الدرجات المكتسبة", "Earned points")}</span>
+                                <Badge variant="secondary">{result.score} {tr("درجة", "points")}</Badge>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span>الدرجات المفقودة</span>
-                                <Badge variant="outline">{result.totalPoints - result.score} درجة</Badge>
+                                <span>{tr("الدرجات المفقودة", "Missing points")}</span>
+                                <Badge variant="outline">{result.totalPoints - result.score} {tr("درجة", "points")}</Badge>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span>عدد الأسئلة الصحيحة</span>
+                                <span>{tr("عدد الأسئلة الصحيحة", "Correct questions count")}</span>
                                 <Badge variant="default">
-                                    {result.answers.filter(a => a.isCorrect).length} سؤال
+                                    {result.answers.filter(a => a.isCorrect).length} {tr("سؤال", "questions")}
                                 </Badge>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span>عدد الأسئلة الخاطئة</span>
+                                <span>{tr("عدد الأسئلة الخاطئة", "Incorrect questions count")}</span>
                                 <Badge variant="destructive">
-                                    {result.answers.filter(a => !a.isCorrect).length} سؤال
+                                    {result.answers.filter(a => !a.isCorrect).length} {tr("سؤال", "questions")}
                                 </Badge>
                             </div>
                         </CardContent>
@@ -394,7 +397,7 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>الإجراءات</CardTitle>
+                            <CardTitle>{tr("الإجراءات", "Actions")}</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-2">
                             <Button
@@ -402,14 +405,14 @@ const QuizResultDetailPage = ({ params }: { params: Promise<{ resultId: string }
                                 variant="outline"
                                 onClick={() => router.push(`/dashboard/teacher/quiz-results?quizId=${result.quizId}`)}
                             >
-                                عرض جميع نتائج هذا الاختبار
+                                {tr("عرض جميع نتائج هذا الاختبار", "View all results for this quiz")}
                             </Button>
                             <Button
                                 className="w-full"
                                 variant="outline"
                                 onClick={() => router.push(`/dashboard/teacher/quizzes/${result.quizId}`)}
                             >
-                                عرض تفاصيل الاختبار
+                                {tr("عرض تفاصيل الاختبار", "View quiz details")}
                             </Button>
                         </CardContent>
                     </Card>

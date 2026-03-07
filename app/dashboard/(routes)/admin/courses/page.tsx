@@ -7,8 +7,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { cookies } from "next/headers";
+import { normalizeLocale } from "@/lib/i18n";
 
 const AdminCoursesPage = async () => {
+  const cookieStore = await cookies();
+  const locale = normalizeLocale(cookieStore.get("site_locale")?.value);
+  const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
+
   const { userId, user } = await auth();
   if (!userId) return redirect("/");
 
@@ -48,11 +54,11 @@ const AdminCoursesPage = async () => {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">كل الكورسات</h1>
+        <h1 className="text-2xl font-bold">{tr("كل الكورسات", "All courses")}</h1>
         <Link href="/dashboard/admin/courses/create">
           <Button className="bg-brand hover:bg-brand/90 text-white">
-            <PlusCircle className="h-4 w-4 mr-2" />
-            إنشاء كورس جديدة
+            <PlusCircle className="h-4 w-4 rtl:ml-2 ltr:mr-2" />
+            {tr("إنشاء كورس جديدة", "Create new course")}
           </Button>
         </Link>
       </div>
@@ -62,14 +68,14 @@ const AdminCoursesPage = async () => {
           <AlertCircle className="h-4 w-4 text-orange-600" />
           <AlertDescription className="text-orange-800">
             <div className="mb-2">
-              <strong>لنشر الكورسات على الصفحة الرئيسية، تحتاج إلى:</strong>
+              <strong>{tr("لنشر الكورسات على الصفحة الرئيسية، تحتاج إلى:", "To publish courses on the homepage, you need to:")}</strong>
             </div>
             <ul className="list-disc list-inside space-y-1 text-sm">
-              <li>إضافة عنوان للكورس</li>
-              <li>إضافة وصف للكورس</li>
-              <li>إضافة صورة للكورس</li>
-              <li>إضافة فصل واحد على الأقل ونشره</li>
-              <li>النقر على زر "نشر" في صفحة إعدادات الكورس</li>
+              <li>{tr("إضافة عنوان للكورس", "Add a course title")}</li>
+              <li>{tr("إضافة وصف للكورس", "Add a course description")}</li>
+              <li>{tr("إضافة صورة للكورس", "Add a course image")}</li>
+              <li>{tr("إضافة فصل واحد على الأقل ونشره", "Add at least one chapter and publish it")}</li>
+              <li>{tr("النقر على زر \"نشر\" في صفحة إعدادات الكورس", "Click the \"Publish\" button in course settings")}</li>
             </ul>
           </AlertDescription>
         </Alert>

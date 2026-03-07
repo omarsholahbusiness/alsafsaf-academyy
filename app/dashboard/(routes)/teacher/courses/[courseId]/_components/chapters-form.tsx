@@ -10,6 +10,7 @@ import axios from "axios";
 import { ChaptersList } from "./chapters-list";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface ChaptersFormProps {
     initialData: Course & { chapters: Chapter[] };
@@ -20,6 +21,8 @@ export const ChaptersForm = ({
     initialData,
     courseId
 }: ChaptersFormProps) => {
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const [isCreating, setIsCreating] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
     const [title, setTitle] = useState("");
@@ -30,12 +33,12 @@ export const ChaptersForm = ({
         try {
             setIsUpdating(true);
             await axios.post(`/api/courses/${courseId}/chapters`, { title });
-            toast.success("تم انشاء الفصل");
+            toast.success(tr("تم انشاء الفصل", "Chapter created"));
             setTitle("");
             setIsCreating(false);
             router.refresh();
         } catch {
-            toast.error("حدث خطأ");
+            toast.error(tr("حدث خطأ", "Something went wrong"));
         } finally {
             setIsUpdating(false);
         }
@@ -45,10 +48,10 @@ export const ChaptersForm = ({
         try {
             setIsUpdating(true);
             await axios.delete(`/api/courses/${courseId}/chapters/${id}`);
-            toast.success("تم حذف الفصل");
+            toast.success(tr("تم حذف الفصل", "Chapter deleted"));
             router.refresh();
         } catch {
-            toast.error("حدث خطأ");
+            toast.error(tr("حدث خطأ", "Something went wrong"));
         } finally {
             setIsUpdating(false);
         }
@@ -60,10 +63,10 @@ export const ChaptersForm = ({
             await axios.put(`/api/courses/${courseId}/chapters/reorder`, {
                 list: updateData
             });
-            toast.success("تم ترتيب الفصول");
+            toast.success(tr("تم ترتيب الفصول", "Chapters reordered"));
             router.refresh();
         } catch {
-            toast.error("حدث خطأ");
+            toast.error(tr("حدث خطأ", "Something went wrong"));
         } finally {
             setIsUpdating(false);
         }
@@ -81,14 +84,14 @@ export const ChaptersForm = ({
                 </div>
             )}
             <div className="font-medium flex items-center justify-between">
-                الفصول
+                {tr("الفصول", "Chapters")}
                 <Button onClick={() => setIsCreating((current) => !current)} variant="ghost">
                     {isCreating ? (
-                        <>إلغاء</>
+                        <>{tr("إلغاء", "Cancel")}</>
                     ) : (
                         <>
-                            <PlusCircle className="h-4 w-4 mr-2" />
-                            إضافة فصل
+                            <PlusCircle className="h-4 w-4 rtl:mr-2 ltr:ml-2" />
+                            {tr("إضافة فصل", "Add chapter")}
                         </>
                     )}
                 </Button>
@@ -97,7 +100,7 @@ export const ChaptersForm = ({
                 <div className="mt-4 space-y-4">
                     <Input
                         disabled={isUpdating}
-                        placeholder="e.g. 'المقدمة في الكورس'"
+                        placeholder={tr("مثال: مقدمة الكورس", "e.g. Course introduction")}
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                     />
@@ -106,7 +109,7 @@ export const ChaptersForm = ({
                         disabled={!title || isUpdating}
                         type="button"
                     >
-                        انشاء
+                        {tr("انشاء", "Create")}
                     </Button>
                 </div>
             )}
@@ -115,7 +118,7 @@ export const ChaptersForm = ({
                     "text-sm mt-2",
                     !initialData.chapters.length && "text-muted-foreground italic"
                 )}>
-                    {!initialData.chapters.length && "لا يوجد فصول"}
+                    {!initialData.chapters.length && tr("لا يوجد فصول", "No chapters")}
                     <ChaptersList
                         onEdit={onEdit}
                         onDelete={onDelete}
@@ -126,7 +129,7 @@ export const ChaptersForm = ({
             )}
             {!isCreating && initialData.chapters.length > 0 && (
                 <p className="text-xs text-muted-foreground mt-4">
-                    قم بالسحب والإفلات لترتيب الفصول
+                    {tr("قم بالسحب والإفلات لترتيب الفصول", "Drag and drop to reorder chapters")}
                 </p>
             )}
         </div>

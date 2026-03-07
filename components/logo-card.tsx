@@ -11,9 +11,9 @@ const sizeClasses: Record<
   { card: string; logo: string; imageSize: number }
 > = {
   default: {
-    card: "h-[9rem] min-w-[9rem] px-3 py-2",
-    logo: "w-[7.5rem] h-[7.5rem]",
-    imageSize: 160,
+    card: "h-[9.5rem] min-w-[9.5rem] px-3 py-2",
+    logo: "w-[8rem] h-[8rem]",
+    imageSize: 176,
   },
   medium: {
     card: "h-[7.5rem] min-w-[7.5rem] px-2.5 py-1.5",
@@ -43,7 +43,7 @@ export const LogoCard = ({
   const cardContent = (
     <div
       className={cn(
-        "bg-white rounded-xl shadow-md border border-border/50 flex items-center justify-center overflow-visible",
+        "relative z-[60] bg-white rounded-xl shadow-md border border-border/50 flex items-center justify-center overflow-visible",
         card,
         className
       )}

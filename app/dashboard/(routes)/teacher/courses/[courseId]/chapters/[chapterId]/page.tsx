@@ -7,12 +7,18 @@ import Link from "next/link";
 import { ArrowLeft, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { IconBadge } from "@/components/icon-badge";
+import { cookies } from "next/headers";
+import { normalizeLocale } from "@/lib/i18n";
 
 export default async function ChapterPage({
     params,
 }: {
     params: Promise<{ courseId: string; chapterId: string }>
 }) {
+    const cookieStore = await cookies();
+    const locale = normalizeLocale(cookieStore.get("site_locale")?.value);
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
+
     const resolvedParams = await params;
     const { courseId, chapterId } = resolvedParams;
 
@@ -63,15 +69,15 @@ export default async function ChapterPage({
                         }
                     >
                         <Button variant="ghost" className="mb-4">
-                            <ArrowLeft className="h-4 w-4 mr-2" />
-                            الرجوع إلى إعدادات الكورس
+                            <ArrowLeft className="h-4 w-4 rtl:ml-2 ltr:mr-2" />
+                            {tr("الرجوع إلى إعدادات الكورس", "Back to course setup")}
                         </Button>
                     </Link>
                     <h1 className="text-2xl font-medium">
-                        إعدادات الفصل
+                        {tr("إعدادات الفصل", "Chapter setup")}
                     </h1>
                     <span className="text-sm text-muted-foreground">
-                        أكمل جميع الحقول {completionText}
+                        {tr("أكمل جميع الحقول", "Complete all fields")} {completionText}
                     </span>
                 </div>
             </div>
@@ -88,7 +94,7 @@ export default async function ChapterPage({
                         <div className="flex items-center gap-x-2">
                             <IconBadge icon={Video} />
                             <h2 className="text-xl">
-                                إضافة فيديو
+                                {tr("إضافة فيديو", "Add video")}
                             </h2>
                         </div>
                         <VideoForm

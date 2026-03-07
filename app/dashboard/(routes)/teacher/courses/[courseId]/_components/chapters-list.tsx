@@ -6,6 +6,7 @@ import { Grip, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Trash2 } from "lucide-react";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface ChaptersListProps {
     items: Chapter[];
@@ -20,6 +21,8 @@ export const ChaptersList = ({
     onEdit,
     onDelete
 }: ChaptersListProps) => {
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const onDragEnd = (result: DropResult) => {
         if (!result.destination) return;
 
@@ -67,10 +70,10 @@ export const ChaptersList = ({
                                         <div className="flex-1 px-2">
                                             {chapter.title}
                                         </div>
-                                        <div className="ml-auto pr-2 flex items-center gap-x-2">
+                                        <div className="rtl:mr-auto ltr:ml-auto rtl:pl-2 ltr:pr-2 flex items-center gap-x-2">
                                             {chapter.isFree && (
                                                 <Badge>
-                                                    مجاني
+                                                    {tr("مجاني", "Free")}
                                                 </Badge>
                                             )}
                                             <Badge
@@ -79,7 +82,7 @@ export const ChaptersList = ({
                                                     chapter.isPublished && "bg-primary text-primary-foreground"
                                                 )}
                                             >
-                                                {chapter.isPublished ? "تم النشر" : "مسودة"}
+                                                {chapter.isPublished ? tr("تم النشر", "Published") : tr("مسودة", "Draft")}
                                             </Badge>
                                             <button
                                                 onClick={() => onEdit(chapter.id)}

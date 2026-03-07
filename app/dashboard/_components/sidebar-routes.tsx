@@ -1,23 +1,24 @@
 "use client";
 
-import { BarChart, Compass, Layout, List, Wallet, Shield, Users, Eye, TrendingUp, BookOpen, FileText, Award, PlusSquare, Key, Ticket } from "lucide-react";
+import { BarChart, Compass, Layout, List, Wallet, Shield, Users, Eye, TrendingUp, BookOpen, FileText, Award, Key, Ticket } from "lucide-react";
 import { SidebarItem } from "./sidebar-item";
 import { usePathname } from "next/navigation";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 const guestRoutes = [
     {
         icon: Layout,
-        label: "لوحة التحكم",
+        label: "sidebar.guest.dashboard",
         href: "/dashboard",
     },
     {
         icon: Compass,
-        label: "الكورسات",
+        label: "sidebar.guest.courses",
         href: "/dashboard/search",
     },
     {
         icon: Wallet,
-        label: "الرصيد",
+        label: "sidebar.guest.balance",
         href: "/dashboard/balance",
     },
 ];
@@ -25,52 +26,52 @@ const guestRoutes = [
 const teacherRoutes = [
     {
         icon: List,
-        label: "الكورسات",
+        label: "sidebar.teacher.courses",
         href: "/dashboard/teacher/courses",
     },
     {
         icon: FileText,
-        label: "الاختبارات",
+        label: "sidebar.teacher.quizzes",
         href: "/dashboard/teacher/quizzes",
     },
     {
         icon: Award,
-        label: "الدرجات",
+        label: "sidebar.teacher.grades",
         href: "/dashboard/teacher/grades",
     },
     {
         icon: BarChart,
-        label: "الاحصائيات",
+        label: "sidebar.teacher.analytics",
         href: "/dashboard/teacher/analytics",
     },
     {
         icon: Users,
-        label: "إدارة الطلاب",
+        label: "sidebar.teacher.manageStudents",
         href: "/dashboard/teacher/users",
     },
     {
         icon: Wallet,
-        label: "إدارة الأرصدة",
+        label: "sidebar.teacher.manageBalances",
         href: "/dashboard/teacher/balances",
     },
     {
         icon: BookOpen,
-        label: "اضافة و حذف الكورسات",
+        label: "sidebar.teacher.manageCourses",
         href: "/dashboard/teacher/add-courses",
     },
     {
         icon: Key,
-        label: "كلمات المرور",
+        label: "sidebar.teacher.passwords",
         href: "/dashboard/teacher/passwords",
     },
     {
         icon: Ticket,
-        label: "الاكواد",
+        label: "sidebar.teacher.codes",
         href: "/dashboard/teacher/codes",
     },
     {
         icon: Shield,
-        label: "إنشاء حساب طالب",
+        label: "sidebar.teacher.createStudentAccount",
         href: "/dashboard/teacher/create-account",
     },
 ];
@@ -78,57 +79,61 @@ const teacherRoutes = [
 const adminRoutes = [
     {
         icon: Users,
-        label: "إدارة المستخدمين",
+        label: "sidebar.admin.manageUsers",
         href: "/dashboard/admin/users",
     },
     {
         icon: List,
-        label: "الكورسات",
+        label: "sidebar.admin.courses",
         href: "/dashboard/admin/courses",
     },
     {
         icon: FileText,
-        label: "الاختبارات",
+        label: "sidebar.admin.quizzes",
         href: "/dashboard/admin/quizzes",
     },
     {
         icon: Shield,
-        label: "إنشاء حساب طالب",
+        label: "sidebar.admin.createStudentAccount",
         href: "/dashboard/admin/create-account",
     },
     {
         icon: Eye,
-        label: "كلمات المرور",
+        label: "sidebar.admin.passwords",
         href: "/dashboard/admin/passwords",
     },
     {
         icon: Wallet,
-        label: "إدارة الأرصدة",
+        label: "sidebar.admin.manageBalances",
         href: "/dashboard/admin/balances",
     },
     {
         icon: TrendingUp,
-        label: "تقدم الطلاب",
+        label: "sidebar.admin.studentProgress",
         href: "/dashboard/admin/progress",
     },
     {
         icon: BookOpen,
-        label: "اضافة و حذف الكورسات",
+        label: "sidebar.admin.manageCourses",
         href: "/dashboard/admin/add-courses",
     },
     {
         icon: Ticket,
-        label: "الاكواد",
+        label: "sidebar.admin.codes",
         href: "/dashboard/admin/codes",
     },
 ];
 
 export const SidebarRoutes = ({ closeOnClick = false }: { closeOnClick?: boolean }) => {
     const pathName = usePathname();
+    const { t } = useLanguage();
 
     const isTeacherPage = pathName?.includes("/dashboard/teacher");
     const isAdminPage = pathName?.includes("/dashboard/admin");
-    const routes = isAdminPage ? adminRoutes : isTeacherPage ? teacherRoutes : guestRoutes;
+    const routes = (isAdminPage ? adminRoutes : isTeacherPage ? teacherRoutes : guestRoutes).map((route) => ({
+        ...route,
+        label: t(route.label),
+    }));
 
     return (
         <div className="flex flex-col w-full pt-0">

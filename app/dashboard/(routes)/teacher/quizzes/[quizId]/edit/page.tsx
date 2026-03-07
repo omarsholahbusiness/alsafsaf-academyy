@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useRouter, useParams, usePathname } from "next/navigation";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { UploadDropzone } from "@/lib/uploadthing";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface Course {
     id: string;
@@ -63,6 +64,8 @@ interface CourseItem {
 }
 
 const EditQuizPage = () => {
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const router = useRouter();
     const params = useParams();
     const quizId = params.quizId as string;
@@ -142,12 +145,12 @@ const EditQuizPage = () => {
                 setSelectedPosition(quiz.position);
                 await fetchCourseItems(quiz.courseId);
             } else {
-                toast.error("حدث خطأ أثناء تحميل الاختبار");
+                toast.error(tr("حدث خطأ أثناء تحميل الاختبار", "An error occurred while loading quiz"));
                 router.push(dashboardPath);
             }
         } catch (error) {
             console.error("Error fetching quiz:", error);
-            toast.error("حدث خطأ أثناء تحميل الاختبار");
+            toast.error(tr("حدث خطأ أثناء تحميل الاختبار", "An error occurred while loading quiz"));
             router.push(dashboardPath);
         } finally {
             setIsLoadingQuiz(false);
@@ -231,7 +234,7 @@ const EditQuizPage = () => {
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
         if (!SpeechRecognition) {
-            toast.error("المتصفح لا يدعم الإملاء الصوتي");
+            toast.error(tr("المتصفح لا يدعم الإملاء الصوتي", "Speech dictation is not supported in this browser"));
             return;
         }
 
@@ -246,7 +249,7 @@ const EditQuizPage = () => {
 
         try {
             const recognition = new SpeechRecognition();
-            recognition.lang = "ar-SA";
+            recognition.lang = locale === "ar" ? "ar-SA" : "en-US";
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
 
@@ -272,7 +275,7 @@ const EditQuizPage = () => {
 
             recognition.onerror = (event: any) => {
                 console.error("[SPEECH_RECOGNITION_ERROR]", event.error);
-                toast.error("تعذر التعرف على الصوت");
+                toast.error(tr("تعذر التعرف على الصوت", "Could not recognize speech"));
             };
 
             recognition.onend = () => {
@@ -284,7 +287,7 @@ const EditQuizPage = () => {
             recognition.start();
         } catch (error) {
             console.error("[SPEECH_RECOGNITION]", error);
-            toast.error("تعذر بدء التسجيل الصوتي");
+            toast.error(tr("تعذر بدء التسجيل الصوتي", "Could not start voice recording"));
             stopListening();
         }
     };
@@ -292,7 +295,7 @@ const EditQuizPage = () => {
     const handleUpdateQuiz = async () => {
         stopListening();
         if (!selectedCourse || !quizTitle.trim()) {
-            toast.error("يرجى إدخال جميع البيانات المطلوبة");
+            toast.error(tr("يرجى إدخال جميع البيانات المطلوبة", "Please enter all required data"));
             return;
         }
 
@@ -304,7 +307,9 @@ const EditQuizPage = () => {
             
             // Validate question text
             if (!question.text || question.text.trim() === "") {
-                validationErrors.push(`السؤال ${i + 1}: نص السؤال مطلوب`);
+                validationErrors.push(
+                    tr(`السؤال ${i + 1}: نص السؤال مطلوب`, `Question ${i + 1}: question text is required`)
+                );
                 continue;
             }
 
@@ -312,30 +317,40 @@ const EditQuizPage = () => {
             if (question.type === "MULTIPLE_CHOICE") {
                 const validOptions = question.options?.filter(option => option.trim() !== "") || [];
                 if (validOptions.length === 0) {
-                    validationErrors.push(`السؤال ${i + 1}: يجب إضافة خيار واحد على الأقل`);
+                    validationErrors.push(
+                        tr(`السؤال ${i + 1}: يجب إضافة خيار واحد على الأقل`, `Question ${i + 1}: add at least one option`)
+                    );
                     continue;
                 }
                 
                 // Check if correct answer index is valid
                 if (typeof question.correctAnswer !== 'number' || question.correctAnswer < 0 || question.correctAnswer >= validOptions.length) {
-                    validationErrors.push(`السؤال ${i + 1}: يجب اختيار إجابة صحيحة`);
+                    validationErrors.push(
+                        tr(`السؤال ${i + 1}: يجب اختيار إجابة صحيحة`, `Question ${i + 1}: select a correct answer`)
+                    );
                     continue;
                 }
             } else if (question.type === "TRUE_FALSE") {
                 if (!question.correctAnswer || (question.correctAnswer !== "true" && question.correctAnswer !== "false")) {
-                    validationErrors.push(`السؤال ${i + 1}: يجب اختيار إجابة صحيحة`);
+                    validationErrors.push(
+                        tr(`السؤال ${i + 1}: يجب اختيار إجابة صحيحة`, `Question ${i + 1}: select a correct answer`)
+                    );
                     continue;
                 }
             } else if (question.type === "SHORT_ANSWER") {
                 if (!question.correctAnswer || question.correctAnswer.toString().trim() === "") {
-                    validationErrors.push(`السؤال ${i + 1}: الإجابة الصحيحة مطلوبة`);
+                    validationErrors.push(
+                        tr(`السؤال ${i + 1}: الإجابة الصحيحة مطلوبة`, `Question ${i + 1}: correct answer is required`)
+                    );
                     continue;
                 }
             }
 
             // Check if points are valid
             if (question.points <= 0) {
-                validationErrors.push(`السؤال ${i + 1}: الدرجات يجب أن تكون أكبر من صفر`);
+                validationErrors.push(
+                    tr(`السؤال ${i + 1}: الدرجات يجب أن تكون أكبر من صفر`, `Question ${i + 1}: points must be greater than zero`)
+                );
                 continue;
             }
         }
@@ -347,7 +362,7 @@ const EditQuizPage = () => {
 
         // Additional validation: ensure no questions are empty
         if (questions.length === 0) {
-            toast.error("يجب إضافة سؤال واحد على الأقل");
+            toast.error(tr("يجب إضافة سؤال واحد على الأقل", "You must add at least one question"));
             return;
         }
 
@@ -383,15 +398,15 @@ const EditQuizPage = () => {
             });
 
             if (response.ok) {
-                toast.success("تم تحديث الاختبار بنجاح");
+                toast.success(tr("تم تحديث الاختبار بنجاح", "Quiz updated successfully"));
                 router.push(dashboardPath);
             } else {
                 const error = await response.json();
-                toast.error(error.message || "حدث خطأ أثناء تحديث الاختبار");
+                toast.error(error.message || tr("حدث خطأ أثناء تحديث الاختبار", "An error occurred while updating quiz"));
             }
         } catch (error) {
             console.error("Error updating quiz:", error);
-            toast.error("حدث خطأ أثناء تحديث الاختبار");
+            toast.error(tr("حدث خطأ أثناء تحديث الاختبار", "An error occurred while updating quiz"));
         } finally {
             setIsUpdatingQuiz(false);
         }
@@ -459,13 +474,13 @@ const EditQuizPage = () => {
                 });
 
                 if (response.ok) {
-                    toast.success("تم ترتيب الاختبار بنجاح");
+                    toast.success(tr("تم ترتيب الاختبار بنجاح", "Quiz reordered successfully"));
                 } else {
-                    toast.error("حدث خطأ أثناء ترتيب الاختبار");
+                    toast.error(tr("حدث خطأ أثناء ترتيب الاختبار", "An error occurred while reordering quiz"));
                 }
             } catch (error) {
                 console.error("Error reordering quiz:", error);
-                toast.error("حدث خطأ أثناء ترتيب الاختبار");
+                toast.error(tr("حدث خطأ أثناء ترتيب الاختبار", "An error occurred while reordering quiz"));
             }
         }
         // For other items, we don't want to reorder them, so we ignore the drag
@@ -475,7 +490,7 @@ const EditQuizPage = () => {
     if (isLoadingQuiz) {
         return (
             <div className="p-6">
-                <div className="text-center">جاري التحميل...</div>
+                <div className="text-center">{tr("جاري التحميل...", "Loading...")}</div>
             </div>
         );
     }
@@ -484,17 +499,17 @@ const EditQuizPage = () => {
         <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                    تعديل الاختبار
+                    {tr("تعديل الاختبار", "Edit quiz")}
                 </h1>
                 <Button variant="outline" onClick={() => router.push(dashboardPath)}>
-                    العودة إلى الاختبارات
+                    {tr("العودة إلى الاختبارات", "Back to quizzes")}
                 </Button>
             </div>
 
             <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label>اختر الكورس</Label>
+                        <Label>{tr("اختر الكورس", "Select course")}</Label>
                         <Select value={selectedCourse} onValueChange={(value) => {
                             setSelectedCourse(value);
                             // Clear previous data immediately
@@ -505,7 +520,7 @@ const EditQuizPage = () => {
                             }
                         }}>
                             <SelectTrigger>
-                                <SelectValue placeholder="اختر كورس..." />
+                                <SelectValue placeholder={tr("اختر كورس...", "Select a course...")} />
                             </SelectTrigger>
                             <SelectContent>
                                 {courses.map((course) => (
@@ -517,11 +532,11 @@ const EditQuizPage = () => {
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label>عنوان الاختبار</Label>
+                        <Label>{tr("عنوان الاختبار", "Quiz title")}</Label>
                         <Input
                             value={quizTitle}
                             onChange={(e) => setQuizTitle(e.target.value)}
-                            placeholder="أدخل عنوان الاختبار"
+                            placeholder={tr("أدخل عنوان الاختبار", "Enter quiz title")}
                         />
                     </div>
                 </div>
@@ -529,18 +544,18 @@ const EditQuizPage = () => {
                 {selectedCourse && (
                     <Card>
                         <CardHeader>
-                            <CardTitle>ترتيب الاختبار في الكورس</CardTitle>
+                            <CardTitle>{tr("ترتيب الاختبار في الكورس", "Quiz position in course")}</CardTitle>
                             <p className="text-sm text-muted-foreground">
-                                اسحب الاختبار إلى الموقع المطلوب بين الفصول والاختبارات الموجودة
+                                {tr("اسحب الاختبار إلى الموقع المطلوب بين الفصول والاختبارات الموجودة", "Drag the quiz to the desired position among existing chapters and quizzes")}
                             </p>
                             <p className="text-sm text-blue-600">
-                                الموقع المحدد: {selectedPosition}
+                                {tr("الموقع المحدد", "Selected position")}: {selectedPosition}
                             </p>
                         </CardHeader>
                         <CardContent>
                             {isLoadingCourseItems ? (
                                 <div className="text-center py-8">
-                                    <div className="text-muted-foreground">جاري تحميل محتوى الكورس...</div>
+                                    <div className="text-muted-foreground">{tr("جاري تحميل محتوى الكورس...", "Loading course content...")}</div>
                                 </div>
                             ) : courseItems.length > 0 ? (
                                 <DragDropContext onDragEnd={handleDragEnd}>
@@ -561,7 +576,7 @@ const EditQuizPage = () => {
                                                                     snapshot.isDragging ? "bg-blue-50" : "bg-white"
                                                                 } ${item.id === quizId ? "border-2 border-dashed border-blue-300 bg-blue-50" : ""}`}
                                                             >
-                                                                <div className="flex items-center space-x-3">
+                                                                <div className="flex items-center rtl:space-x-reverse space-x-3">
                                                                     <div {...provided.dragHandleProps} className={item.id === quizId ? "cursor-grab active:cursor-grabbing" : ""}>
                                                                         <GripVertical className={`h-4 w-4 ${item.id === quizId ? "text-blue-600" : "text-gray-300 cursor-not-allowed"}`} />
                                                                     </div>
@@ -570,12 +585,12 @@ const EditQuizPage = () => {
                                                                             {item.title}
                                                                         </div>
                                                                         <div className={`text-sm ${item.id === quizId ? "text-blue-600" : "text-muted-foreground"}`}>
-                                                                            {item.type === "chapter" ? "فصل" : "اختبار"}
+                                                                            {item.type === "chapter" ? tr("فصل", "Chapter") : tr("اختبار", "Quiz")}
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                                 <Badge variant={item.id === quizId ? "outline" : (item.isPublished ? "default" : "secondary")} className={item.id === quizId ? "border-blue-300 text-blue-700" : ""}>
-                                                                    {item.id === quizId ? "قيد التعديل" : (item.isPublished ? "منشور" : "مسودة")}
+                                                                    {item.id === quizId ? tr("قيد التعديل", "Editing") : (item.isPublished ? tr("منشور", "Published") : tr("مسودة", "Draft"))}
                                                                 </Badge>
                                                             </div>
                                                         )}
@@ -590,18 +605,18 @@ const EditQuizPage = () => {
                             ) : (
                                 <div className="text-center py-8">
                                     <p className="text-muted-foreground mb-4">
-                                        لا توجد فصول أو اختبارات في هذه الكورس. سيتم إضافة الاختبار في الموقع الأول.
+                                        {tr("لا توجد فصول أو اختبارات في هذه الكورس. سيتم إضافة الاختبار في الموقع الأول.", "No chapters or quizzes in this course yet. The quiz will be added in the first position.")}
                                     </p>
                                     <div className="p-3 border-2 border-dashed border-blue-300 rounded-lg bg-blue-50">
-                                        <div className="flex items-center justify-center space-x-3">
+                                        <div className="flex items-center justify-center rtl:space-x-reverse space-x-3">
                                             <div>
                                                 <div className="font-medium text-blue-800">
-                                                    {quizTitle || "اختبار جديد"}
+                                                    {quizTitle || tr("اختبار جديد", "New quiz")}
                                                 </div>
-                                                <div className="text-sm text-blue-600">اختبار</div>
+                                                <div className="text-sm text-blue-600">{tr("اختبار", "Quiz")}</div>
                                             </div>
                                             <Badge variant="outline" className="border-blue-300 text-blue-700">
-                                                قيد التعديل
+                                                {tr("قيد التعديل", "Editing")}
                                             </Badge>
                                         </div>
                                     </div>
@@ -612,31 +627,31 @@ const EditQuizPage = () => {
                 )}
 
                 <div className="space-y-2">
-                    <Label>وصف الاختبار</Label>
+                    <Label>{tr("وصف الاختبار", "Quiz description")}</Label>
                     <Textarea
                         value={quizDescription}
                         onChange={(e) => setQuizDescription(e.target.value)}
-                        placeholder="أدخل وصف الاختبار"
+                        placeholder={tr("أدخل وصف الاختبار", "Enter quiz description")}
                         rows={3}
                     />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label>مدة الاختبار (بالدقائق)</Label>
+                        <Label>{tr("مدة الاختبار (بالدقائق)", "Quiz duration (minutes)")}</Label>
                         <Input
                             type="number"
                             value={quizTimer || ""}
                             onChange={(e) => setQuizTimer(e.target.value ? parseInt(e.target.value) : null)}
-                            placeholder="اترك فارغاً لعدم تحديد مدة"
+                            placeholder={tr("اترك فارغاً لعدم تحديد مدة", "Leave empty for no time limit")}
                             min="1"
                         />
                         <p className="text-sm text-muted-foreground">
-                            اترك الحقل فارغاً إذا كنت لا تريد تحديد مدة للاختبار
+                            {tr("اترك الحقل فارغاً إذا كنت لا تريد تحديد مدة للاختبار", "Leave this field empty if you don't want a quiz time limit")}
                         </p>
                     </div>
                     <div className="space-y-2">
-                        <Label>عدد المحاولات المسموحة</Label>
+                        <Label>{tr("عدد المحاولات المسموحة", "Allowed attempts")}</Label>
                         <Input
                             type="number"
                             value={quizMaxAttempts}
@@ -645,17 +660,17 @@ const EditQuizPage = () => {
                             max="10"
                         />
                         <p className="text-sm text-muted-foreground">
-                            عدد المرات التي يمكن للطالب إعادة الاختبار
+                            {tr("عدد المرات التي يمكن للطالب إعادة الاختبار", "How many times a student can retake this quiz")}
                         </p>
                     </div>
                 </div>
 
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <Label>الأسئلة</Label>
+                        <Label>{tr("الأسئلة", "Questions")}</Label>
                         <Button type="button" variant="outline" onClick={addQuestion}>
-                            <Plus className="h-4 w-4 mr-2" />
-                            إضافة سؤال
+                            <Plus className="h-4 w-4 rtl:mr-2 ltr:ml-2" />
+                            {tr("إضافة سؤال", "Add question")}
                         </Button>
                     </div>
 
@@ -664,7 +679,7 @@ const EditQuizPage = () => {
                             <CardHeader>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <CardTitle className="text-lg">السؤال {index + 1}</CardTitle>
+                                        <CardTitle className="text-lg">{tr("السؤال", "Question")} {index + 1}</CardTitle>
                                         {(!question.text.trim() || 
                                             (question.type === "MULTIPLE_CHOICE" && 
                                              (!question.options || question.options.filter(opt => opt.trim() !== "").length === 0)) ||
@@ -673,7 +688,7 @@ const EditQuizPage = () => {
                                             (question.type === "SHORT_ANSWER" && 
                                              (typeof question.correctAnswer !== 'string' || question.correctAnswer.trim() === ""))) && (
                                             <Badge variant="destructive" className="text-xs">
-                                                غير مكتمل
+                                                {tr("غير مكتمل", "Incomplete")}
                                             </Badge>
                                         )}
                                     </div>
@@ -690,11 +705,11 @@ const EditQuizPage = () => {
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <Label>نص السؤال</Label>
+                                        <Label>{tr("نص السؤال", "Question text")}</Label>
                                         <div className="flex items-center gap-2">
                                             {listeningQuestionId === question.id && (
                                                 <span className="text-xs text-blue-600">
-                                                    جاري الاستماع...
+                                                    {tr("جاري الاستماع...", "Listening...")}
                                                 </span>
                                             )}
                                             <Button
@@ -707,7 +722,7 @@ const EditQuizPage = () => {
                                             >
                                                 <Mic className="h-4 w-4" />
                                                 <span className="sr-only">
-                                                    {listeningQuestionId === question.id ? "إيقاف التسجيل الصوتي" : "بدء التسجيل الصوتي"}
+                                                    {listeningQuestionId === question.id ? tr("إيقاف التسجيل الصوتي", "Stop voice input") : tr("بدء التسجيل الصوتي", "Start voice input")}
                                                 </span>
                                             </Button>
                                         </div>
@@ -715,12 +730,12 @@ const EditQuizPage = () => {
                                     <Textarea
                                         value={question.text}
                                         onChange={(e) => updateQuestion(index, "text", e.target.value)}
-                                        placeholder="أدخل نص السؤال"
+                                        placeholder={tr("أدخل نص السؤال", "Enter question text")}
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label>صورة السؤال (اختياري)</Label>
+                                    <Label>{tr("صورة السؤال (اختياري)", "Question image (optional)")}</Label>
                                     <div className="space-y-2">
                                         {question.imageUrl ? (
                                             <div className="relative">
@@ -746,12 +761,12 @@ const EditQuizPage = () => {
                                                     onClientUploadComplete={(res) => {
                                                         if (res && res[0]) {
                                                             updateQuestion(index, "imageUrl", res[0].url);
-                                                            toast.success("تم رفع الصورة بنجاح");
+                                                            toast.success(tr("تم رفع الصورة بنجاح", "Image uploaded successfully"));
                                                         }
                                                         setUploadingImages(prev => ({ ...prev, [index]: false }));
                                                     }}
                                                     onUploadError={(error: Error) => {
-                                                        toast.error(`حدث خطأ أثناء رفع الصورة: ${error.message}`);
+                                                        toast.error(`${tr("حدث خطأ أثناء رفع الصورة", "Error uploading image")}: ${error.message}`);
                                                         setUploadingImages(prev => ({ ...prev, [index]: false }));
                                                     }}
                                                     onUploadBegin={() => {
@@ -765,7 +780,7 @@ const EditQuizPage = () => {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label>نوع السؤال</Label>
+                                        <Label>{tr("نوع السؤال", "Question type")}</Label>
                                         <Select
                                             value={question.type}
                                             onValueChange={(value: "MULTIPLE_CHOICE" | "TRUE_FALSE" | "SHORT_ANSWER") =>
@@ -776,14 +791,14 @@ const EditQuizPage = () => {
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="MULTIPLE_CHOICE">اختيار من متعدد</SelectItem>
-                                                <SelectItem value="TRUE_FALSE">صح أو خطأ</SelectItem>
-                                                <SelectItem value="SHORT_ANSWER">إجابة قصيرة</SelectItem>
+                                                <SelectItem value="MULTIPLE_CHOICE">{tr("اختيار من متعدد", "Multiple choice")}</SelectItem>
+                                                <SelectItem value="TRUE_FALSE">{tr("صح أو خطأ", "True/False")}</SelectItem>
+                                                <SelectItem value="SHORT_ANSWER">{tr("إجابة قصيرة", "Short answer")}</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>الدرجات</Label>
+                                        <Label>{tr("الدرجات", "Points")}</Label>
                                         <Input
                                             type="number"
                                             value={question.points}
@@ -795,7 +810,7 @@ const EditQuizPage = () => {
 
                                 {question.type === "MULTIPLE_CHOICE" && (
                                     <div className="space-y-2">
-                                        <Label>الخيارات</Label>
+                                        <Label>{tr("الخيارات", "Options")}</Label>
                                         {(question.options || ["", "", "", ""]).map((option, optionIndex) => (
                                             <div key={optionIndex} className="flex items-center space-x-2">
                                                 <Input
@@ -811,7 +826,7 @@ const EditQuizPage = () => {
                                                             updateQuestion(index, "correctAnswer", optionIndex);
                                                         }
                                                     }}
-                                                    placeholder={`الخيار ${optionIndex + 1}`}
+                                                    placeholder={`${tr("الخيار", "Option")} ${optionIndex + 1}`}
                                                 />
                                                 <input
                                                     type="radio"
@@ -826,17 +841,17 @@ const EditQuizPage = () => {
 
                                 {question.type === "TRUE_FALSE" && (
                                     <div className="space-y-2">
-                                        <Label>الإجابة الصحيحة</Label>
+                                        <Label>{tr("الإجابة الصحيحة", "Correct answer")}</Label>
                                         <Select
                                             value={typeof question.correctAnswer === 'string' ? question.correctAnswer : ''}
                                             onValueChange={(value) => updateQuestion(index, "correctAnswer", value)}
                                         >
                                             <SelectTrigger>
-                                                <SelectValue placeholder="اختر الإجابة الصحيحة" />
+                                                <SelectValue placeholder={tr("اختر الإجابة الصحيحة", "Select correct answer")} />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="true">صح</SelectItem>
-                                                <SelectItem value="false">خطأ</SelectItem>
+                                                <SelectItem value="true">{tr("صح", "True")}</SelectItem>
+                                                <SelectItem value="false">{tr("خطأ", "False")}</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -844,11 +859,11 @@ const EditQuizPage = () => {
 
                                 {question.type === "SHORT_ANSWER" && (
                                     <div className="space-y-2">
-                                        <Label>الإجابة الصحيحة</Label>
+                                        <Label>{tr("الإجابة الصحيحة", "Correct answer")}</Label>
                                         <Input
                                             value={typeof question.correctAnswer === 'string' ? question.correctAnswer : ''}
                                             onChange={(e) => updateQuestion(index, "correctAnswer", e.target.value)}
-                                            placeholder="أدخل الإجابة الصحيحة"
+                                            placeholder={tr("أدخل الإجابة الصحيحة", "Enter correct answer")}
                                         />
                                     </div>
                                 )}
@@ -857,18 +872,18 @@ const EditQuizPage = () => {
                     ))}
                 </div>
 
-                <div className="flex justify-end space-x-2">
+                <div className="flex justify-end rtl:space-x-reverse space-x-2">
                     <Button
                         variant="outline"
                         onClick={() => router.push(dashboardPath)}
                     >
-                        إلغاء
+                        {tr("إلغاء", "Cancel")}
                     </Button>
                     <Button
                         onClick={handleUpdateQuiz}
                         disabled={isUpdatingQuiz || questions.length === 0}
                     >
-                        {isUpdatingQuiz ? "جاري التحديث..." : "تحديث الاختبار"}
+                        {isUpdatingQuiz ? tr("جاري التحديث...", "Updating...") : tr("تحديث الاختبار", "Update quiz")}
                     </Button>
                 </div>
             </div>

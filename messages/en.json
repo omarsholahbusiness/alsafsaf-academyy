@@ -1,0 +1,92 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "logout": "Log out",
+    "logoutLoading": "Logging out...",
+    "backToCourses": "Back to courses",
+    "languageShort": "EN"
+  },
+  "navbar": {
+    "signUp": "Sign up",
+    "signIn": "Sign in",
+    "dashboard": "Dashboard"
+  },
+  "footer": {
+    "whatsapp": "WhatsApp: 01559973722",
+    "rights": "All rights reserved"
+  },
+  "mobileSidebar": {
+    "navigationMenu": "Navigation menu"
+  },
+  "sidebar": {
+    "guest": {
+      "dashboard": "Dashboard",
+      "courses": "Courses",
+      "balance": "Balance"
+    },
+    "teacher": {
+      "courses": "Courses",
+      "quizzes": "Quizzes",
+      "grades": "Grades",
+      "analytics": "Analytics",
+      "manageStudents": "Manage students",
+      "manageBalances": "Manage balances",
+      "manageCourses": "Add and remove courses",
+      "passwords": "Passwords",
+      "codes": "Codes",
+      "createStudentAccount": "Create student account"
+    },
+    "admin": {
+      "manageUsers": "Manage users",
+      "courses": "Courses",
+      "quizzes": "Quizzes",
+      "createStudentAccount": "Create student account",
+      "passwords": "Passwords",
+      "manageBalances": "Manage balances",
+      "studentProgress": "Student progress",
+      "manageCourses": "Add and remove courses",
+      "codes": "Codes"
+    }
+  },
+  "home": {
+    "degree": "PhD in Special Education",
+    "startNow": "Start now",
+    "coursesSectionTitle": "Available courses",
+    "coursesSectionSubtitle": "Explore a variety of premium educational courses",
+    "noCoursesTitle": "No courses are available right now",
+    "noCoursesDescription": "Courses will be added soon. Check this page again to see the latest educational courses.",
+    "earlyAccess": "Register now for early access",
+    "chapterSingle": "chapter",
+    "chapterPlural": "chapters",
+    "quizSingle": "quiz",
+    "quizPlural": "quizzes",
+    "viewCourse": "View course",
+    "testimonialsTitle": "Student testimonials",
+    "testimonialsSubtitle": "What our students say about their experience",
+    "testimonial1Name": "Essam Osama",
+    "testimonial1Grade": "First secondary grade",
+    "testimonial1Text": "A great experience with Alsafsaf Academy; the content is rich and the explanation is simple.",
+    "testimonial2Name": "Saif Tarek",
+    "testimonial2Grade": "Second secondary grade",
+    "testimonial2Text": "The curriculum is very organized and the teaching is clear. It helped me understand better.",
+    "testimonial3Name": "Omar Gamal",
+    "testimonial3Grade": "First secondary grade",
+    "testimonial3Text": "The best learning platform I have used. Rich content and clear explanation.",
+    "featuresTitle": "Platform features",
+    "featuresSubtitle": "Discover what makes our platform special",
+    "featureQualityTitle": "High quality",
+    "featureQualityText": "A specialized platform for teaching Arabic to non-native speakers.",
+    "featureCommunityTitle": "Active community",
+    "featureCommunityText": "Join a community of active, high-achieving students.",
+    "featureCertificatesTitle": "Certificates",
+    "featureCertificatesText": "Get certificates of achievement when you complete courses.",
+    "ctaTitle": "Start your learning journey with us",
+    "ctaSubtitle": "Join us today and begin your path to success",
+    "registerNow": "Register now",
+    "whatsappAlt": "WhatsApp",
+    "teacherImageAlt": "Dr.Awadia Nasr",
+    "graduationHatAlt": "Graduation hat",
+    "medalAlt": "Medal",
+    "notebookAlt": "Notebook"
+  }
+}

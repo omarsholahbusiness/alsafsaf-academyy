@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
-import { ar } from "date-fns/locale";
 import { toast } from "sonner";
+import { useLanguage } from "@/components/providers/rtl-provider";
+import { getDateFnsLocale } from "@/lib/i18n";
 import {
     Dialog,
     DialogContent,
@@ -63,6 +64,17 @@ interface EditUserData {
 }
 
 const UsersPage = () => {
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
+    const roleLabel = (role: string) =>
+        role === "TEACHER"
+            ? tr("معلم", "Teacher")
+            : role === "ADMIN"
+              ? tr("مشرف", "Admin")
+              : role === "USER"
+                ? tr("طالب", "Student")
+                : role;
+    const dateLocale = getDateFnsLocale(locale);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -89,7 +101,7 @@ const UsersPage = () => {
             }
         } catch (error) {
             console.error("Error fetching users:", error);
-            toast.error("حدث خطأ في تحميل المستخدمين");
+            toast.error(tr("حدث خطأ في تحميل المستخدمين", "An error occurred while loading users"));
         } finally {
             setLoading(false);
         }
@@ -119,17 +131,17 @@ const UsersPage = () => {
             });
 
             if (response.ok) {
-                toast.success("تم تحديث المستخدم بنجاح");
+                toast.success(tr("تم تحديث المستخدم بنجاح", "User updated successfully"));
                 setIsEditDialogOpen(false);
                 setEditingUser(null);
                 fetchUsers(); // Refresh the list
             } else {
                 const error = await response.text();
-                toast.error(error || "حدث خطأ في تحديث المستخدم");
+                toast.error(error || tr("حدث خطأ في تحديث المستخدم", "An error occurred while updating user"));
             }
         } catch (error) {
             console.error("Error updating user:", error);
-            toast.error("حدث خطأ في تحديث المستخدم");
+            toast.error(tr("حدث خطأ في تحديث المستخدم", "An error occurred while updating user"));
         }
     };
 
@@ -141,15 +153,15 @@ const UsersPage = () => {
             });
 
             if (response.ok) {
-                toast.success("تم حذف المستخدم بنجاح");
+                toast.success(tr("تم حذف المستخدم بنجاح", "User deleted successfully"));
                 fetchUsers(); // Refresh the list
             } else {
                 const error = await response.text();
-                toast.error(error || "حدث خطأ في حذف المستخدم");
+                toast.error(error || tr("حدث خطأ في حذف المستخدم", "An error occurred while deleting user"));
             }
         } catch (error) {
             console.error("Error deleting user:", error);
-            toast.error("حدث خطأ في حذف المستخدم");
+            toast.error(tr("حدث خطأ في حذف المستخدم", "An error occurred while deleting user"));
         } finally {
             setIsDeleting(false);
         }
@@ -166,7 +178,7 @@ const UsersPage = () => {
     if (loading) {
         return (
             <div className="p-6">
-                <div className="text-center">جاري التحميل...</div>
+                <div className="text-center">{tr("جاري التحميل...", "Loading...")}</div>
             </div>
         );
     }
@@ -175,7 +187,7 @@ const UsersPage = () => {
         <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                    إدارة المستخدمين
+                    {tr("إدارة المستخدمين", "User management")}
                 </h1>
             </div>
 
@@ -183,11 +195,11 @@ const UsersPage = () => {
             {staffUsers.length > 0 && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>المشرفين والمعلمين</CardTitle>
-                        <div className="flex items-center space-x-2">
+                        <CardTitle>{tr("المشرفين والمعلمين", "Admins and teachers")}</CardTitle>
+                        <div className="flex items-center rtl:space-x-reverse space-x-2">
                             <Search className="h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="البحث بالاسم أو رقم الهاتف..."
+                                placeholder={tr("البحث بالاسم أو رقم الهاتف...", "Search by name or phone number...")}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="max-w-sm"
@@ -198,11 +210,11 @@ const UsersPage = () => {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="text-right">الاسم</TableHead>
-                                    <TableHead className="text-right">رقم الهاتف</TableHead>
-                                    <TableHead className="text-right">الدور</TableHead>
-                                    <TableHead className="text-right">تاريخ التسجيل</TableHead>
-                                    <TableHead className="text-right">الإجراءات</TableHead>
+                                    <TableHead className="text-right">{tr("الاسم", "Name")}</TableHead>
+                                    <TableHead className="text-right">{tr("رقم الهاتف", "Phone number")}</TableHead>
+                                    <TableHead className="text-right">{tr("الدور", "Role")}</TableHead>
+                                    <TableHead className="text-right">{tr("تاريخ التسجيل", "Registration date")}</TableHead>
+                                    <TableHead className="text-right">{tr("الإجراءات", "Actions")}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -221,12 +233,11 @@ const UsersPage = () => {
                                                     ""
                                                 }
                                             >
-                                                {user.role === "TEACHER" ? "معلم" : 
-                                                 user.role === "ADMIN" ? "مشرف" : user.role}
+                                                {roleLabel(user.role)}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            {format(new Date(user.createdAt), "dd/MM/yyyy", { locale: ar })}
+                                            {format(new Date(user.createdAt), "dd/MM/yyyy", { locale: dateLocale })}
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2">
@@ -247,15 +258,15 @@ const UsersPage = () => {
                                                     </DialogTrigger>
                                                     <DialogContent>
                                                         <DialogHeader>
-                                                            <DialogTitle>تعديل المستخدم</DialogTitle>
+                                                            <DialogTitle>{tr("تعديل المستخدم", "Edit user")}</DialogTitle>
                                                             <DialogDescription>
-                                                                قم بتعديل معلومات المستخدم
+                                                                {tr("قم بتعديل معلومات المستخدم", "Edit user information")}
                                                             </DialogDescription>
                                                         </DialogHeader>
                                                         <div className="grid gap-4 py-4">
                                                             <div className="grid grid-cols-4 items-center gap-4">
                                                                 <Label htmlFor="fullName" className="text-right">
-                                                                    الاسم
+                                                                    {tr("الاسم", "Name")}
                                                                 </Label>
                                                                 <Input
                                                                     id="fullName"
@@ -266,7 +277,7 @@ const UsersPage = () => {
                                                             </div>
                                                             <div className="grid grid-cols-4 items-center gap-4">
                                                                 <Label htmlFor="phoneNumber" className="text-right">
-                                                                    رقم الهاتف
+                                                                    {tr("رقم الهاتف", "Phone number")}
                                                                 </Label>
                                                                 <Input
                                                                     id="phoneNumber"
@@ -277,19 +288,19 @@ const UsersPage = () => {
                                                             </div>
                                                             <div className="grid grid-cols-4 items-center gap-4">
                                                                 <Label htmlFor="role" className="text-right">
-                                                                    الدور
+                                                                    {tr("الدور", "Role")}
                                                                 </Label>
                                                                 <Select
                                                                     value={editData.role}
                                                                     onValueChange={(value) => setEditData({...editData, role: value})}
                                                                 >
                                                                     <SelectTrigger className="col-span-3">
-                                                                        <SelectValue placeholder="اختر الدور" />
+                                                                        <SelectValue placeholder={tr("اختر الدور", "Select role")} />
                                                                     </SelectTrigger>
                                                                     <SelectContent>
-                                                                        <SelectItem value="USER">طالب</SelectItem>
-                                                                        <SelectItem value="TEACHER">معلم</SelectItem>
-                                                                        <SelectItem value="ADMIN">مشرف</SelectItem>
+                                                                        <SelectItem value="USER">{tr("طالب", "Student")}</SelectItem>
+                                                                        <SelectItem value="TEACHER">{tr("معلم", "Teacher")}</SelectItem>
+                                                                        <SelectItem value="ADMIN">{tr("مشرف", "Admin")}</SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
@@ -299,10 +310,10 @@ const UsersPage = () => {
                                                                 setIsEditDialogOpen(false);
                                                                 setEditingUser(null);
                                                             }}>
-                                                                إلغاء
+                                                                {tr("إلغاء", "Cancel")}
                                                             </Button>
                                                             <Button onClick={handleSaveUser}>
-                                                                حفظ التغييرات
+                                                                {tr("حفظ التغييرات", "Save changes")}
                                                             </Button>
                                                         </DialogFooter>
                                                     </DialogContent>
@@ -320,18 +331,21 @@ const UsersPage = () => {
                                                     </AlertDialogTrigger>
                                                     <AlertDialogContent>
                                                         <AlertDialogHeader>
-                                                            <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
+                                                            <AlertDialogTitle>{tr("هل أنت متأكد؟", "Are you sure?")}</AlertDialogTitle>
                                                             <AlertDialogDescription>
-                                                                هذا الإجراء لا يمكن التراجع عنه. سيتم حذف المستخدم وجميع البيانات المرتبطة به نهائياً.
+                                                                {tr(
+                                                                    "هذا الإجراء لا يمكن التراجع عنه. سيتم حذف المستخدم وجميع البيانات المرتبطة به نهائياً.",
+                                                                    "This action cannot be undone. The user and all associated data will be permanently deleted."
+                                                                )}
                                                             </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
-                                                            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                                                            <AlertDialogCancel>{tr("إلغاء", "Cancel")}</AlertDialogCancel>
                                                             <AlertDialogAction
                                                                 onClick={() => handleDeleteUser(user.id)}
                                                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                                             >
-                                                                حذف
+                                                                {tr("حذف", "Delete")}
                                                             </AlertDialogAction>
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>
@@ -350,11 +364,11 @@ const UsersPage = () => {
             {studentUsers.length > 0 && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>قائمة الطلاب</CardTitle>
-                        <div className="flex items-center space-x-2">
+                        <CardTitle>{tr("قائمة الطلاب", "Students list")}</CardTitle>
+                        <div className="flex items-center rtl:space-x-reverse space-x-2">
                             <Search className="h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="البحث بالاسم أو رقم الهاتف..."
+                                placeholder={tr("البحث بالاسم أو رقم الهاتف...", "Search by name or phone number...")}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="max-w-sm"
@@ -365,13 +379,13 @@ const UsersPage = () => {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="text-right">الاسم</TableHead>
-                                    <TableHead className="text-right">رقم الهاتف</TableHead>
-                                    <TableHead className="text-right">الدور</TableHead>
-                                    <TableHead className="text-right">الرصيد</TableHead>
-                                    <TableHead className="text-right">الكورسات المشتراة</TableHead>
-                                    <TableHead className="text-right">تاريخ التسجيل</TableHead>
-                                    <TableHead className="text-right">الإجراءات</TableHead>
+                                    <TableHead className="text-right">{tr("الاسم", "Name")}</TableHead>
+                                    <TableHead className="text-right">{tr("رقم الهاتف", "Phone number")}</TableHead>
+                                    <TableHead className="text-right">{tr("الدور", "Role")}</TableHead>
+                                    <TableHead className="text-right">{tr("الرصيد", "Balance")}</TableHead>
+                                    <TableHead className="text-right">{tr("الكورسات المشتراة", "Purchased courses")}</TableHead>
+                                    <TableHead className="text-right">{tr("تاريخ التسجيل", "Registration date")}</TableHead>
+                                    <TableHead className="text-right">{tr("الإجراءات", "Actions")}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -383,12 +397,12 @@ const UsersPage = () => {
                                         <TableCell>{user.phoneNumber}</TableCell>
                                         <TableCell>
                                             <Badge variant="secondary">
-                                                طالب
+                                                {tr("طالب", "Student")}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
                                             <Badge variant="secondary">
-                                                {user.balance} جنيه
+                                                {user.balance} {tr("جنيه", "EGP")}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
@@ -397,7 +411,7 @@ const UsersPage = () => {
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            {format(new Date(user.createdAt), "dd/MM/yyyy", { locale: ar })}
+                                            {format(new Date(user.createdAt), "dd/MM/yyyy", { locale: dateLocale })}
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2">
@@ -418,15 +432,15 @@ const UsersPage = () => {
                                                     </DialogTrigger>
                                                     <DialogContent>
                                                         <DialogHeader>
-                                                            <DialogTitle>تعديل المستخدم</DialogTitle>
+                                                            <DialogTitle>{tr("تعديل المستخدم", "Edit user")}</DialogTitle>
                                                             <DialogDescription>
-                                                                قم بتعديل معلومات المستخدم
+                                                                {tr("قم بتعديل معلومات المستخدم", "Edit user information")}
                                                             </DialogDescription>
                                                         </DialogHeader>
                                                         <div className="grid gap-4 py-4">
                                                             <div className="grid grid-cols-4 items-center gap-4">
                                                                 <Label htmlFor="fullName" className="text-right">
-                                                                    الاسم
+                                                                    {tr("الاسم", "Name")}
                                                                 </Label>
                                                                 <Input
                                                                     id="fullName"
@@ -437,7 +451,7 @@ const UsersPage = () => {
                                                             </div>
                                                             <div className="grid grid-cols-4 items-center gap-4">
                                                                 <Label htmlFor="phoneNumber" className="text-right">
-                                                                    رقم الهاتف
+                                                                    {tr("رقم الهاتف", "Phone number")}
                                                                 </Label>
                                                                 <Input
                                                                     id="phoneNumber"
@@ -448,19 +462,19 @@ const UsersPage = () => {
                                                             </div>
                                                             <div className="grid grid-cols-4 items-center gap-4">
                                                                 <Label htmlFor="role" className="text-right">
-                                                                    الدور
+                                                                    {tr("الدور", "Role")}
                                                                 </Label>
                                                                 <Select
                                                                     value={editData.role}
                                                                     onValueChange={(value) => setEditData({...editData, role: value})}
                                                                 >
                                                                     <SelectTrigger className="col-span-3">
-                                                                        <SelectValue placeholder="اختر الدور" />
+                                                                        <SelectValue placeholder={tr("اختر الدور", "Select role")} />
                                                                     </SelectTrigger>
                                                                     <SelectContent>
-                                                                        <SelectItem value="USER">طالب</SelectItem>
-                                                                        <SelectItem value="TEACHER">معلم</SelectItem>
-                                                                        <SelectItem value="ADMIN">مشرف</SelectItem>
+                                                                        <SelectItem value="USER">{tr("طالب", "Student")}</SelectItem>
+                                                                        <SelectItem value="TEACHER">{tr("معلم", "Teacher")}</SelectItem>
+                                                                        <SelectItem value="ADMIN">{tr("مشرف", "Admin")}</SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
@@ -470,10 +484,10 @@ const UsersPage = () => {
                                                                 setIsEditDialogOpen(false);
                                                                 setEditingUser(null);
                                                             }}>
-                                                                إلغاء
+                                                                {tr("إلغاء", "Cancel")}
                                                             </Button>
                                                             <Button onClick={handleSaveUser}>
-                                                                حفظ التغييرات
+                                                                {tr("حفظ التغييرات", "Save changes")}
                                                             </Button>
                                                         </DialogFooter>
                                                     </DialogContent>
@@ -491,18 +505,21 @@ const UsersPage = () => {
                                                     </AlertDialogTrigger>
                                                     <AlertDialogContent>
                                                         <AlertDialogHeader>
-                                                            <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
+                                                            <AlertDialogTitle>{tr("هل أنت متأكد؟", "Are you sure?")}</AlertDialogTitle>
                                                             <AlertDialogDescription>
-                                                                هذا الإجراء لا يمكن التراجع عنه. سيتم حذف المستخدم وجميع البيانات المرتبطة به نهائياً.
+                                                                {tr(
+                                                                    "هذا الإجراء لا يمكن التراجع عنه. سيتم حذف المستخدم وجميع البيانات المرتبطة به نهائياً.",
+                                                                    "This action cannot be undone. The user and all associated data will be permanently deleted."
+                                                                )}
                                                             </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
-                                                            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                                                            <AlertDialogCancel>{tr("إلغاء", "Cancel")}</AlertDialogCancel>
                                                             <AlertDialogAction
                                                                 onClick={() => handleDeleteUser(user.id)}
                                                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                                             >
-                                                                حذف
+                                                                {tr("حذف", "Delete")}
                                                             </AlertDialogAction>
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>

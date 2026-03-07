@@ -8,6 +8,8 @@ import { BookOpen, Clock, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Course, Purchase } from "@prisma/client";
+import { cookies } from "next/headers";
+import { normalizeLocale } from "@/lib/i18n";
 
 type CourseWithDetails = Course & {
     chapters: { id: string }[];
@@ -20,6 +22,10 @@ export default async function SearchPage({
 }: {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+    const cookieStore = await cookies();
+    const locale = normalizeLocale(cookieStore.get("site_locale")?.value);
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
+
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -86,11 +92,11 @@ export default async function SearchPage({
         <div className="p-6 space-y-6">
             {/* Header Section */}
             <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">البحث عن الكورسات</h1>
+                <h1 className="text-3xl font-bold mb-2">{tr("البحث عن الكورسات", "Course search")}</h1>
                 <p className="text-muted-foreground text-lg">
                     {title 
-                        ? `نتائج البحث عن "${title}"`
-                        : "اكتشف مجموعة متنوعة من الكورسات التعليمية المميزة"
+                        ? tr(`نتائج البحث عن "${title}"`, `Search results for "${title}"`)
+                        : tr("اكتشف مجموعة متنوعة من الكورسات التعليمية المميزة", "Explore a variety of premium educational courses")
                     }
                 </p>
             </div>
@@ -106,11 +112,13 @@ export default async function SearchPage({
             <div>
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-semibold">
-                        {title ? `نتائج البحث (${coursesWithProgress.length})` : `جميع الكورسات (${coursesWithProgress.length})`}
+                        {title
+                          ? tr(`نتائج البحث (${coursesWithProgress.length})`, `Search results (${coursesWithProgress.length})`)
+                          : tr(`جميع الكورسات (${coursesWithProgress.length})`, `All courses (${coursesWithProgress.length})`)}
                     </h2>
                     {coursesWithProgress.length > 0 && (
                         <div className="text-sm text-muted-foreground">
-                            {coursesWithProgress.length} كورس متاح
+                            {coursesWithProgress.length} {tr("كورس متاح", "courses available")}
                         </div>
                     )}
                 </div>
@@ -132,24 +140,24 @@ export default async function SearchPage({
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                 
                                 {/* Course Status Badge */}
-                                <div className="absolute top-4 right-4">
+                                <div className="absolute top-4 rtl:right-4 ltr:left-4">
                                     <div className={`rounded-full px-3 py-1 text-sm font-medium ${
                                         course.purchases.length > 0 
                                             ? "bg-green-500 text-white" 
                                             : "bg-white/90 backdrop-blur-sm text-gray-800"
                                     }`}>
-                                        {course.purchases.length > 0 ? "مشترك" : "متاح"}
+                                        {course.purchases.length > 0 ? tr("مشترك", "Enrolled") : tr("متاح", "Available")}
                                     </div>
                                 </div>
 
                                 {/* Price Badge */}
-                                <div className="absolute top-4 left-4">
+                                <div className="absolute top-4 rtl:left-4 ltr:right-4">
                                     <div className={`rounded-full px-3 py-1 text-sm font-medium ${
                                         course.price === 0 
                                             ? "bg-green-500 text-white" 
                                             : "bg-white/90 backdrop-blur-sm text-gray-800"
                                     }`}>
-                                        {course.price === 0 ? "مجاني" : `${course.price} جنيه`}
+                                        {course.price === 0 ? tr("مجاني", "Free") : `${course.price} ${tr("جنيه", "EGP")}`}
                                     </div>
                                 </div>
                             </div>
@@ -165,16 +173,16 @@ export default async function SearchPage({
                                         <div className="flex items-center gap-1">
                                             <BookOpen className="h-4 w-4" />
                                             <span className="whitespace-nowrap">
-                                                {course.chapters.length} {course.chapters.length === 1 ? "فصل" : "فصول"}
+                                                {course.chapters.length} {course.chapters.length === 1 ? tr("فصل", "chapter") : tr("فصول", "chapters")}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-1">
                                             <Users className="h-4 w-4" />
-                                            <span className="whitespace-nowrap">{course.purchases.length} طالب</span>
+                                            <span className="whitespace-nowrap">{course.purchases.length} {tr("طالب", "students")}</span>
                                         </div>
                                         <div className="flex items-center gap-1">
                                             <Clock className="h-4 w-4" />
-                                            <span className="whitespace-nowrap">{new Date(course.updatedAt).toLocaleDateString('ar', {
+                                            <span className="whitespace-nowrap">{new Date(course.updatedAt).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US", {
                                                 year: 'numeric',
                                                 month: 'short'
                                             })}</span>
@@ -188,7 +196,7 @@ export default async function SearchPage({
                                     asChild
                                 >
                                     <Link href={course.chapters.length > 0 ? `/courses/${course.id}/chapters/${course.chapters[0].id}` : `/courses/${course.id}`}>
-                                        {course.purchases.length > 0 ? "متابعة التعلم" : "عرض الكورس"}
+                                        {course.purchases.length > 0 ? tr("متابعة التعلم", "Continue learning") : tr("عرض الكورس", "View course")}
                                     </Link>
                                 </Button>
 
@@ -199,7 +207,7 @@ export default async function SearchPage({
                                         asChild
                                     >
                                         <Link href={`/courses/${course.id}/purchase`}>
-                                            شراء الكورس
+                                            {tr("شراء الكورس", "Purchase course")}
                                         </Link>
                                     </Button>
                                 )}
@@ -214,18 +222,18 @@ export default async function SearchPage({
                         <div className="bg-muted/50 rounded-2xl p-8 max-w-md mx-auto">
                             <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                             <h3 className="text-lg font-semibold mb-2">
-                                {title ? "لم يتم العثور على كورسات" : "لا توجد كورسات متاحة"}
+                                {title ? tr("لم يتم العثور على كورسات", "No courses found") : tr("لا توجد كورسات متاحة", "No courses available")}
                             </h3>
                             <p className="text-muted-foreground mb-6">
                                 {title 
-                                    ? "جرب البحث بكلمات مختلفة أو تصفح جميع الكورسات"
-                                    : "سيتم إضافة كورسات جديدة قريباً"
+                                    ? tr("جرب البحث بكلمات مختلفة أو تصفح جميع الكورسات", "Try different keywords or browse all courses")
+                                    : tr("سيتم إضافة كورسات جديدة قريباً", "New courses will be added soon")
                                 }
                             </p>
                             {title && (
                                 <Button asChild className="bg-brand hover:bg-brand/90 text-white font-semibold">
                                     <Link href="/dashboard/search">
-                                        عرض جميع الكورسات
+                                        {tr("عرض جميع الكورسات", "View all courses")}
                                     </Link>
                                 </Button>
                             )}

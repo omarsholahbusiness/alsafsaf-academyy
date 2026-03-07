@@ -5,6 +5,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import axios from "axios";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface RecaptchaGateProps {
   children: React.ReactNode;
@@ -15,6 +16,8 @@ const VERIFICATION_TIMESTAMP_KEY = "recaptcha_verified_timestamp";
 const VERIFICATION_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
 export function RecaptchaGate({ children }: RecaptchaGateProps) {
+  const { locale } = useLanguage();
+  const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
   const [isVerified, setIsVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
@@ -53,7 +56,7 @@ export function RecaptchaGate({ children }: RecaptchaGateProps) {
 
   const handleVerify = async () => {
     if (!recaptchaToken) {
-      toast.error("يرجى إكمال التحقق من reCaptcha");
+      toast.error(tr("يرجى إكمال التحقق من reCaptcha", "Please complete reCaptcha verification"));
       return;
     }
 
@@ -68,15 +71,15 @@ export function RecaptchaGate({ children }: RecaptchaGateProps) {
         localStorage.setItem(VERIFICATION_KEY, "true");
         localStorage.setItem(VERIFICATION_TIMESTAMP_KEY, Date.now().toString());
         setIsVerified(true);
-        toast.success("تم التحقق بنجاح");
+        toast.success(tr("تم التحقق بنجاح", "Verification successful"));
       } else {
-        toast.error("فشل التحقق. يرجى المحاولة مرة أخرى");
+        toast.error(tr("فشل التحقق. يرجى المحاولة مرة أخرى", "Verification failed. Please try again"));
         recaptchaRef.current?.reset();
         setRecaptchaToken(null);
       }
     } catch (error) {
       console.error("Verification error:", error);
-      toast.error("حدث خطأ أثناء التحقق. يرجى المحاولة مرة أخرى");
+      toast.error(tr("حدث خطأ أثناء التحقق. يرجى المحاولة مرة أخرى", "An error occurred during verification. Please try again"));
       recaptchaRef.current?.reset();
       setRecaptchaToken(null);
     } finally {
@@ -90,7 +93,7 @@ export function RecaptchaGate({ children }: RecaptchaGateProps) {
       <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand mx-auto mb-4"></div>
-          <p className="text-muted-foreground">جاري التحقق...</p>
+          <p className="text-muted-foreground">{tr("جاري التحقق...", "Verifying...")}</p>
         </div>
       </div>
     );
@@ -102,9 +105,9 @@ export function RecaptchaGate({ children }: RecaptchaGateProps) {
       <div className="fixed inset-0 bg-background flex items-center justify-center z-50 p-4">
         <div className="max-w-md w-full bg-card border rounded-lg shadow-lg p-6 space-y-6">
           <div className="text-center space-y-2">
-            <h2 className="text-2xl font-bold">التحقق من الأمان</h2>
+            <h2 className="text-2xl font-bold">{tr("التحقق من الأمان", "Security verification")}</h2>
             <p className="text-muted-foreground">
-              يرجى إكمال التحقق من reCaptcha للوصول إلى الموقع
+              {tr("يرجى إكمال التحقق من reCaptcha للوصول إلى الموقع", "Please complete reCaptcha verification to access the site")}
             </p>
           </div>
           
@@ -116,7 +119,7 @@ export function RecaptchaGate({ children }: RecaptchaGateProps) {
               onExpired={() => setRecaptchaToken(null)}
               onError={() => {
                 setRecaptchaToken(null);
-                toast.error("حدث خطأ في التحقق من reCaptcha");
+                toast.error(tr("حدث خطأ في التحقق من reCaptcha", "An error occurred in reCaptcha verification"));
               }}
             />
           </div>
@@ -126,11 +129,11 @@ export function RecaptchaGate({ children }: RecaptchaGateProps) {
             disabled={!recaptchaToken || isLoading}
             className="w-full bg-brand hover:bg-brand/90 text-white"
           >
-            {isLoading ? "جاري التحقق..." : "التحقق والمتابعة"}
+            {isLoading ? tr("جاري التحقق...", "Verifying...") : tr("التحقق والمتابعة", "Verify and continue")}
           </Button>
 
           <p className="text-xs text-center text-muted-foreground">
-            هذه خطوة أمان لمنع الوصول غير المصرح به إلى الموقع
+            {tr("هذه خطوة أمان لمنع الوصول غير المصرح به إلى الموقع", "This security step helps prevent unauthorized access to the site")}
           </p>
         </div>
       </div>

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import toast from "react-hot-toast";
 import { PlyrVideoPlayer } from "@/components/plyr-video-player";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface VideoFormProps {
     initialData: {
@@ -26,6 +27,8 @@ export const VideoForm = ({
     courseId,
     chapterId
 }: VideoFormProps) => {
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const [isEditing, setIsEditing] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     const [youtubeUrl, setYoutubeUrl] = useState("");
@@ -51,12 +54,12 @@ export const VideoForm = ({
                 throw new Error('Failed to upload video');
             }
 
-            toast.success("تم رفع الفيديو بنجاح");
+            toast.success(tr("تم رفع الفيديو بنجاح", "Video uploaded successfully"));
             setIsEditing(false);
             router.refresh();
         } catch (error) {
             console.error("[CHAPTER_VIDEO]", error);
-            toast.error("حدث خطأ ما");
+            toast.error(tr("حدث خطأ ما", "Something went wrong"));
         } finally {
             setIsSubmitting(false);
         }
@@ -64,7 +67,7 @@ export const VideoForm = ({
 
     const onSubmitYouTube = async () => {
         if (!youtubeUrl.trim()) {
-            toast.error("يرجى إدخال رابط YouTube");
+            toast.error(tr("يرجى إدخال رابط YouTube", "Please enter a YouTube URL"));
             return;
         }
 
@@ -83,13 +86,13 @@ export const VideoForm = ({
                 throw new Error(error || 'Failed to add YouTube video');
             }
 
-            toast.success("تم إضافة فيديو YouTube بنجاح");
+            toast.success(tr("تم إضافة فيديو YouTube بنجاح", "YouTube video added successfully"));
             setIsEditing(false);
             setYoutubeUrl("");
             router.refresh();
         } catch (error) {
             console.error("[CHAPTER_YOUTUBE]", error);
-            toast.error(error instanceof Error ? error.message : "حدث خطأ ما");
+            toast.error(tr("حدث خطأ ما", "Something went wrong"));
         } finally {
             setIsSubmitting(false);
         }
@@ -102,14 +105,14 @@ export const VideoForm = ({
     return (
         <div className="mt-6 border bg-card rounded-md p-4">
             <div className="font-medium flex items-center justify-between">
-                فيديو الفصل
+                {tr("فيديو الفصل", "Chapter video")}
                 <Button onClick={() => setIsEditing(!isEditing)} variant="ghost">
                     {isEditing ? (
-                        <>إلغاء</>
+                        <>{tr("إلغاء", "Cancel")}</>
                     ) : (
                         <>
-                            <Pencil className="h-4 w-4 mr-2" />
-                            تعديل الفيديو
+                            <Pencil className="h-4 w-4 rtl:mr-2 ltr:ml-2" />
+                            {tr("تعديل الفيديو", "Edit video")}
                         </>
                     )}
                 </Button>
@@ -149,18 +152,18 @@ export const VideoForm = ({
                         <TabsList className="grid w-full grid-cols-2">
                             <TabsTrigger value="upload" className="flex items-center gap-2">
                                 <Upload className="h-4 w-4" />
-                                رفع فيديو
+                                {tr("رفع فيديو", "Upload video")}
                             </TabsTrigger>
                             <TabsTrigger value="youtube" className="flex items-center gap-2">
                                 <Youtube className="h-4 w-4" />
-                                رابط YouTube
+                                {tr("رابط YouTube", "YouTube link")}
                             </TabsTrigger>
                         </TabsList>
                         
                         <TabsContent value="upload" className="mt-4">
                             <div className="space-y-4">
                                 <div className="text-sm text-muted-foreground">
-                                    ارفع فيديو من جهازك
+                                    {tr("ارفع فيديو من جهازك", "Upload a video from your device")}
                                 </div>
                                 <FileUpload
                                     endpoint="chapterVideo"
@@ -176,10 +179,10 @@ export const VideoForm = ({
                         <TabsContent value="youtube" className="mt-4">
                             <div className="space-y-4">
                                 <div className="text-sm text-muted-foreground">
-                                    الصق رابط فيديو YouTube
+                                    {tr("الصق رابط فيديو YouTube", "Paste a YouTube video link")}
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="youtube-url">رابط YouTube</Label>
+                                    <Label htmlFor="youtube-url">{tr("رابط YouTube", "YouTube link")}</Label>
                                     <div className="flex gap-2">
                                         <Input
                                             id="youtube-url"
@@ -194,12 +197,12 @@ export const VideoForm = ({
                                             className="flex items-center gap-2"
                                         >
                                             <Link className="h-4 w-4" />
-                                            إضافة
+                                            {tr("إضافة", "Add")}
                                         </Button>
                                     </div>
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                    يدعم الروابط التالية:
+                                    {tr("يدعم الروابط التالية:", "Supported links:")}
                                     <br />
                                     • https://www.youtube.com/watch?v=VIDEO_ID
                                     <br />

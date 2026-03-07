@@ -10,6 +10,7 @@ import axios from "axios";
 import { CourseContentList } from "./course-content-list";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface CourseContentFormProps {
     initialData: Course & { chapters: Chapter[]; quizzes: Quiz[] };
@@ -20,6 +21,8 @@ export const CourseContentForm = ({
     initialData,
     courseId
 }: CourseContentFormProps) => {
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const [isCreating, setIsCreating] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
     const [title, setTitle] = useState("");
@@ -30,12 +33,12 @@ export const CourseContentForm = ({
         try {
             setIsUpdating(true);
             await axios.post(`/api/courses/${courseId}/chapters`, { title });
-            toast.success("تم انشاء الفصل");
+            toast.success(tr("تم انشاء الفصل", "Chapter created"));
             setTitle("");
             setIsCreating(false);
             router.refresh();
         } catch {
-            toast.error("حدث خطأ");
+            toast.error(tr("حدث خطأ", "Something went wrong"));
         } finally {
             setIsUpdating(false);
         }
@@ -46,14 +49,14 @@ export const CourseContentForm = ({
             setIsUpdating(true);
             if (type === "chapter") {
                 await axios.delete(`/api/courses/${courseId}/chapters/${id}`);
-                toast.success("تم حذف الفصل");
+                toast.success(tr("تم حذف الفصل", "Chapter deleted"));
             } else {
                 await axios.delete(`/api/teacher/quizzes/${id}`);
-                toast.success("تم حذف الاختبار");
+                toast.success(tr("تم حذف الاختبار", "Quiz deleted"));
             }
             router.refresh();
         } catch {
-            toast.error("حدث خطأ");
+            toast.error(tr("حدث خطأ", "Something went wrong"));
         } finally {
             setIsUpdating(false);
         }
@@ -65,10 +68,10 @@ export const CourseContentForm = ({
             await axios.put(`/api/courses/${courseId}/reorder`, {
                 list: updateData
             });
-            toast.success("تم ترتيب المحتوى");
+            toast.success(tr("تم ترتيب المحتوى", "Content reordered"));
             router.refresh();
         } catch {
-            toast.error("حدث خطأ");
+            toast.error(tr("حدث خطأ", "Something went wrong"));
         } finally {
             setIsUpdating(false);
         }
@@ -109,19 +112,19 @@ export const CourseContentForm = ({
                 </div>
             )}
             <div className="font-medium flex items-center justify-between">
-                محتوى الكورس (فصول واختبارات)
+                {tr("محتوى الكورس (فصول واختبارات)", "Course content (chapters and quizzes)")}
                 <div className="flex gap-2">
                     <Button onClick={() => router.push(`/dashboard/teacher/quizzes/create?courseId=${courseId}`)} variant="ghost">
-                        <PlusCircle className="h-4 w-4 mr-2" />
-                        إضافة اختبار
+                        <PlusCircle className="h-4 w-4 rtl:mr-2 ltr:ml-2" />
+                        {tr("إضافة اختبار", "Add quiz")}
                     </Button>
                     <Button onClick={() => setIsCreating((current) => !current)} variant="ghost">
                         {isCreating ? (
-                            <>إلغاء</>
+                            <>{tr("إلغاء", "Cancel")}</>
                         ) : (
                             <>
-                                <PlusCircle className="h-4 w-4 mr-2" />
-                                إضافة فصل
+                                <PlusCircle className="h-4 w-4 rtl:mr-2 ltr:ml-2" />
+                                {tr("إضافة فصل", "Add chapter")}
                             </>
                         )}
                     </Button>
@@ -131,7 +134,7 @@ export const CourseContentForm = ({
                 <div className="mt-4 space-y-4">
                     <Input
                         disabled={isUpdating}
-                        placeholder="e.g. 'المقدمة في الكورس'"
+                        placeholder={tr("مثال: مقدمة الكورس", "e.g. Course introduction")}
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                     />
@@ -140,7 +143,7 @@ export const CourseContentForm = ({
                         disabled={!title || isUpdating}
                         type="button"
                     >
-                        انشاء
+                        {tr("انشاء", "Create")}
                     </Button>
                 </div>
             )}
@@ -149,7 +152,7 @@ export const CourseContentForm = ({
                     "text-sm mt-2",
                     !courseItems.length && "text-muted-foreground italic"
                 )}>
-                    {!courseItems.length && "لا يوجد محتوى"}
+                    {!courseItems.length && tr("لا يوجد محتوى", "No content")}
                     <CourseContentList
                         onEdit={onEdit}
                         onDelete={onDelete}
@@ -160,7 +163,7 @@ export const CourseContentForm = ({
             )}
             {!isCreating && courseItems.length > 0 && (
                 <p className="text-xs text-muted-foreground mt-4">
-                    قم بالسحب والإفلات لترتيب الفصول والاختبارات
+                    {tr("قم بالسحب والإفلات لترتيب الفصول والاختبارات", "Drag and drop to reorder chapters and quizzes")}
                 </p>
             )}
         </div>

@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { CheckCircle, Lock } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface CourseSidebarProps {
   course: Course & {
@@ -17,6 +18,7 @@ export const CourseSidebar = ({
   course,
   progress,
 }: CourseSidebarProps) => {
+  const { locale } = useLanguage();
   const pathname = usePathname();
 
   return (
@@ -28,7 +30,7 @@ export const CourseSidebar = ({
         <div className="mt-4">
           <div className="flex items-center gap-x-2">
             <div className="text-sm font-medium">
-              التقدم: {progress}%
+              {locale === "ar" ? "التقدم" : "Progress"}: {progress}%
             </div>
           </div>
         </div>

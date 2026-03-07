@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { Wallet, Plus, History, ArrowUpRight, MessageCircle, Copy, Check } from "lucide-react";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface BalanceTransaction {
   id: string;
@@ -18,6 +19,8 @@ interface BalanceTransaction {
 
 export default function BalancePage() {
   const { data: session } = useSession();
+  const { locale } = useLanguage();
+  const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +32,6 @@ export default function BalancePage() {
   const isStudent = session?.user?.role === "USER";
   
   const vodafoneCashNumber = "01025729944";
-  const whatsappNumber = "01559973722";
   const whatsappLink = `https://wa.me/201559973722`;
 
   useEffect(() => {
@@ -65,7 +67,7 @@ export default function BalancePage() {
 
   const handleAddBalance = async () => {
     if (!amount || parseFloat(amount) <= 0) {
-      toast.error("يرجى إدخال مبلغ صحيح");
+      toast.error(tr("يرجى إدخال مبلغ صحيح", "Please enter a valid amount"));
       return;
     }
 
@@ -83,22 +85,22 @@ export default function BalancePage() {
         const data = await response.json();
         setBalance(data.newBalance);
         setAmount("");
-        toast.success("تم إضافة الرصيد بنجاح");
+        toast.success(tr("تم إضافة الرصيد بنجاح", "Balance added successfully"));
         fetchTransactions(); // Refresh transactions
       } else {
         const error = await response.text();
-        toast.error(error || "حدث خطأ أثناء إضافة الرصيد");
+        toast.error(error || tr("حدث خطأ أثناء إضافة الرصيد", "An error occurred while adding balance"));
       }
     } catch (error) {
       console.error("Error adding balance:", error);
-      toast.error("حدث خطأ أثناء إضافة الرصيد");
+      toast.error(tr("حدث خطأ أثناء إضافة الرصيد", "An error occurred while adding balance"));
     } finally {
       setIsLoading(false);
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("ar-EG", {
+    return new Date(dateString).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -110,7 +112,7 @@ export default function BalancePage() {
   const copyToClipboard = (text: string, setCopiedState: (value: boolean) => void) => {
     navigator.clipboard.writeText(text);
     setCopiedState(true);
-    toast.success("تم نسخ الرقم");
+    toast.success(tr("تم نسخ الرقم", "Number copied"));
     setTimeout(() => setCopiedState(false), 2000);
   };
 
@@ -118,11 +120,11 @@ export default function BalancePage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">إدارة الرصيد</h1>
+          <h1 className="text-2xl font-bold">{tr("إدارة الرصيد", "Balance management")}</h1>
           <p className="text-muted-foreground">
             {isStudent 
-              ? "عرض رصيد حسابك وسجل المعاملات" 
-              : "أضف رصيد إلى حسابك لشراء الكورسات"
+              ? tr("عرض رصيد حسابك وسجل المعاملات", "View your account balance and transaction history") 
+              : tr("أضف رصيد إلى حسابك لشراء الكورسات", "Add balance to your account to purchase courses")
             }
           </p>
         </div>
@@ -133,15 +135,15 @@ export default function BalancePage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Wallet className="h-5 w-5" />
-            رصيد الحساب
+            {tr("رصيد الحساب", "Account balance")}
           </CardTitle>
           <CardDescription>
-            الرصيد المتاح في حسابك
+            {tr("الرصيد المتاح في حسابك", "Available balance in your account")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold text-brand">
-            {balance.toFixed(2)} جنيه
+            {balance.toFixed(2)} {tr("جنيه", "EGP")}
           </div>
         </CardContent>
       </Card>
@@ -152,17 +154,17 @@ export default function BalancePage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Plus className="h-5 w-5" />
-              إضافة رصيد
+              {tr("إضافة رصيد", "Add balance")}
             </CardTitle>
             <CardDescription>
-              أضف مبلغ إلى رصيد حسابك
+              {tr("أضف مبلغ إلى رصيد حسابك", "Add an amount to your account balance")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex gap-4">
               <Input
                 type="number"
-                placeholder="أدخل المبلغ"
+                placeholder={tr("أدخل المبلغ", "Enter amount")}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 min="0"
@@ -174,7 +176,7 @@ export default function BalancePage() {
                 disabled={isLoading}
                 className="bg-brand hover:bg-brand/90"
               >
-                {isLoading ? "جاري الإضافة..." : "إضافة الرصيد"}
+                {isLoading ? tr("جاري الإضافة...", "Adding...") : tr("إضافة الرصيد", "Add balance")}
               </Button>
             </div>
           </CardContent>
@@ -187,10 +189,10 @@ export default function BalancePage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5 text-brand" />
-              إضافة رصيد عبر فودافون كاش
+              {tr("إضافة رصيد عبر فودافون كاش", "Add balance via Vodafone Cash")}
             </CardTitle>
             <CardDescription>
-              قم بتحويل المبلغ إلى أحد الأرقام التالية ثم أرسل صورة الإيصال
+              {tr("قم بتحويل المبلغ إلى أحد الأرقام التالية ثم أرسل صورة الإيصال", "Transfer the amount to the following number then send a receipt screenshot")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -198,7 +200,7 @@ export default function BalancePage() {
             <div className="bg-card rounded-lg p-4 border-2 border-brand/30">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">رقم فودافون كاش</p>
+                  <p className="text-sm text-muted-foreground mb-1">{tr("رقم فودافون كاش", "Vodafone Cash number")}</p>
                   <p className="text-2xl font-bold text-brand">{vodafoneCashNumber}</p>
                 </div>
                 <Button
@@ -217,12 +219,12 @@ export default function BalancePage() {
             </div>
 
             <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-              <p className="font-semibold text-sm">خطوات الإيداع:</p>
+              <p className="font-semibold text-sm">{tr("خطوات الإيداع:", "Deposit steps:")}</p>
               <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
-                <li>قم بتحويل المبلغ المطلوب إلى رقم فودافون كاش أعلاه</li>
-                <li>احفظ صورة إيصال التحويل من التطبيق</li>
-                <li>اضغط على زر "إرسال صورة الإيصال" أدناه</li>
-                <li>سيتم مراجعة طلبك وإضافة الرصيد إلى حسابك خلال 24 ساعة</li>
+                <li>{tr("قم بتحويل المبلغ المطلوب إلى رقم فودافون كاش أعلاه", "Transfer the required amount to the Vodafone Cash number above")}</li>
+                <li>{tr("احفظ صورة إيصال التحويل من التطبيق", "Save a screenshot of the transfer receipt from the app")}</li>
+                <li>{tr("اضغط على زر \"إرسال صورة الإيصال\" أدناه", "Click the \"Send receipt image\" button below")}</li>
+                <li>{tr("سيتم مراجعة طلبك وإضافة الرصيد إلى حسابك خلال 24 ساعة", "Your request will be reviewed and balance will be added within 24 hours")}</li>
               </ol>
             </div>
 
@@ -236,8 +238,8 @@ export default function BalancePage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <MessageCircle className="h-5 w-5 ml-2" />
-                إرسال صورة الإيصال على واتساب
+                <MessageCircle className="h-5 w-5 rtl:ml-2 ltr:mr-2" />
+                {tr("إرسال صورة الإيصال على واتساب", "Send receipt image on WhatsApp")}
               </a>
             </Button>
           </CardContent>
@@ -249,21 +251,21 @@ export default function BalancePage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <History className="h-5 w-5" />
-            سجل المعاملات
+            {tr("سجل المعاملات", "Transaction history")}
           </CardTitle>
           <CardDescription>
-            تاريخ جميع المعاملات المالية
+            {tr("تاريخ جميع المعاملات المالية", "History of all financial transactions")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoadingTransactions ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand mx-auto"></div>
-              <p className="mt-2 text-muted-foreground">جاري التحميل...</p>
+              <p className="mt-2 text-muted-foreground">{tr("جاري التحميل...", "Loading...")}</p>
             </div>
           ) : transactions.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">لا توجد معاملات حتى الآن</p>
+              <p className="text-muted-foreground">{tr("لا توجد معاملات حتى الآن", "No transactions yet")}</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -287,9 +289,13 @@ export default function BalancePage() {
                                          <div>
                        <p className="font-medium">
                          {transaction.description.includes("Added") && transaction.type === "DEPOSIT" 
-                           ? transaction.description.replace(/Added (\d+(?:\.\d+)?) EGP to balance/, "تم إضافة $1 جنيه إلى الرصيد")
+                          ? (locale === "ar"
+                            ? transaction.description.replace(/Added (\d+(?:\.\d+)?) EGP to balance/, "تم إضافة $1 جنيه إلى الرصيد")
+                            : transaction.description)
                            : transaction.description.includes("Purchased course:") && transaction.type === "PURCHASE"
-                           ? transaction.description.replace(/Purchased course: (.+)/, "تم شراء الكورس: $1")
+                          ? (locale === "ar"
+                            ? transaction.description.replace(/Purchased course: (.+)/, "تم شراء الكورس: $1")
+                            : transaction.description)
                            : transaction.description
                          }
                        </p>
@@ -297,7 +303,7 @@ export default function BalancePage() {
                          {formatDate(transaction.createdAt)}
                        </p>
                        <p className="text-xs text-muted-foreground">
-                         {transaction.type === "DEPOSIT" ? "إيداع" : "شراء كورس"}
+                         {transaction.type === "DEPOSIT" ? tr("إيداع", "Deposit") : tr("شراء كورس", "Course purchase")}
                        </p>
                      </div>
                   </div>
@@ -305,7 +311,7 @@ export default function BalancePage() {
                     transaction.type === "DEPOSIT" ? "text-green-600" : "text-red-600"
                   }`}>
                     {transaction.type === "DEPOSIT" ? "+" : "-"}
-                    {Math.abs(transaction.amount).toFixed(2)} جنيه
+                    {Math.abs(transaction.amount).toFixed(2)} {tr("جنيه", "EGP")}
                   </div>
                 </div>
               ))}

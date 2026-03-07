@@ -4,7 +4,7 @@ import { SessionProvider, useSession } from "next-auth/react";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ToastProvider } from "@/components/providers/toaster-provider";
 import { Toaster } from "sonner";
-import { RTLProvider } from "@/components/providers/rtl-provider";
+import { RTLProvider, type Locale } from "@/components/providers/rtl-provider";
 import { ThemeProvider as BrandThemeProvider } from "@/components/theme-provider";
 import { NavigationProvider } from "@/lib/contexts/navigation-context";
 import { useEffect } from "react";
@@ -23,7 +23,13 @@ const SessionHandler = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-export const Providers = ({ children }: { children: React.ReactNode }) => {
+export const Providers = ({
+  children,
+  initialLocale,
+}: {
+  children: React.ReactNode;
+  initialLocale: Locale;
+}) => {
   return (
     <SessionProvider
       refetchInterval={0} // Disable automatic refetching
@@ -31,7 +37,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
       refetchWhenOffline={false} // Don't refetch when offline
     >
       <SessionHandler>
-        <RTLProvider>
+        <RTLProvider initialLocale={initialLocale}>
           <BrandThemeProvider>
             <ThemeProvider
               attribute="class"

@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, CheckCircle, XCircle, Award } from "lucide-react";
+import { CheckCircle, XCircle, Award } from "lucide-react";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface QuizAnswer {
     questionId: string;
@@ -45,6 +46,8 @@ export default function QuizResultPage({
     params: Promise<{ courseId: string; quizId: string }>;
 }) {
     const router = useRouter();
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const { courseId, quizId } = use(params);
     const [result, setResult] = useState<QuizResult | null>(null);
     const [quiz, setQuiz] = useState<Quiz | null>(null);
@@ -119,14 +122,6 @@ export default function QuizResultPage({
         return "text-destructive";
     };
 
-    const getGradeBadge = (percentage: number) => {
-        if (percentage >= 90) return { variant: "secondary" as const, className: "bg-primary text-primary-foreground" };
-        if (percentage >= 80) return { variant: "secondary" as const, className: "bg-primary/90 text-primary-foreground" };
-        if (percentage >= 70) return { variant: "secondary" as const, className: "bg-primary/80 text-primary-foreground" };
-        if (percentage >= 60) return { variant: "secondary" as const, className: "bg-amber-100 text-amber-800" };
-        return { variant: "destructive" as const, className: "" };
-    };
-
     const handleTryAgain = () => {
         router.push(`/courses/${courseId}/quizzes/${quizId}`);
     };
@@ -169,7 +164,7 @@ export default function QuizResultPage({
 
     const formatAnswer = (answer: string, questionType: string) => {
         if (questionType === "TRUE_FALSE") {
-            return answer === "true" ? "صح" : "خطأ";
+            return answer === "true" ? tr("صح", "True") : tr("خطأ", "False");
         }
         return answer;
     };
@@ -186,8 +181,8 @@ export default function QuizResultPage({
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold mb-4">لم يتم العثور على النتيجة</h1>
-                    <Button onClick={() => router.back()}>العودة</Button>
+                    <h1 className="text-2xl font-bold mb-4">{tr("لم يتم العثور على النتيجة", "Result not found")}</h1>
+                    <Button onClick={() => router.back()}>{tr("العودة", "Back")}</Button>
                 </div>
             </div>
         );
@@ -202,7 +197,7 @@ export default function QuizResultPage({
                 <div className="max-w-4xl mx-auto space-y-6">
                     {/* Header */}
                     <div className="flex items-center gap-4">
-                        <h1 className="text-2xl font-bold">نتيجة الاختبار</h1>
+                        <h1 className="text-2xl font-bold">{tr("نتيجة الاختبار", "Quiz result")}</h1>
                     </div>
 
                     {/* Summary Card */}
@@ -210,7 +205,7 @@ export default function QuizResultPage({
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <Award className="h-5 w-5" />
-                                ملخص النتيجة
+                                {tr("ملخص النتيجة", "Result summary")}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -219,30 +214,30 @@ export default function QuizResultPage({
                                     <div className="text-2xl font-bold text-primary">
                                         {result.score}/{result.totalPoints}
                                     </div>
-                                    <div className="text-sm text-muted-foreground">الدرجة</div>
+                                    <div className="text-sm text-muted-foreground">{tr("الدرجة", "Score")}</div>
                                 </div>
                                 <div className="text-center">
                                     <div className={`text-2xl font-bold ${getGradeColor(result.percentage)}`}>
                                         {result.percentage.toFixed(1)}%
                                     </div>
-                                    <div className="text-sm text-muted-foreground">النسبة المئوية</div>
+                                    <div className="text-sm text-muted-foreground">{tr("النسبة المئوية", "Percentage")}</div>
                                 </div>
                                 <div className="text-center">
                                     <div className="text-2xl font-bold text-primary">
                                         {correctAnswers}
                                     </div>
-                                    <div className="text-sm text-muted-foreground">إجابات صحيحة</div>
+                                    <div className="text-sm text-muted-foreground">{tr("إجابات صحيحة", "Correct answers")}</div>
                                 </div>
                                 <div className="text-center">
                                     <div className="text-2xl font-bold text-destructive">
                                         {incorrectAnswers}
                                     </div>
-                                    <div className="text-sm text-muted-foreground">إجابات خاطئة</div>
+                                    <div className="text-sm text-muted-foreground">{tr("إجابات خاطئة", "Incorrect answers")}</div>
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium">التقدم العام</span>
+                                    <span className="text-sm font-medium">{tr("التقدم العام", "Overall progress")}</span>
                                     <span className="text-sm font-medium">{result.percentage.toFixed(1)}%</span>
                                 </div>
                                 <Progress value={result.percentage} className="w-full" />
@@ -253,9 +248,9 @@ export default function QuizResultPage({
                     {/* Detailed Answers */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>تفاصيل الإجابات</CardTitle>
+                            <CardTitle>{tr("تفاصيل الإجابات", "Answer details")}</CardTitle>
                             <CardDescription>
-                                مراجعة إجاباتك والتحقق من الإجابات الصحيحة
+                                {tr("مراجعة إجاباتك والتحقق من الإجابات الصحيحة", "Review your answers and compare with correct ones")}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -263,7 +258,7 @@ export default function QuizResultPage({
                                 {result.answers.map((answer, index) => (
                                     <div key={answer.questionId} className="border rounded-lg p-4">
                                         <div className="flex items-center justify-between mb-2">
-                                            <h4 className="font-medium">السؤال {index + 1}</h4>
+                                            <h4 className="font-medium">{tr("السؤال", "Question")} {index + 1}</h4>
                                             <div className="flex items-center gap-2">
                                                 {answer.isCorrect ? (
                                                     <CheckCircle className="h-4 w-4 text-primary" />
@@ -271,30 +266,30 @@ export default function QuizResultPage({
                                                     <XCircle className="h-4 w-4 text-destructive" />
                                                 )}
                                                 <Badge variant={answer.isCorrect ? "secondary" : "destructive"}>
-                                                    {answer.isCorrect ? "صحيح" : "خاطئ"}
+                                                    {answer.isCorrect ? tr("صحيح", "Correct") : tr("خاطئ", "Incorrect")}
                                                 </Badge>
                                             </div>
                                         </div>
                                         <p className="text-sm text-muted-foreground mb-2">{answer.question.text}</p>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                             <div>
-                                                <span className="font-medium">إجابتك:</span>
+                                                <span className="font-medium">{tr("إجابتك", "Your answer")}:</span>
                                                 <p className="text-muted-foreground">
                                                     {answer.studentAnswer 
                                                         ? formatAnswer(answer.studentAnswer, answer.question.type)
-                                                        : "لم تجب"
+                                                        : tr("لم تجب", "No answer")
                                                     }
                                                 </p>
                                             </div>
                                             <div>
-                                                <span className="font-medium">الإجابة الصحيحة:</span>
+                                                <span className="font-medium">{tr("الإجابة الصحيحة", "Correct answer")}:</span>
                                                 <p className="text-primary">
                                                     {formatAnswer(answer.correctAnswer, answer.question.type)}
                                                 </p>
                                             </div>
                                         </div>
                                         <div className="mt-2 text-sm">
-                                            <span className="font-medium">الدرجات:</span>
+                                            <span className="font-medium">{tr("الدرجات", "Points")}:</span>
                                             <span className="text-muted-foreground">
                                                 {" "}{answer.pointsEarned}/{answer.question.points}
                                             </span>
@@ -312,14 +307,14 @@ export default function QuizResultPage({
                                 onClick={handleTryAgain}
                                 className="bg-primary hover:bg-primary/90"
                             >
-                                إعادة الاختبار
+                                {tr("إعادة الاختبار", "Retake quiz")}
                             </Button>
                         ) : (
                             <Button
                                 onClick={handleNextChapter}
                                 className="bg-primary hover:bg-primary/90"
                             >
-                                {willRedirectToDashboard ? "لوحة التحكم" : "الفصل التالي"}
+                                {willRedirectToDashboard ? tr("لوحة التحكم", "Dashboard") : tr("الفصل التالي", "Next chapter")}
                             </Button>
                         )}
                     </div>

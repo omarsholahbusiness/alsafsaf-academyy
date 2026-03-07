@@ -12,9 +12,12 @@ import { signIn } from "next-auth/react";
 import { Eye, EyeOff, ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import { getDashboardUrlByRole } from "@/lib/utils";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 export default function SignInPage() {
   const router = useRouter();
+  const { locale } = useLanguage();
+  const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -43,14 +46,14 @@ export default function SignInPage() {
 
       if (result?.error) {
         if (result.error === "CredentialsSignin") {
-          toast.error("رقم الهاتف أو كلمة المرور غير صحيحة");
+          toast.error(tr("رقم الهاتف أو كلمة المرور غير صحيحة", "Phone number or password is incorrect"));
         } else {
-          toast.error("حدث خطأ أثناء تسجيل الدخول");
+          toast.error(tr("حدث خطأ أثناء تسجيل الدخول", "An error occurred while signing in"));
         }
         return;
       }
 
-      toast.success("تم تسجيل الدخول بنجاح");
+      toast.success(tr("تم تسجيل الدخول بنجاح", "Signed in successfully"));
       
       // Get user data to determine role and redirect accordingly
       const response = await fetch("/api/auth/session", { cache: "no-store" });
@@ -66,7 +69,7 @@ export default function SignInPage() {
         router.replace(target);
       }
     } catch {
-      toast.error("حدث خطأ أثناء تسجيل الدخول");
+      toast.error(tr("حدث خطأ أثناء تسجيل الدخول", "An error occurred while signing in"));
     } finally {
       setIsLoading(false);
     }
@@ -74,10 +77,10 @@ export default function SignInPage() {
 
   return (
     <div className="flex min-h-screen bg-background overflow-y-auto">
-      <div className="absolute top-4 left-4 z-10">
+      <div className="absolute top-4 rtl:left-4 ltr:right-4 z-10">
         <Button variant="ghost" size="lg" asChild>
           <Link href="/">
-            <ChevronLeft className="h-10 w-10" />
+            <ChevronLeft className="h-10 w-10 rtl:rotate-0 ltr:rotate-180" />
           </Link>
         </Button>
       </div>
@@ -91,7 +94,7 @@ export default function SignInPage() {
               <div className="absolute inset-8">
                 <Image
                   src="/logo.png"
-                  alt="Teacher"
+                  alt={tr("شعار المنصة", "Platform logo")}
                   fill
                   className="object-contain"
                   unoptimized
@@ -100,10 +103,10 @@ export default function SignInPage() {
             </div>
             <div className="space-y-4">
               <h3 className="text-2xl font-bold text-brand">
-                مرحباً بك مرة أخرى
+                {tr("مرحباً بك مرة أخرى", "Welcome back")}
               </h3>
               <p className="text-lg text-muted-foreground max-w-md">
-                سجل دخولك واستكشف الكورسات التعليمية المميزة
+                {tr("سجل دخولك واستكشف الكورسات التعليمية المميزة", "Sign in and explore premium educational courses")}
               </p>
             </div>
           </div>
@@ -115,15 +118,15 @@ export default function SignInPage() {
         <div className="w-full max-w-md space-y-6 py-8 mt-8">
           <div className="space-y-2 text-center">
             <h2 className="text-3xl font-bold tracking-tight">
-              تسجيل الدخول
+              {tr("تسجيل الدخول", "Sign in")}
             </h2>
             <p className="text-sm text-muted-foreground">
-              أدخل رقم هاتفك وكلمة المرور للدخول إلى حسابك
+              {tr("أدخل رقم هاتفك وكلمة المرور للدخول إلى حسابك", "Enter your phone number and password to access your account")}
             </p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="phoneNumber">رقم الهاتف</Label>
+              <Label htmlFor="phoneNumber">{tr("رقم الهاتف", "Phone number")}</Label>
               <Input
                 id="phoneNumber"
                 name="phoneNumber"
@@ -138,7 +141,7 @@ export default function SignInPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">كلمة المرور</Label>
+              <Label htmlFor="password">{tr("كلمة المرور", "Password")}</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -155,7 +158,7 @@ export default function SignInPage() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
+                  className="absolute rtl:left-0 ltr:right-0 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -170,19 +173,19 @@ export default function SignInPage() {
             <LoadingButton
               type="submit"
               loading={isLoading}
-              loadingText="جاري تسجيل الدخول..."
+              loadingText={tr("جاري تسجيل الدخول...", "Signing in...")}
               className="w-full h-10 bg-brand hover:bg-brand/90 text-white"
             >
-              تسجيل الدخول
+              {tr("تسجيل الدخول", "Sign in")}
             </LoadingButton>
           </form>
           <div className="text-center text-sm">
-            <span className="text-muted-foreground">ليس لديك حساب؟ </span>
+            <span className="text-muted-foreground">{tr("ليس لديك حساب؟ ", "Don't have an account? ")}</span>
             <Link 
               href="/sign-up" 
               className="text-primary hover:underline transition-colors"
             >
-              إنشاء حساب جديد
+              {tr("إنشاء حساب جديد", "Create a new account")}
             </Link>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { cn } from "@/lib/utils";
 import { ButtonHTMLAttributes, forwardRef } from "react";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface LoadingButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
@@ -16,12 +17,14 @@ interface LoadingButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export const LoadingButton = forwardRef<HTMLButtonElement, LoadingButtonProps>(
   ({ 
     loading = false, 
-    loadingText = "جاري التحميل...",
+    loadingText,
     children, 
     className,
     disabled,
     ...props 
   }, ref) => {
+    const { locale } = useLanguage();
+    const resolvedLoadingText = loadingText ?? (locale === "ar" ? "جاري التحميل..." : "Loading...");
     return (
       <Button
         ref={ref}
@@ -32,7 +35,7 @@ export const LoadingButton = forwardRef<HTMLButtonElement, LoadingButtonProps>(
         {loading ? (
           <>
             <LoadingSpinner size="sm" className="mr-2" />
-            {loadingText}
+            {resolvedLoadingText}
           </>
         ) : (
           children

@@ -6,15 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 export const BalanceTest = () => {
+  const { locale } = useLanguage();
+  const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
   const { data: session, status } = useSession();
   const [amount, setAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAddBalance = async () => {
     if (!amount || parseFloat(amount) <= 0) {
-      toast.error("يرجى إدخال مبلغ صحيح");
+      toast.error(tr("يرجى إدخال مبلغ صحيح", "Please enter a valid amount"));
       return;
     }
 
@@ -30,15 +33,15 @@ export const BalanceTest = () => {
 
       if (response.ok) {
         const data = await response.json();
-        toast.success("تم إضافة الرصيد بنجاح");
+        toast.success(tr("تم إضافة الرصيد بنجاح", "Balance added successfully"));
         setAmount("");
       } else {
         const error = await response.text();
-        toast.error(error || "حدث خطأ أثناء إضافة الرصيد");
+        toast.error(error || tr("حدث خطأ أثناء إضافة الرصيد", "An error occurred while adding balance"));
       }
     } catch (error) {
       console.error("Error adding balance:", error);
-      toast.error("حدث خطأ أثناء إضافة الرصيد");
+      toast.error(tr("حدث خطأ أثناء إضافة الرصيد", "An error occurred while adding balance"));
     } finally {
       setIsLoading(false);
     }

@@ -16,6 +16,7 @@ import {
 import { Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { useTheme } from 'next-themes';
+import { useLanguage } from '@/components/providers/rtl-provider';
 
 // Register ChartJS components
 ChartJS.register(
@@ -60,6 +61,8 @@ interface AnalyticsData {
 }
 
 const AnalyticsPage = () => {
+  const { locale } = useLanguage();
+  const tr = (arText: string, enText: string) => (locale === 'ar' ? arText : enText);
   const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(true);
   const [analytics, setAnalytics] = useState<AnalyticsData>({
@@ -71,7 +74,7 @@ const AnalyticsPage = () => {
       labels: [],
       datasets: [
         {
-          label: 'الإيرادات',
+          label: tr('الإيرادات', 'Revenue'),
           data: [],
           backgroundColor: 'rgba(75, 192, 192, 0.5)',
         },
@@ -143,7 +146,7 @@ const AnalyticsPage = () => {
       },
       title: {
         display: true,
-        text: 'إيرادات الكورس',
+        text: tr('إيرادات الكورس', 'Course revenue'),
         color: textColor,
         font: {
           family: 'Inter, sans-serif',
@@ -187,7 +190,7 @@ const AnalyticsPage = () => {
       },
       title: {
         display: true,
-        text: 'توزيع المبيعات',
+        text: tr('توزيع المبيعات', 'Sales distribution'),
         color: textColor,
         font: {
           family: 'Inter, sans-serif',
@@ -209,24 +212,24 @@ const AnalyticsPage = () => {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">لوحة الاحصائيات</h1>
+        <h1 className="text-2xl font-bold">{tr('لوحة الاحصائيات', 'Analytics dashboard')}</h1>
         <p className="text-sm text-muted-foreground">
-          التحليلات الخاصة بك
+          {tr('التحليلات الخاصة بك', 'Your analytics')}
         </p>
       </div>
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="p-6 bg-blue-50 rounded-lg shadow-sm">
-          <h3 className="text-sm font-medium text-muted-foreground">إجمالي الإيرادات</h3>
+          <h3 className="text-sm font-medium text-muted-foreground">{tr('إجمالي الإيرادات', 'Total revenue')}</h3>
           <p className="text-3xl font-bold">EGP {analytics.totalRevenue.toFixed(2)}</p>
         </Card>
         <Card className="p-6 bg-green-50 rounded-lg shadow-sm">
-          <h3 className="text-sm font-medium text-muted-foreground">إجمالي المبيعات</h3>
+          <h3 className="text-sm font-medium text-muted-foreground">{tr('إجمالي المبيعات', 'Total sales')}</h3>
           <p className="text-3xl font-bold">{analytics.totalSales}</p>
         </Card>
         <Card className="p-6 bg-amber-50 rounded-lg shadow-sm">
-          <h3 className="text-sm font-medium text-muted-foreground">الكورسات المنشورة</h3>
+          <h3 className="text-sm font-medium text-muted-foreground">{tr('الكورسات المنشورة', 'Published courses')}</h3>
           <p className="text-3xl font-bold">{analytics.courseCount}</p>
         </Card>
       </div>
@@ -234,13 +237,13 @@ const AnalyticsPage = () => {
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-medium mb-4">الإيرادات بالكورس</h3>
+          <h3 className="text-lg font-medium mb-4">{tr('الإيرادات بالكورس', 'Revenue by course')}</h3>
           <div className="h-80">
             <Bar options={barOptions} data={analytics.revenueData} />
           </div>
         </Card>
         <Card className="p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-medium mb-4">توزيع المبيعات</h3>
+          <h3 className="text-lg font-medium mb-4">{tr('توزيع المبيعات', 'Sales distribution')}</h3>
           <div className="h-80 flex items-center justify-center">
             <Pie options={pieOptions} data={analytics.salesData} />
           </div>
@@ -249,15 +252,15 @@ const AnalyticsPage = () => {
 
       {/* Course Performance Table */}
       <Card className="p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-medium mb-4">أداء الكورس</h3>
+        <h3 className="text-lg font-medium mb-4">{tr('أداء الكورس', 'Course performance')}</h3>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-2">الكورس</th>
-                <th className="text-center py-3 px-2">المبيعات</th>
-                <th className="text-center py-3 px-2">الإيرادات</th>
-                <th className="text-center py-3 px-2">معدل الاكتمال</th>
+                <th className="text-left py-3 px-2">{tr('الكورس', 'Course')}</th>
+                <th className="text-center py-3 px-2">{tr('المبيعات', 'Sales')}</th>
+                <th className="text-center py-3 px-2">{tr('الإيرادات', 'Revenue')}</th>
+                <th className="text-center py-3 px-2">{tr('معدل الاكتمال', 'Completion rate')}</th>
               </tr>
             </thead>
             <tbody>

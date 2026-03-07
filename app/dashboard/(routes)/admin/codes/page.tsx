@@ -9,10 +9,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Search, Plus, Copy, Check, Ticket } from "lucide-react";
+import { Search, Plus, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { ar } from "date-fns/locale";
+import { useLanguage } from "@/components/providers/rtl-provider";
+import { getDateFnsLocale } from "@/lib/i18n";
 
 interface Course {
   id: string;
@@ -44,6 +45,8 @@ interface PurchaseCode {
 }
 
 const AdminCodesPage = () => {
+  const { locale } = useLanguage();
+  const dateLocale = getDateFnsLocale(locale);
   const [codes, setCodes] = useState<PurchaseCode[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +72,7 @@ const AdminCodesPage = () => {
       } else {
         toast.error("حدث خطأ في تحميل الأكواد");
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching codes:", error);
       toast.error("حدث خطأ في تحميل الأكواد");
     } finally {
@@ -86,7 +89,7 @@ const AdminCodesPage = () => {
         const publishedCourses = data.filter((course: Course) => course.isPublished);
         setCourses(publishedCourses);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching courses:", error);
     }
   };
@@ -121,7 +124,7 @@ const AdminCodesPage = () => {
         const error = await response.text();
         toast.error(error || "حدث خطأ أثناء إنشاء الأكواد");
       }
-    } catch (error) {
+    } catch {
       console.error("Error generating codes:", error);
       toast.error("حدث خطأ أثناء إنشاء الأكواد");
     } finally {
@@ -135,7 +138,7 @@ const AdminCodesPage = () => {
       setCopiedCode(code);
       toast.success("تم نسخ الكود");
       setTimeout(() => setCopiedCode(null), 2000);
-    } catch (error) {
+    } catch {
       toast.error("فشل نسخ الكود");
     }
   };
@@ -301,11 +304,11 @@ const AdminCodesPage = () => {
                     </TableCell>
                     <TableCell>
                       {code.usedAt
-                        ? format(new Date(code.usedAt), "yyyy-MM-dd HH:mm", { locale: ar })
+                        ? format(new Date(code.usedAt), "yyyy-MM-dd HH:mm", { locale: dateLocale })
                         : "-"}
                     </TableCell>
                     <TableCell>
-                      {format(new Date(code.createdAt), "yyyy-MM-dd HH:mm", { locale: ar })}
+                      {format(new Date(code.createdAt), "yyyy-MM-dd HH:mm", { locale: dateLocale })}
                     </TableCell>
                     <TableCell>
                       <Button

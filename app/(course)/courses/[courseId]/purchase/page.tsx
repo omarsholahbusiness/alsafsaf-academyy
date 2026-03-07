@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { auth } from "@/lib/auth";
 import { ArrowLeft, CreditCard, Wallet, AlertCircle, Ticket, Check } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface Course {
   id: string;
@@ -25,6 +25,8 @@ export default function PurchasePage({
   params: Promise<{ courseId: string }>;
 }) {
   const router = useRouter();
+  const { locale } = useLanguage();
+  const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
   const { courseId } = use(params);
   const [course, setCourse] = useState<Course | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,11 +49,11 @@ export default function PurchasePage({
         const data = await response.json();
         setCourse(data);
       } else {
-        toast.error("حدث خطأ أثناء تحميل الكورس");
+        toast.error(tr("حدث خطأ أثناء تحميل الكورس", "An error occurred while loading the course"));
       }
     } catch (error) {
       console.error("Error fetching course:", error);
-      toast.error("حدث خطأ أثناء تحميل الكورس");
+      toast.error(tr("حدث خطأ أثناء تحميل الكورس", "An error occurred while loading the course"));
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +75,7 @@ export default function PurchasePage({
 
   const handleRedeemCode = async () => {
     if (!code.trim()) {
-      toast.error("يرجى إدخال الكود");
+      toast.error(tr("يرجى إدخال الكود", "Please enter a code"));
       return;
     }
 
@@ -88,8 +90,8 @@ export default function PurchasePage({
       });
 
       if (response.ok) {
-        const data = await response.json();
-        toast.success("تم استبدال الكود بنجاح! تم شراء الكورس");
+        await response.json();
+        toast.success(tr("تم استبدال الكود بنجاح! تم شراء الكورس", "Code redeemed successfully! Course purchased."));
         setCodeRedeemed(true);
         setTimeout(() => {
           router.push("/dashboard");
@@ -97,18 +99,18 @@ export default function PurchasePage({
       } else {
         const error = await response.text();
         if (error.includes("already been used")) {
-          toast.error("هذا الكود مستخدم بالفعل");
+          toast.error(tr("هذا الكود مستخدم بالفعل", "This code has already been used"));
         } else if (error.includes("already purchased")) {
-          toast.error("لقد قمت بشراء هذه الكورس مسبقاً");
+          toast.error(tr("لقد قمت بشراء هذا الكورس مسبقاً", "You already purchased this course"));
         } else if (error.includes("Invalid code")) {
-          toast.error("كود غير صحيح");
+          toast.error(tr("كود غير صحيح", "Invalid code"));
         } else {
-          toast.error(error || "حدث خطأ أثناء استبدال الكود");
+          toast.error(error || tr("حدث خطأ أثناء استبدال الكود", "An error occurred while redeeming the code"));
         }
       }
     } catch (error) {
       console.error("Error redeeming code:", error);
-      toast.error("حدث خطأ أثناء استبدال الكود");
+      toast.error(tr("حدث خطأ أثناء استبدال الكود", "An error occurred while redeeming the code"));
     } finally {
       setIsRedeeming(false);
     }
@@ -124,22 +126,22 @@ export default function PurchasePage({
       });
 
       if (response.ok) {
-        const data = await response.json();
-        toast.success("تم شراء الكورس بنجاح!");
+        await response.json();
+        toast.success(tr("تم شراء الكورس بنجاح!", "Course purchased successfully!"));
         router.push("/dashboard");
       } else {
         const error = await response.text();
         if (error.includes("Insufficient balance")) {
-          toast.error("رصيد غير كافي. يرجى إضافة رصيد إلى حسابك");
+          toast.error(tr("رصيد غير كافي. يرجى إضافة رصيد إلى حسابك", "Insufficient balance. Please add balance to your account."));
         } else if (error.includes("already purchased")) {
-          toast.error("لقد قمت بشراء هذه الكورس مسبقاً");
+          toast.error(tr("لقد قمت بشراء هذا الكورس مسبقاً", "You already purchased this course"));
         } else {
-          toast.error(error || "حدث خطأ أثناء الشراء");
+          toast.error(error || tr("حدث خطأ أثناء الشراء", "An error occurred during purchase"));
         }
       }
     } catch (error) {
       console.error("Error purchasing course:", error);
-      toast.error("حدث خطأ أثناء الشراء");
+      toast.error(tr("حدث خطأ أثناء الشراء", "An error occurred during purchase"));
     } finally {
       setIsPurchasing(false);
     }
@@ -159,9 +161,9 @@ export default function PurchasePage({
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">الكورس غير موجودة</h1>
+          <h1 className="text-2xl font-bold mb-4">{tr("الكورس غير موجود", "Course not found")}</h1>
           <Button asChild>
-            <Link href="/dashboard">العودة إلى لوحة التحكم</Link>
+            <Link href="/dashboard">{tr("العودة إلى لوحة التحكم", "Back to dashboard")}</Link>
           </Button>
         </div>
       </div>
@@ -179,10 +181,10 @@ export default function PurchasePage({
               onClick={() => router.back()}
               className="flex items-center gap-2"
             >
-              <ArrowLeft className="h-4 w-4" />
-              رجوع
+              <ArrowLeft className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
+              {tr("رجوع", "Back")}
             </Button>
-            <h1 className="text-2xl font-bold">شراء الكورس</h1>
+            <h1 className="text-2xl font-bold">{tr("شراء الكورس", "Purchase course")}</h1>
           </div>
 
           {/* Course Details */}
@@ -190,7 +192,7 @@ export default function PurchasePage({
             <CardHeader>
               <CardTitle>{course.title}</CardTitle>
               <CardDescription>
-                {course.description || "لا يوجد وصف للكورس"}
+                {course.description || tr("لا يوجد وصف للكورس", "No description available for this course")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -204,7 +206,7 @@ export default function PurchasePage({
                 </div>
               )}
               <div className="text-2xl font-bold text-brand">
-                {course.price?.toFixed(2) || "0.00"} جنيه
+                {course.price?.toFixed(2) || "0.00"} {tr("جنيه", "EGP")}
               </div>
             </CardContent>
           </Card>
@@ -214,7 +216,7 @@ export default function PurchasePage({
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Wallet className="h-5 w-5" />
-                رصيد الحساب
+                {tr("رصيد الحساب", "Account balance")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -223,12 +225,12 @@ export default function PurchasePage({
               ) : (
                 <div className="space-y-2">
                   <div className="text-xl font-bold">
-                    {userBalance.toFixed(2)} جنيه
+                    {userBalance.toFixed(2)} {tr("جنيه", "EGP")}
                   </div>
                   {!hasSufficientBalance && (
                     <div className="flex items-center gap-2 text-amber-600">
                       <AlertCircle className="h-4 w-4" />
-                      <span>رصيد غير كافي لشراء هذه الكورس</span>
+                      <span>{tr("رصيد غير كافي لشراء هذا الكورس", "Insufficient balance to purchase this course")}</span>
                     </div>
                   )}
                 </div>
@@ -241,21 +243,21 @@ export default function PurchasePage({
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Ticket className="h-5 w-5" />
-                لديك كود خصم؟
+                {tr("لديك كود خصم؟", "Do you have a discount code?")}
               </CardTitle>
               <CardDescription>
-                أدخل الكود للحصول على الكورس مجاناً
+                {tr("أدخل الكود للحصول على الكورس مجاناً", "Enter the code to get this course for free")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-2">
                 <div className="flex-1">
                   <Label htmlFor="code" className="sr-only">
-                    كود الخصم
+                    {tr("كود الخصم", "Discount code")}
                   </Label>
                   <Input
                     id="code"
-                    placeholder="أدخل الكود هنا"
+                    placeholder={tr("أدخل الكود هنا", "Enter code here")}
                     value={code}
                     onChange={(e) => setCode(e.target.value.toUpperCase())}
                     disabled={isRedeeming || codeRedeemed}
@@ -268,14 +270,14 @@ export default function PurchasePage({
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   {isRedeeming ? (
-                    "جاري الاستبدال..."
+                    tr("جاري الاستبدال...", "Redeeming...")
                   ) : codeRedeemed ? (
                     <>
-                      <Check className="h-4 w-4 ml-2" />
-                      تم الاستبدال
+                      <Check className="h-4 w-4 rtl:ml-2 ltr:mr-2" />
+                      {tr("تم الاستبدال", "Redeemed")}
                     </>
                   ) : (
-                    "استبدال الكود"
+                    tr("استبدال الكود", "Redeem code")
                   )}
                 </Button>
               </div>
@@ -288,7 +290,7 @@ export default function PurchasePage({
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">أو</span>
+              <span className="bg-background px-2 text-muted-foreground">{tr("أو", "or")}</span>
             </div>
           </div>
 
@@ -299,13 +301,13 @@ export default function PurchasePage({
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-2 text-amber-700 mb-4">
                     <AlertCircle className="h-5 w-5" />
-                    <span className="font-medium">رصيد غير كافي</span>
+                    <span className="font-medium">{tr("رصيد غير كافي", "Insufficient balance")}</span>
                   </div>
                   <p className="text-amber-700 mb-4">
-                    تحتاج إلى {(course.price || 0) - userBalance} جنيه إضافية لشراء هذه الكورس
+                    {tr("تحتاج إلى", "You need")} {(course.price || 0) - userBalance} {tr("جنيه إضافية لشراء هذا الكورس", "more EGP to purchase this course")}
                   </p>
                   <Button asChild className="bg-brand hover:bg-brand/90">
-                    <Link href="/dashboard/balance">إضافة رصيد</Link>
+                    <Link href="/dashboard/balance">{tr("إضافة رصيد", "Add balance")}</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -318,19 +320,21 @@ export default function PurchasePage({
               size="lg"
             >
               {isPurchasing ? (
-                "جاري الشراء..."
+                tr("جاري الشراء...", "Processing purchase...")
               ) : (
                 <div className="flex items-center gap-2">
                   <CreditCard className="h-5 w-5" />
-                  شراء الكورس
+                  {tr("شراء الكورس", "Purchase course")}
                 </div>
               )}
             </Button>
 
             {!codeRedeemed && (
               <div className="text-center text-sm text-muted-foreground">
-                <p>سيتم خصم {course.price?.toFixed(2) || "0.00"} جنيه من رصيدك</p>
-                <p>ستتمكن من الوصول إلى الكورس فوراً بعد الشراء</p>
+                <p>
+                  {tr("سيتم خصم", "An amount of")} {course.price?.toFixed(2) || "0.00"} {tr("جنيه من رصيدك", "EGP will be deducted from your balance")}
+                </p>
+                <p>{tr("ستتمكن من الوصول إلى الكورس فوراً بعد الشراء", "You will get immediate access to the course after purchase")}</p>
               </div>
             )}
           </div>

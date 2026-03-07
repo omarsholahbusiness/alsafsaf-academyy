@@ -9,9 +9,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut } from "lucide-react";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 export const UserButton = () => {
   const { data: session } = useSession();
+  const { locale } = useLanguage();
 
   if (!session?.user) {
     return null;
@@ -32,8 +34,8 @@ export const UserButton = () => {
           onClick={() => signOut()}
           className="text-red-600 cursor-pointer"
         >
-          <LogOut className="h-4 w-4 mr-2" />
-          تسجيل الخروج
+          <LogOut className="h-4 w-4 rtl:mr-2 ltr:ml-2" />
+          {locale === "ar" ? "تسجيل الخروج" : "Log out"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

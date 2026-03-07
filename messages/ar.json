@@ -1,0 +1,92 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "logout": "تسجيل الخروج",
+    "logoutLoading": "جاري تسجيل الخروج...",
+    "backToCourses": "الرجوع إلى الكورسات",
+    "languageShort": "AR"
+  },
+  "navbar": {
+    "signUp": "انشاء الحساب",
+    "signIn": "تسجيل الدخول",
+    "dashboard": "لوحة التحكم"
+  },
+  "footer": {
+    "whatsapp": "واتساب : 01559973722",
+    "rights": "جميع الحقوق محفوظة"
+  },
+  "mobileSidebar": {
+    "navigationMenu": "قائمة التنقل"
+  },
+  "sidebar": {
+    "guest": {
+      "dashboard": "لوحة التحكم",
+      "courses": "الكورسات",
+      "balance": "الرصيد"
+    },
+    "teacher": {
+      "courses": "الكورسات",
+      "quizzes": "الاختبارات",
+      "grades": "الدرجات",
+      "analytics": "الاحصائيات",
+      "manageStudents": "إدارة الطلاب",
+      "manageBalances": "إدارة الأرصدة",
+      "manageCourses": "اضافة و حذف الكورسات",
+      "passwords": "كلمات المرور",
+      "codes": "الاكواد",
+      "createStudentAccount": "إنشاء حساب طالب"
+    },
+    "admin": {
+      "manageUsers": "إدارة المستخدمين",
+      "courses": "الكورسات",
+      "quizzes": "الاختبارات",
+      "createStudentAccount": "إنشاء حساب طالب",
+      "passwords": "كلمات المرور",
+      "manageBalances": "إدارة الأرصدة",
+      "studentProgress": "تقدم الطلاب",
+      "manageCourses": "اضافة و حذف الكورسات",
+      "codes": "الاكواد"
+    }
+  },
+  "home": {
+    "degree": "دكتوراه تربية خاصة",
+    "startNow": "ابدأ الآن",
+    "coursesSectionTitle": "الكورسات المتاحة",
+    "coursesSectionSubtitle": "اكتشف مجموعة متنوعة من الكورسات التعليمية المميزة",
+    "noCoursesTitle": "لا توجد كورسات متاحة حالياً",
+    "noCoursesDescription": "سيتم إضافة الكورسات قريباً. تحقق من هذه الصفحة لاحقاً للاطلاع على أحدث الكورسات التعليمية.",
+    "earlyAccess": "سجل الآن للوصول المبكر",
+    "chapterSingle": "فصل",
+    "chapterPlural": "فصول",
+    "quizSingle": "اختبار",
+    "quizPlural": "اختبارات",
+    "viewCourse": "عرض الكورس",
+    "testimonialsTitle": "آراء الطلاب",
+    "testimonialsSubtitle": "ماذا يقول طلابنا عن تجربتهم معنا",
+    "testimonial1Name": "عصام اسامة",
+    "testimonial1Grade": "الصف الأول الثانوي",
+    "testimonial1Text": "تجربة رائعة مع اكاديمية الصفصاف، المحتوى غني والشرح مبسط",
+    "testimonial2Name": "سيف طارق",
+    "testimonial2Grade": "الصف الثاني الثانوي",
+    "testimonial2Text": "المنهج منظم جداً والشرح واضح، ساعدني في الفهم أفضل",
+    "testimonial3Name": "عمر جمال",
+    "testimonial3Grade": "الصف الأول الثانوي",
+    "testimonial3Text": "أفضل منصة تعليمية استخدمتها، المحتوى غني والشرح مبسط",
+    "featuresTitle": "مميزات المنصة",
+    "featuresSubtitle": "اكتشف ما يجعل منصتنا مميزة",
+    "featureQualityTitle": "جودة عالية",
+    "featureQualityText": "أفضل منصة متخصصة لتعليم اللغة العربية لغير الناطقين بها",
+    "featureCommunityTitle": "مجتمع نشط",
+    "featureCommunityText": "انضم إلى مجتمع من الطلاب النشطين والمتفوقين والأوائل",
+    "featureCertificatesTitle": "شهادات تقدير",
+    "featureCertificatesText": "احصل على شهادات تقدير عند إكمال الكورسات",
+    "ctaTitle": "ابدأ رحلة التعلم معنا",
+    "ctaSubtitle": "انضم إلينا اليوم وابدأ رحلة النجاح",
+    "registerNow": "سجل الآن",
+    "whatsappAlt": "واتساب",
+    "teacherImageAlt": "Dr.Awadia Nasr",
+    "graduationHatAlt": "قبعة تخرج",
+    "medalAlt": "ميدالية",
+    "notebookAlt": "دفتر"
+  }
+}

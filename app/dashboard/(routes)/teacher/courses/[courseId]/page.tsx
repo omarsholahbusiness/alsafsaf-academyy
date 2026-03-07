@@ -10,12 +10,18 @@ import { PriceForm } from "./_components/price-form";
 import { CourseContentForm } from "./_components/course-content-form";
 import { Banner } from "@/components/banner";
 import { Actions } from "./_components/actions";
+import { cookies } from "next/headers";
+import { normalizeLocale } from "@/lib/i18n";
 
 export default async function CourseIdPage({
     params,
 }: {
     params: Promise<{ courseId: string }>
 }) {
+    const cookieStore = await cookies();
+    const locale = normalizeLocale(cookieStore.get("site_locale")?.value);
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
+
     const resolvedParams = await params;
     const { courseId } = resolvedParams;
 
@@ -81,40 +87,40 @@ export default async function CourseIdPage({
             {!course.isPublished && (
                 <Banner
                     variant="warning"
-                    label="هذه الكورس غير منشورة. لن تكون مرئية للطلاب."
+                    label={tr("هذه الكورس غير منشورة. لن تكون مرئية للطلاب.", "This course is unpublished. It will not be visible to students.")}
                 />
             )}
             <div className="p-6">
                 <div className="flex items-center justify-between">
                     <div className="flex flex-col gap-y-2">
                         <h1 className="text-2xl font-medium">
-                            إعداد الكورس
+                            {tr("إعداد الكورس", "Course setup")}
                         </h1>
                         <span className="text-sm text-slate-700">
-                            أكمل جميع الحقول {completionText}
+                            {tr("أكمل جميع الحقول", "Complete all fields")} {completionText}
                         </span>
                         {!isComplete && (
                             <div className="text-xs text-muted-foreground mt-2">
                                 <div className="grid grid-cols-2 gap-2">
                                     <div className={`flex items-center gap-1 ${completionStatus.title ? 'text-brand' : 'text-red-600'}`}>
                                         <span>{completionStatus.title ? '✓' : '✗'}</span>
-                                        <span>العنوان</span>
+                                        <span>{tr("العنوان", "Title")}</span>
                                     </div>
                                     <div className={`flex items-center gap-1 ${completionStatus.description ? 'text-brand' : 'text-red-600'}`}>
                                         <span>{completionStatus.description ? '✓' : '✗'}</span>
-                                        <span>الوصف</span>
+                                        <span>{tr("الوصف", "Description")}</span>
                                     </div>
                                     <div className={`flex items-center gap-1 ${completionStatus.imageUrl ? 'text-brand' : 'text-red-600'}`}>
                                         <span>{completionStatus.imageUrl ? '✓' : '✗'}</span>
-                                        <span>الصورة</span>
+                                        <span>{tr("الصورة", "Image")}</span>
                                     </div>
                                     <div className={`flex items-center gap-1 ${completionStatus.price ? 'text-brand' : 'text-red-600'}`}>
                                         <span>{completionStatus.price ? '✓' : '✗'}</span>
-                                        <span>السعر</span>
+                                        <span>{tr("السعر", "Price")}</span>
                                     </div>
                                     <div className={`flex items-center gap-1 ${completionStatus.publishedChapters ? 'text-brand' : 'text-red-600'}`}>
                                         <span>{completionStatus.publishedChapters ? '✓' : '✗'}</span>
-                                        <span>فصل منشور</span>
+                                        <span>{tr("فصل منشور", "At least one published chapter")}</span>
                                     </div>
                                 </div>
                             </div>
@@ -131,7 +137,7 @@ export default async function CourseIdPage({
                         <div className="flex items-center gap-x-2">
                             <IconBadge icon={LayoutDashboard} />
                             <h2 className="text-xl">
-                                تخصيص دورتك
+                                {tr("تخصيص دورتك", "Customize your course")}
                             </h2>
                         </div>
                         <TitleForm
@@ -152,7 +158,7 @@ export default async function CourseIdPage({
                             <div className="flex items-center gap-x-2">
                                 <IconBadge icon={LayoutDashboard} />
                                 <h2 className="text-xl">
-                                    الموارد والفصول
+                                    {tr("الموارد والفصول", "Resources and chapters")}
                                 </h2>
                             </div>
                             <CourseContentForm
@@ -164,7 +170,7 @@ export default async function CourseIdPage({
                             <div className="flex items-center gap-x-2">
                                 <IconBadge icon={LayoutDashboard} />
                                 <h2 className="text-xl">
-                                    إعدادات الكورس
+                                    {tr("إعدادات الكورس", "Course settings")}
                                 </h2>
                             </div>
                             <ImageForm

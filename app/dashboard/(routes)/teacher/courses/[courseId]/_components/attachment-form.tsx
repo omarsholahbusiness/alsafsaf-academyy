@@ -8,6 +8,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { FileUpload } from "@/components/file-upload";
 import { Attachment, Course } from "@prisma/client";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface AttachmentFormProps {
     initialData: Course & { attachments: Attachment[] };
@@ -18,6 +19,8 @@ export const AttachmentForm = ({
     initialData,
     courseId
 }: AttachmentFormProps) => {
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const [isEditing, setIsEditing] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -28,11 +31,11 @@ export const AttachmentForm = ({
     const onSubmit = async (values: { url: string; name: string }) => {
         try {
             await axios.post(`/api/courses/${courseId}/attachments`, values);
-            toast.success("Course updated");
+            toast.success(tr("تم تحديث الكورس", "Course updated"));
             toggleEdit();
             router.refresh();
         } catch {
-            toast.error("Something went wrong");
+            toast.error(tr("حدث خطأ", "Something went wrong"));
         }
     }
 
@@ -40,10 +43,10 @@ export const AttachmentForm = ({
         try {
             setDeletingId(id);
             await axios.delete(`/api/courses/${courseId}/attachments/${id}`);
-            toast.success("Attachment deleted");
+            toast.success(tr("تم حذف المرفق", "Attachment deleted"));
             router.refresh();
         } catch {
-            toast.error("Something went wrong");
+            toast.error(tr("حدث خطأ", "Something went wrong"));
         } finally {
             setDeletingId(null);
         }
@@ -52,13 +55,13 @@ export const AttachmentForm = ({
     return (
         <div className="mt-6 border bg-card rounded-md p-4">
             <div className="font-medium flex items-center justify-between">
-                المرفقات
+                {tr("المرفقات", "Attachments")}
                 <Button onClick={toggleEdit} variant="ghost">
-                    {isEditing && (<>الغاء</>)}
+                    {isEditing && <>{tr("إلغاء", "Cancel")}</>}
                     {!isEditing && (
                         <>
-                            <PlusCircle className="h-4 w-4 mr-2" />
-                            إضافة ملف
+                            <PlusCircle className="h-4 w-4 rtl:mr-2 ltr:ml-2" />
+                            {tr("إضافة ملف", "Add file")}
                         </>
                     )}
                 </Button>
@@ -67,7 +70,7 @@ export const AttachmentForm = ({
                 <>
                     {initialData.attachments.length === 0 && (
                         <p className="text-sm mt-2 text-muted-foreground italic">
-                            لا يوجد ملفات مرفوعة
+                            {tr("لا يوجد ملفات مرفوعة", "No uploaded files")}
                         </p>
                     )}
                     {initialData.attachments.length > 0 && (
@@ -77,19 +80,19 @@ export const AttachmentForm = ({
                                     key={attachment.id}
                                     className="flex items-center p-3 w-full bg-secondary/50 border-secondary/50 border text-secondary-foreground rounded-md"
                                 >
-                                    <File className="h-4 w-4 mr-2" />
+                                    <File className="h-4 w-4 rtl:mr-2 ltr:ml-2" />
                                     <p className="text-xs line-clamp-1">
                                         {attachment.name}
                                     </p>
                                     {deletingId === attachment.id && (
-                                        <div className="ml-auto">
+                                        <div className="rtl:mr-auto ltr:ml-auto">
                                             <Loader2 className="h-4 w-4 animate-spin" />
                                         </div>
                                     )}
                                     {deletingId !== attachment.id && (
                                         <button
                                             onClick={() => onDelete(attachment.id)}
-                                            className="ml-auto hover:opacity-75 transition"
+                                            className="rtl:mr-auto ltr:ml-auto hover:opacity-75 transition"
                                         >
                                             <X className="h-4 w-4" />
                                         </button>
@@ -114,7 +117,7 @@ export const AttachmentForm = ({
                         }}
                     />
                     <div className="text-xs text-muted-foreground mt-4">
-                        أضف أي شيء قد يحتاجه الطلاب لإكمال الكورس.
+                        {tr("أضف أي شيء قد يحتاجه الطلاب لإكمال الكورس.", "Add anything students may need to complete the course.")}
                     </div>
                 </div>
             )}

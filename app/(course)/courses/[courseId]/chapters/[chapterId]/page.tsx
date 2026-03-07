@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, CheckCircle2, Circle, Lock, FileText, Downlo
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { PlyrVideoPlayer } from "@/components/plyr-video-player";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface Chapter {
   id: string;
@@ -37,6 +38,8 @@ interface Chapter {
 
 const ChapterPage = () => {
   const router = useRouter();
+  const { locale, isRTL } = useLanguage();
+  const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
   const routeParams = useParams() as { courseId: string; chapterId: string };
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [loading, setLoading] = useState(true);
@@ -66,11 +69,11 @@ const ChapterPage = () => {
         const decodedFilename = decodeURIComponent(filename);
         // Remove query parameters if any
         const cleanFilename = decodedFilename.split('?')[0];
-        return cleanFilename || 'chapter-document';
+        return cleanFilename || tr("مستند-الفصل", "chapter-document");
       }
-      return 'chapter-document';
+      return tr("مستند-الفصل", "chapter-document");
     } catch {
-      return 'chapter-document';
+      return tr("مستند-الفصل", "chapter-document");
     }
   };
 
@@ -114,7 +117,7 @@ const ChapterPage = () => {
         document.body.removeChild(link);
         
         window.URL.revokeObjectURL(downloadUrl);
-        toast.success("تم بدء تحميل الملف");
+        toast.success(tr("تم بدء تحميل الملف", "File download started"));
       } else {
         throw new Error('Failed to fetch file');
       }
@@ -133,7 +136,7 @@ const ChapterPage = () => {
       link.click();
       document.body.removeChild(link);
       
-      toast.success("تم فتح الملف في تبويب جديد للتحميل");
+      toast.success(tr("تم فتح الملف في تبويب جديد للتحميل", "File opened in a new tab for download"));
     }
   };
 
@@ -162,13 +165,13 @@ const ChapterPage = () => {
         console.error("🔍 Error fetching data:", axiosError);
         if (axiosError.response) {
           console.error("🔍 Error response:", axiosError.response.data);
-          toast.error(`فشل تحميل الفصل: ${axiosError.response.data}`);
+          toast.error(`${tr("فشل تحميل الفصل", "Failed to load chapter")}: ${axiosError.response.data}`);
         } else if (axiosError.request) {
           console.error("🔍 Error request:", axiosError.request);
-          toast.error("فشل الاتصال بالخادم");
+          toast.error(tr("فشل الاتصال بالخادم", "Failed to connect to the server"));
         } else {
           console.error("🔍 Error message:", axiosError.message);
-          toast.error("حدث خطأ غير معروف");
+          toast.error(tr("حدث خطأ غير معروف", "An unknown error occurred"));
         }
       } finally {
         console.log("🔍 ChapterPage fetchData completed, setting loading to false");
@@ -190,7 +193,7 @@ const ChapterPage = () => {
       router.refresh();
     } catch (error) {
       console.error("Error toggling completion:", error);
-      toast.error("فشل تحديث التقدم");
+      toast.error(tr("فشل تحديث التقدم", "Failed to update progress"));
     }
   };
 
@@ -203,7 +206,7 @@ const ChapterPage = () => {
       }
     } catch (error) {
       console.error("Error marking chapter as completed:", error);
-      toast.error("فشل تحديث التقدم");
+      toast.error(tr("فشل تحديث التقدم", "Failed to update progress"));
     }
   };
 
@@ -230,7 +233,7 @@ const ChapterPage = () => {
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="text-muted-foreground">جاري التحميل...</div>
+        <div className="text-muted-foreground">{tr("جاري التحميل...", "Loading...")}</div>
       </div>
     );
   }
@@ -238,7 +241,7 @@ const ChapterPage = () => {
   if (!chapter) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="text-muted-foreground">لم يتم العثور على الفصل</div>
+        <div className="text-muted-foreground">{tr("لم يتم العثور على الفصل", "Chapter not found")}</div>
       </div>
     );
   }
@@ -248,10 +251,10 @@ const ChapterPage = () => {
       <div className="h-full flex items-center justify-center">
         <div className="text-center space-y-4">
           <Lock className="h-8 w-8 mx-auto text-muted-foreground" />
-          <h2 className="text-2xl font-semibold">هذا الفصل مغلق</h2>
-          <p className="text-muted-foreground">شراء الكورس للوصول إلى جميع الفصول</p>
+          <h2 className="text-2xl font-semibold">{tr("هذا الفصل مغلق", "This chapter is locked")}</h2>
+          <p className="text-muted-foreground">{tr("شراء الكورس للوصول إلى جميع الفصول", "Buy the course to access all chapters")}</p>
           <Button onClick={() => router.push(`/courses/${routeParams.courseId}/purchase`)}>
-            شراء الكورس
+            {tr("شراء الكورس", "Buy course")}
           </Button>
         </div>
       </div>
@@ -265,7 +268,7 @@ const ChapterPage = () => {
           {/* Course Progress */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">التقدم</span>
+              <span className="text-sm text-muted-foreground">{tr("التقدم", "Progress")}</span>
               <span className="text-sm font-medium">{courseProgress}%</span>
             </div>
             <Progress value={courseProgress} className="h-2" />
@@ -300,7 +303,7 @@ const ChapterPage = () => {
               })()
             ) : (
               <div className="absolute inset-0 flex items-center justify-center text-white">
-                لا يوجد فيديو متاح
+                {tr("لا يوجد فيديو متاح", "No video available")}
               </div>
             )}
           </div>
@@ -316,12 +319,12 @@ const ChapterPage = () => {
               >
                 {isCompleted ? (
                   <>
-                    <span>لم يتم الإكمال</span>
+                    <span>{tr("لم يتم الإكمال", "Mark as incomplete")}</span>
                     <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                   </>
                 ) : (
                   <>
-                    <span>تم الإكمال</span>
+                    <span>{tr("تم الإكمال", "Mark as completed")}</span>
                     <Circle className="h-4 w-4" />
                   </>
                 )}
@@ -337,25 +340,25 @@ const ChapterPage = () => {
               <div className="mt-6 p-4 border rounded-lg bg-card">
                 <div className="flex items-center gap-2 mb-3">
                   <FileText className="h-5 w-5 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold">مستندات الفصل</h3>
+                  <h3 className="text-lg font-semibold">{tr("مستندات الفصل", "Chapter documents")}</h3>
                 </div>
                 <div className="space-y-2">
                   {chapter.attachments.map((attachment) => (
                     <div key={attachment.id} className="flex items-center p-3 w-full bg-secondary/50 border-secondary/50 border text-secondary-foreground rounded-md">
-                      <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <FileText className="h-4 w-4 rtl:ml-2 ltr:mr-2 flex-shrink-0" />
                       <div className="flex flex-col min-w-0 flex-1">
                         <p className="text-sm font-medium truncate">
                           {attachment.name || getFilenameFromUrl(attachment.url)}
                         </p>
-                        <p className="text-xs text-muted-foreground">مستند الفصل</p>
+                        <p className="text-xs text-muted-foreground">{tr("مستند الفصل", "Chapter document")}</p>
                       </div>
-                      <div className="mr-auto flex items-center gap-2 flex-shrink-0">
+                      <div className="rtl:mr-auto ltr:ml-auto flex items-center gap-2 flex-shrink-0">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => window.open(attachment.url, '_blank')}
                         >
-                          عرض
+                          {tr("عرض", "View")}
                         </Button>
                         <Button
                           variant="outline"
@@ -364,7 +367,7 @@ const ChapterPage = () => {
                           className="flex items-center gap-1"
                         >
                           <Download className="h-3 w-3" />
-                          تحميل
+                          {tr("تحميل", "Download")}
                         </Button>
                       </div>
                     </div>
@@ -378,23 +381,23 @@ const ChapterPage = () => {
               <div className="mt-6 p-4 border rounded-lg bg-card">
                 <div className="flex items-center gap-2 mb-3">
                   <FileText className="h-5 w-5 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold">مستند الفصل</h3>
+                  <h3 className="text-lg font-semibold">{tr("مستند الفصل", "Chapter document")}</h3>
                 </div>
                 <div className="flex items-center p-3 w-full bg-secondary/50 border-secondary/50 border text-secondary-foreground rounded-md">
-                  <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <FileText className="h-4 w-4 rtl:ml-2 ltr:mr-2 flex-shrink-0" />
                   <div className="flex flex-col min-w-0 flex-1">
                     <p className="text-sm font-medium truncate">
                       {chapter.documentName || getFilenameFromUrl(chapter.documentUrl || '')}
                     </p>
-                    <p className="text-xs text-muted-foreground">مستند الفصل</p>
+                    <p className="text-xs text-muted-foreground">{tr("مستند الفصل", "Chapter document")}</p>
                   </div>
-                  <div className="mr-auto flex items-center gap-2 flex-shrink-0">
+                  <div className="rtl:mr-auto ltr:ml-auto flex items-center gap-2 flex-shrink-0">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => window.open(chapter.documentUrl!, '_blank')}
                     >
-                      عرض المستند
+                      {tr("عرض المستند", "View document")}
                     </Button>
                     <Button
                       variant="outline"
@@ -403,7 +406,7 @@ const ChapterPage = () => {
                       className="flex items-center gap-1"
                     >
                       <Download className="h-3 w-3" />
-                      تحميل
+                      {tr("تحميل", "Download")}
                     </Button>
                   </div>
                 </div>
@@ -419,8 +422,8 @@ const ChapterPage = () => {
               disabled={!chapter.previousChapterId}
               className="flex items-center gap-2"
             >
-              <ChevronRight className="h-4 w-4" />
-              الفصل السابق
+              {isRTL ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              {tr("الفصل السابق", "Previous chapter")}
             </Button>
 
             <Button
@@ -428,8 +431,8 @@ const ChapterPage = () => {
               disabled={!chapter.nextChapterId}
               className="flex items-center gap-2"
             >
-              الفصل التالي
-              <ChevronLeft className="h-4 w-4" />
+              {tr("الفصل التالي", "Next chapter")}
+              {isRTL ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             </Button>
           </div>
         </div>

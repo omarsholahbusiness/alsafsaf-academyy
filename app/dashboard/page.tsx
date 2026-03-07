@@ -8,22 +8,15 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, Play, Clock, Trophy, Wallet, TrendingUp, BookOpen as BookOpenIcon } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { Course, Purchase, Chapter } from "@prisma/client";
+import { Course, Purchase } from "@prisma/client";
+import { cookies } from "next/headers";
+import { normalizeLocale } from "@/lib/i18n";
 
 type CourseWithProgress = Course & {
   chapters: { id: string }[];
   quizzes: { id: string }[];
   purchases: Purchase[];
   progress: number;
-}
-
-type LastWatchedChapter = {
-  id: string;
-  title: string;
-  courseId: string;
-  courseTitle: string;
-  courseImageUrl: string | null;
-  position: number;
 }
 
 type StudentStats = {
@@ -36,6 +29,11 @@ type StudentStats = {
 }
 
 const CoursesPage = async () => {
+  const cookieStore = await cookies();
+  const locale = normalizeLocale(cookieStore.get("site_locale")?.value);
+  const isArabic = locale === "ar";
+  const tr = (arText: string, enText: string) => (isArabic ? arText : enText);
+
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -249,8 +247,8 @@ const CoursesPage = async () => {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">مرحباً بك في لوحة التحكم</h1>
-        <p className="text-muted-foreground">طريقك للنجاح و التفوق</p>
+        <h1 className="text-3xl font-bold mb-2">{tr("مرحباً بك في لوحة التحكم", "Welcome to your dashboard")}</h1>
+        <p className="text-muted-foreground">{tr("طريقك للنجاح و التفوق", "Your path to success and excellence")}</p>
       </div>
 
       {/* Stats and Balance Row */}
@@ -259,8 +257,8 @@ const CoursesPage = async () => {
         <div className="bg-gradient-to-r from-brand to-brand/90 rounded-xl p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-white/80 text-sm">الرصيد الحالي</p>
-              <p className="text-2xl font-bold">{user?.balance?.toFixed(2) || "0.00"} جنيه</p>
+              <p className="text-white/80 text-sm">{tr("الرصيد الحالي", "Current balance")}</p>
+              <p className="text-2xl font-bold">{user?.balance?.toFixed(2) || "0.00"} {tr("جنيه", "EGP")}</p>
             </div>
             <Wallet className="h-8 w-8 text-white/70" />
           </div>
@@ -270,7 +268,7 @@ const CoursesPage = async () => {
         <div className="bg-gradient-to-r from-brand to-brand/90 rounded-xl p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-white/80 text-sm">الكورسات المشتراة</p>
+              <p className="text-white/80 text-sm">{tr("الكورسات المشتراة", "Purchased courses")}</p>
               <p className="text-2xl font-bold">{studentStats.totalCourses}</p>
             </div>
             <BookOpenIcon className="h-8 w-8 text-white/70" />
@@ -281,7 +279,7 @@ const CoursesPage = async () => {
         <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-purple-100 text-sm">الفصول المكتملة</p>
+              <p className="text-purple-100 text-sm">{tr("الفصول المكتملة", "Completed chapters")}</p>
               <p className="text-2xl font-bold">{studentStats.completedChapters}</p>
             </div>
             <Trophy className="h-8 w-8 text-purple-200" />
@@ -292,7 +290,7 @@ const CoursesPage = async () => {
         <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-orange-100 text-sm">متوسط الدرجات</p>
+              <p className="text-orange-100 text-sm">{tr("متوسط الدرجات", "Average score")}</p>
               <p className="text-2xl font-bold">{studentStats.averageScore}%</p>
             </div>
             <TrendingUp className="h-8 w-8 text-orange-200" />
@@ -303,7 +301,7 @@ const CoursesPage = async () => {
       {/* Last Watched Chapter - Big Square */}
       {lastWatchedChapter && (
         <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">آخر فصل كنت تشاهده</h2>
+          <h2 className="text-xl font-semibold mb-4">{tr("آخر فصل كنت تشاهده", "Last chapter you watched")}</h2>
           <div className="bg-card rounded-xl overflow-hidden border shadow-lg">
             <div className="grid grid-cols-1 lg:grid-cols-2">
               {/* Image Section */}
@@ -332,14 +330,14 @@ const CoursesPage = async () => {
                     {lastWatchedChapter.chapter.title}
                   </h3>
                   <p className="text-muted-foreground">
-                    الفصل رقم {lastWatchedChapter.chapter.position}
+                    {tr("الفصل رقم", "Chapter")} {lastWatchedChapter.chapter.position}
                   </p>
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="h-4 w-4" />
-                    <span>آخر مشاهدة منذ ساعة</span>
+                    <span>{tr("آخر مشاهدة منذ ساعة", "Last watched about an hour ago")}</span>
                   </div>
                   
                   <Button 
@@ -348,8 +346,8 @@ const CoursesPage = async () => {
                     asChild
                   >
                     <Link href={`/courses/${lastWatchedChapter.chapter.courseId}/chapters/${lastWatchedChapter.chapter.id}`}>
-                      <Play className="h-4 w-4 ml-2" />
-                      متابعة المشاهدة
+                      <Play className="h-4 w-4 rtl:ml-2 ltr:mr-2" />
+                      {tr("متابعة المشاهدة", "Continue watching")}
                     </Link>
                   </Button>
                 </div>
@@ -361,7 +359,7 @@ const CoursesPage = async () => {
 
       {/* Detailed Statistics */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">إحصائيات التعلم</h2>
+        <h2 className="text-xl font-semibold mb-4">{tr("إحصائيات التعلم", "Learning statistics")}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="bg-card rounded-xl p-6 border">
             <div className="flex items-center gap-3 mb-4">
@@ -369,13 +367,13 @@ const CoursesPage = async () => {
                 <BookOpenIcon className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">إجمالي الفصول</p>
+                <p className="text-sm text-muted-foreground">{tr("إجمالي الفصول", "Total chapters")}</p>
                 <p className="text-2xl font-bold">{studentStats.totalChapters}</p>
               </div>
             </div>
             <Progress value={(studentStats.completedChapters / Math.max(studentStats.totalChapters, 1)) * 100} className="h-2" />
             <p className="text-sm text-muted-foreground mt-2">
-              {studentStats.completedChapters} من {studentStats.totalChapters} مكتمل
+              {studentStats.completedChapters} {tr("من", "of")} {studentStats.totalChapters} {tr("مكتمل", "completed")}
             </p>
           </div>
 
@@ -385,13 +383,13 @@ const CoursesPage = async () => {
                 <Trophy className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">الاختبارات المكتملة</p>
+                <p className="text-sm text-muted-foreground">{tr("الاختبارات المكتملة", "Completed quizzes")}</p>
                 <p className="text-2xl font-bold">{studentStats.completedQuizzes}</p>
               </div>
             </div>
             <Progress value={(studentStats.completedQuizzes / Math.max(studentStats.totalQuizzes, 1)) * 100} className="h-2" />
             <p className="text-sm text-muted-foreground mt-2">
-              {studentStats.completedQuizzes} من {studentStats.totalQuizzes} مكتمل
+              {studentStats.completedQuizzes} {tr("من", "of")} {studentStats.totalQuizzes} {tr("مكتمل", "completed")}
             </p>
           </div>
         </div>
@@ -399,7 +397,7 @@ const CoursesPage = async () => {
 
             {/* My Courses Section */}
       <div>
-        <h2 className="text-xl font-semibold mb-6">كورساتي</h2>
+        <h2 className="text-xl font-semibold mb-6">{tr("كورساتي", "My courses")}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {coursesWithProgress.map((course) => (
             <div
@@ -414,7 +412,7 @@ const CoursesPage = async () => {
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute top-4 right-4">
+                <div className="absolute top-4 rtl:right-4 ltr:left-4">
                   <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-sm font-medium text-gray-800">
                     {Math.round(course.progress)}%
                   </div>
@@ -429,14 +427,14 @@ const CoursesPage = async () => {
                     <div className="flex items-center gap-1">
                       <BookOpen className="h-4 w-4" />
                       <span>
-                        {course.chapters.length} {course.chapters.length === 1 ? "فصل" : "فصول"}
+                        {course.chapters.length} {course.chapters.length === 1 ? tr("فصل", "chapter") : tr("فصول", "chapters")}
                       </span>
                     </div>
                     {course.quizzes.length > 0 && (
                       <div className="flex items-center gap-1">
                         <span className="w-1 h-1 bg-muted-foreground rounded-full"></span>
                         <span>
-                          {course.quizzes.length} {course.quizzes.length === 1 ? "اختبار" : "اختبارات"}
+                          {course.quizzes.length} {course.quizzes.length === 1 ? tr("اختبار", "quiz") : tr("اختبارات", "quizzes")}
                         </span>
                       </div>
                     )}
@@ -446,7 +444,7 @@ const CoursesPage = async () => {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground font-medium">التقدم</span>
+                      <span className="text-muted-foreground font-medium">{tr("التقدم", "Progress")}</span>
                       <span className="font-bold text-brand">{Math.round(course.progress)}%</span>
                     </div>
                     <div className="relative">
@@ -465,7 +463,7 @@ const CoursesPage = async () => {
                     asChild
                   >
                     <Link href={course.chapters.length > 0 ? `/courses/${course.id}/chapters/${course.chapters[0].id}` : `/courses/${course.id}`}>
-                      متابعة التعلم
+                      {tr("متابعة التعلم", "Continue learning")}
                     </Link>
                   </Button>
                 </div>
@@ -477,11 +475,11 @@ const CoursesPage = async () => {
           <div className="text-center py-16">
             <div className="bg-muted/50 rounded-2xl p-8 max-w-md mx-auto">
               <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">لم تقم بشراء أي كورسات بعد</h3>
-              <p className="text-muted-foreground mb-6">ابدأ رحلة التعلم بشراء أول كورس لك</p>
+              <h3 className="text-lg font-semibold mb-2">{tr("لم تقم بشراء أي كورسات بعد", "You have not purchased any courses yet")}</h3>
+              <p className="text-muted-foreground mb-6">{tr("ابدأ رحلة التعلم بشراء أول كورس لك", "Start your learning journey by purchasing your first course")}</p>
               <Button asChild className="bg-brand hover:bg-brand/90 text-white font-semibold">
                 <Link href="/dashboard/search">
-                  استكشف الكورسات المتاحة
+                  {tr("استكشف الكورسات المتاحة", "Explore available courses")}
                 </Link>
               </Button>
             </div>

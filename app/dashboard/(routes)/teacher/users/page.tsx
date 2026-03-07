@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
-import { ar } from "date-fns/locale";
 import { toast } from "sonner";
+import { useLanguage } from "@/components/providers/rtl-provider";
+import { getDateFnsLocale } from "@/lib/i18n";
 import {
     Dialog,
     DialogContent,
@@ -63,6 +64,23 @@ interface EditUserData {
 }
 
 const UsersPage = () => {
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
+    const roleLabel = (role: string) =>
+        role === "TEACHER"
+            ? tr("معلم", "Teacher")
+            : role === "ADMIN"
+              ? tr("مشرف", "Admin")
+              : role === "USER"
+                ? tr("طالب", "Student")
+                : role;
+    const roleSubject = (role: string) =>
+        role === "TEACHER"
+            ? tr("المعلم", "teacher")
+            : role === "ADMIN"
+              ? tr("المشرف", "admin")
+              : tr("الطالب", "student");
+    const dateLocale = getDateFnsLocale(locale);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -89,14 +107,14 @@ const UsersPage = () => {
             } else {
                 console.error("Error fetching users:", response.status, response.statusText);
                 if (response.status === 403) {
-                    toast.error("ليس لديك صلاحية للوصول إلى هذه الصفحة");
+                    toast.error(tr("ليس لديك صلاحية للوصول إلى هذه الصفحة", "You don't have permission to access this page"));
                 } else {
-                    toast.error("حدث خطأ في تحميل الطلاب");
+                    toast.error(tr("حدث خطأ في تحميل الطلاب", "An error occurred while loading students"));
                 }
             }
         } catch (error) {
             console.error("Error fetching users:", error);
-            toast.error("حدث خطأ في تحميل الطلاب");
+            toast.error(tr("حدث خطأ في تحميل الطلاب", "An error occurred while loading students"));
         } finally {
             setLoading(false);
         }
@@ -126,8 +144,8 @@ const UsersPage = () => {
             });
 
             if (response.ok) {
-                const userType = editingUser.role === "TEACHER" ? "المعلم" : editingUser.role === "ADMIN" ? "المشرف" : "الطالب";
-                toast.success(`تم تحديث بيانات ${userType} بنجاح`);
+                const userType = roleSubject(editingUser.role);
+                toast.success(tr(`تم تحديث بيانات ${userType} بنجاح`, `${userType} data updated successfully`));
                 setIsEditDialogOpen(false);
                 setEditingUser(null);
                 fetchUsers(); // Refresh the list
@@ -135,18 +153,18 @@ const UsersPage = () => {
                 const error = await response.text();
                 console.error("Error updating user:", response.status, error);
                 if (response.status === 403) {
-                    toast.error("ليس لديك صلاحية لتعديل البيانات");
+                    toast.error(tr("ليس لديك صلاحية لتعديل البيانات", "You don't have permission to edit data"));
                 } else if (response.status === 404) {
-                    toast.error("المستخدم غير موجود");
+                    toast.error(tr("المستخدم غير موجود", "User not found"));
                 } else if (response.status === 400) {
-                    toast.error(error || "بيانات غير صحيحة");
+                    toast.error(error || tr("بيانات غير صحيحة", "Invalid data"));
                 } else {
-                    toast.error("حدث خطأ في تحديث البيانات");
+                    toast.error(tr("حدث خطأ في تحديث البيانات", "An error occurred while updating data"));
                 }
             }
         } catch (error) {
             console.error("Error updating user:", error);
-            toast.error("حدث خطأ في تحديث بيانات الطالب");
+            toast.error(tr("حدث خطأ في تحديث بيانات الطالب", "An error occurred while updating student data"));
         }
     };
 
@@ -158,22 +176,22 @@ const UsersPage = () => {
             });
 
             if (response.ok) {
-                toast.success("تم حذف المستخدم بنجاح");
+                toast.success(tr("تم حذف المستخدم بنجاح", "User deleted successfully"));
                 fetchUsers(); // Refresh the list
             } else {
                 const error = await response.text();
                 console.error("Error deleting user:", response.status, error);
                 if (response.status === 403) {
-                    toast.error("ليس لديك صلاحية لحذف المستخدم");
+                    toast.error(tr("ليس لديك صلاحية لحذف المستخدم", "You don't have permission to delete user"));
                 } else if (response.status === 404) {
-                    toast.error("المستخدم غير موجود");
+                    toast.error(tr("المستخدم غير موجود", "User not found"));
                 } else {
-                    toast.error(error || "حدث خطأ في حذف المستخدم");
+                    toast.error(error || tr("حدث خطأ في حذف المستخدم", "An error occurred while deleting user"));
                 }
             }
         } catch (error) {
             console.error("Error deleting user:", error);
-            toast.error("حدث خطأ في حذف الطالب");
+            toast.error(tr("حدث خطأ في حذف الطالب", "An error occurred while deleting student"));
         } finally {
             setIsDeleting(false);
         }
@@ -198,7 +216,7 @@ const UsersPage = () => {
     if (loading) {
         return (
             <div className="p-6">
-                <div className="text-center">جاري التحميل...</div>
+                <div className="text-center">{tr("جاري التحميل...", "Loading...")}</div>
             </div>
         );
     }
@@ -207,7 +225,7 @@ const UsersPage = () => {
         <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                    إدارة المستخدمين
+                    {tr("إدارة المستخدمين", "User management")}
                 </h1>
             </div>
 
@@ -215,11 +233,11 @@ const UsersPage = () => {
             {staffUsers.length > 0 && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>المشرفين والمعلمين</CardTitle>
-                        <div className="flex items-center space-x-2">
+                        <CardTitle>{tr("المشرفين والمعلمين", "Admins and teachers")}</CardTitle>
+                        <div className="flex items-center rtl:space-x-reverse space-x-2">
                             <Search className="h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="البحث بالاسم أو رقم الهاتف..."
+                                placeholder={tr("البحث بالاسم أو رقم الهاتف...", "Search by name or phone number...")}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="max-w-sm"
@@ -230,11 +248,11 @@ const UsersPage = () => {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="text-right">الاسم</TableHead>
-                                    <TableHead className="text-right">رقم الهاتف</TableHead>
-                                    <TableHead className="text-right">الدور</TableHead>
-                                    <TableHead className="text-right">تاريخ التسجيل</TableHead>
-                                    <TableHead className="text-right">الإجراءات</TableHead>
+                                    <TableHead className="text-right">{tr("الاسم", "Name")}</TableHead>
+                                    <TableHead className="text-right">{tr("رقم الهاتف", "Phone number")}</TableHead>
+                                    <TableHead className="text-right">{tr("الدور", "Role")}</TableHead>
+                                    <TableHead className="text-right">{tr("تاريخ التسجيل", "Registration date")}</TableHead>
+                                    <TableHead className="text-right">{tr("الإجراءات", "Actions")}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -253,12 +271,11 @@ const UsersPage = () => {
                                                     ""
                                                 }
                                             >
-                                                {user.role === "TEACHER" ? "معلم" : 
-                                                 user.role === "ADMIN" ? "مشرف" : user.role}
+                                                {roleLabel(user.role)}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            {format(new Date(user.createdAt), "dd/MM/yyyy", { locale: ar })}
+                                            {format(new Date(user.createdAt), "dd/MM/yyyy", { locale: dateLocale })}
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2">
@@ -279,15 +296,15 @@ const UsersPage = () => {
                                                     </DialogTrigger>
                                                     <DialogContent>
                                                         <DialogHeader>
-                                                            <DialogTitle>تعديل بيانات {user.role === "TEACHER" ? "المعلم" : "المشرف"}</DialogTitle>
+                                                            <DialogTitle>{tr("تعديل بيانات", "Edit")} {roleSubject(user.role)}</DialogTitle>
                                                             <DialogDescription>
-                                                                قم بتعديل معلومات {user.role === "TEACHER" ? "المعلم" : "المشرف"}
+                                                                {tr("قم بتعديل معلومات", "Edit")} {roleSubject(user.role)}
                                                             </DialogDescription>
                                                         </DialogHeader>
                                                         <div className="grid gap-4 py-4">
                                                             <div className="grid grid-cols-4 items-center gap-4">
                                                                 <Label htmlFor="fullName" className="text-right">
-                                                                    الاسم
+                                                                    {tr("الاسم", "Name")}
                                                                 </Label>
                                                                 <Input
                                                                     id="fullName"
@@ -298,7 +315,7 @@ const UsersPage = () => {
                                                             </div>
                                                             <div className="grid grid-cols-4 items-center gap-4">
                                                                 <Label htmlFor="phoneNumber" className="text-right">
-                                                                    رقم الهاتف
+                                                                    {tr("رقم الهاتف", "Phone number")}
                                                                 </Label>
                                                                 <Input
                                                                     id="phoneNumber"
@@ -309,19 +326,19 @@ const UsersPage = () => {
                                                             </div>
                                                             <div className="grid grid-cols-4 items-center gap-4">
                                                                 <Label htmlFor="role" className="text-right">
-                                                                    الدور
+                                                                    {tr("الدور", "Role")}
                                                                 </Label>
                                                                 <Select
                                                                     value={editData.role}
                                                                     onValueChange={(value) => setEditData({...editData, role: value})}
                                                                 >
                                                                     <SelectTrigger className="col-span-3">
-                                                                        <SelectValue placeholder="اختر الدور" />
+                                                                        <SelectValue placeholder={tr("اختر الدور", "Select role")} />
                                                                     </SelectTrigger>
                                                                     <SelectContent>
-                                                                        <SelectItem value="USER">طالب</SelectItem>
-                                                                        <SelectItem value="TEACHER">معلم</SelectItem>
-                                                                        <SelectItem value="ADMIN">مشرف</SelectItem>
+                                                                        <SelectItem value="USER">{tr("طالب", "Student")}</SelectItem>
+                                                                        <SelectItem value="TEACHER">{tr("معلم", "Teacher")}</SelectItem>
+                                                                        <SelectItem value="ADMIN">{tr("مشرف", "Admin")}</SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
@@ -331,10 +348,10 @@ const UsersPage = () => {
                                                                 setIsEditDialogOpen(false);
                                                                 setEditingUser(null);
                                                             }}>
-                                                                إلغاء
+                                                                {tr("إلغاء", "Cancel")}
                                                             </Button>
                                                             <Button onClick={handleSaveUser}>
-                                                                حفظ التغييرات
+                                                                {tr("حفظ التغييرات", "Save changes")}
                                                             </Button>
                                                         </DialogFooter>
                                                     </DialogContent>
@@ -352,18 +369,21 @@ const UsersPage = () => {
                                                     </AlertDialogTrigger>
                                                     <AlertDialogContent>
                                                         <AlertDialogHeader>
-                                                            <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
+                                                            <AlertDialogTitle>{tr("هل أنت متأكد؟", "Are you sure?")}</AlertDialogTitle>
                                                             <AlertDialogDescription>
-                                                                هذا الإجراء لا يمكن التراجع عنه. سيتم حذف {user.role === "TEACHER" ? "المعلم" : "المشرف"} وجميع البيانات المرتبطة به نهائياً.
+                                                                {tr(
+                                                                    `هذا الإجراء لا يمكن التراجع عنه. سيتم حذف ${roleSubject(user.role)} وجميع البيانات المرتبطة به نهائياً.`,
+                                                                    `This action cannot be undone. The ${roleSubject(user.role)} and all associated data will be permanently deleted.`
+                                                                )}
                                                             </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
-                                                            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                                                            <AlertDialogCancel>{tr("إلغاء", "Cancel")}</AlertDialogCancel>
                                                             <AlertDialogAction
                                                                 onClick={() => handleDeleteUser(user.id)}
                                                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                                             >
-                                                                حذف
+                                                                {tr("حذف", "Delete")}
                                                             </AlertDialogAction>
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>
@@ -382,11 +402,11 @@ const UsersPage = () => {
             {studentUsers.length > 0 && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>قائمة الطلاب</CardTitle>
-                        <div className="flex items-center space-x-2">
+                        <CardTitle>{tr("قائمة الطلاب", "Students list")}</CardTitle>
+                        <div className="flex items-center rtl:space-x-reverse space-x-2">
                             <Search className="h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="البحث بالاسم أو رقم الهاتف..."
+                                placeholder={tr("البحث بالاسم أو رقم الهاتف...", "Search by name or phone number...")}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="max-w-sm"
@@ -397,13 +417,13 @@ const UsersPage = () => {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="text-right">الاسم</TableHead>
-                                    <TableHead className="text-right">رقم الهاتف</TableHead>
-                                    <TableHead className="text-right">الدور</TableHead>
-                                    <TableHead className="text-right">الرصيد</TableHead>
-                                    <TableHead className="text-right">الكورسات المشتراة</TableHead>
-                                    <TableHead className="text-right">تاريخ التسجيل</TableHead>
-                                    <TableHead className="text-right">الإجراءات</TableHead>
+                                    <TableHead className="text-right">{tr("الاسم", "Name")}</TableHead>
+                                    <TableHead className="text-right">{tr("رقم الهاتف", "Phone number")}</TableHead>
+                                    <TableHead className="text-right">{tr("الدور", "Role")}</TableHead>
+                                    <TableHead className="text-right">{tr("الرصيد", "Balance")}</TableHead>
+                                    <TableHead className="text-right">{tr("الكورسات المشتراة", "Purchased courses")}</TableHead>
+                                    <TableHead className="text-right">{tr("تاريخ التسجيل", "Registration date")}</TableHead>
+                                    <TableHead className="text-right">{tr("الإجراءات", "Actions")}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -418,12 +438,12 @@ const UsersPage = () => {
                                                 variant="secondary"
                                                 className="bg-green-600 text-white hover:bg-green-700"
                                             >
-                                                طالب
+                                                {tr("طالب", "Student")}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
                                             <Badge variant="secondary">
-                                                {user.balance} جنيه
+                                                {user.balance} {tr("جنيه", "EGP")}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
@@ -432,7 +452,7 @@ const UsersPage = () => {
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            {format(new Date(user.createdAt), "dd/MM/yyyy", { locale: ar })}
+                                            {format(new Date(user.createdAt), "dd/MM/yyyy", { locale: dateLocale })}
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2">
@@ -453,15 +473,15 @@ const UsersPage = () => {
                                                     </DialogTrigger>
                                                     <DialogContent>
                                                         <DialogHeader>
-                                                            <DialogTitle>تعديل بيانات الطالب</DialogTitle>
+                                                            <DialogTitle>{tr("تعديل بيانات الطالب", "Edit student data")}</DialogTitle>
                                                             <DialogDescription>
-                                                                قم بتعديل معلومات الطالب
+                                                                {tr("قم بتعديل معلومات الطالب", "Edit student information")}
                                                             </DialogDescription>
                                                         </DialogHeader>
                                                         <div className="grid gap-4 py-4">
                                                             <div className="grid grid-cols-4 items-center gap-4">
                                                                 <Label htmlFor="fullName" className="text-right">
-                                                                    الاسم
+                                                                    {tr("الاسم", "Name")}
                                                                 </Label>
                                                                 <Input
                                                                     id="fullName"
@@ -472,7 +492,7 @@ const UsersPage = () => {
                                                             </div>
                                                             <div className="grid grid-cols-4 items-center gap-4">
                                                                 <Label htmlFor="phoneNumber" className="text-right">
-                                                                    رقم الهاتف
+                                                                    {tr("رقم الهاتف", "Phone number")}
                                                                 </Label>
                                                                 <Input
                                                                     id="phoneNumber"
@@ -483,19 +503,19 @@ const UsersPage = () => {
                                                             </div>
                                                             <div className="grid grid-cols-4 items-center gap-4">
                                                                 <Label htmlFor="role" className="text-right">
-                                                                    الدور
+                                                                    {tr("الدور", "Role")}
                                                                 </Label>
                                                                 <Select
                                                                     value={editData.role}
                                                                     onValueChange={(value) => setEditData({...editData, role: value})}
                                                                 >
                                                                     <SelectTrigger className="col-span-3">
-                                                                        <SelectValue placeholder="اختر الدور" />
+                                                                        <SelectValue placeholder={tr("اختر الدور", "Select role")} />
                                                                     </SelectTrigger>
                                                                     <SelectContent>
-                                                                        <SelectItem value="USER">طالب</SelectItem>
-                                                                        <SelectItem value="TEACHER">معلم</SelectItem>
-                                                                        <SelectItem value="ADMIN">مشرف</SelectItem>
+                                                                        <SelectItem value="USER">{tr("طالب", "Student")}</SelectItem>
+                                                                        <SelectItem value="TEACHER">{tr("معلم", "Teacher")}</SelectItem>
+                                                                        <SelectItem value="ADMIN">{tr("مشرف", "Admin")}</SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
@@ -505,10 +525,10 @@ const UsersPage = () => {
                                                                 setIsEditDialogOpen(false);
                                                                 setEditingUser(null);
                                                             }}>
-                                                                إلغاء
+                                                                {tr("إلغاء", "Cancel")}
                                                             </Button>
                                                             <Button onClick={handleSaveUser}>
-                                                                حفظ التغييرات
+                                                                {tr("حفظ التغييرات", "Save changes")}
                                                             </Button>
                                                         </DialogFooter>
                                                     </DialogContent>
@@ -526,18 +546,21 @@ const UsersPage = () => {
                                                     </AlertDialogTrigger>
                                                     <AlertDialogContent>
                                                         <AlertDialogHeader>
-                                                            <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
+                                                            <AlertDialogTitle>{tr("هل أنت متأكد؟", "Are you sure?")}</AlertDialogTitle>
                                                             <AlertDialogDescription>
-                                                                هذا الإجراء لا يمكن التراجع عنه. سيتم حذف الطالب وجميع البيانات المرتبطة به نهائياً.
+                                                                {tr(
+                                                                    "هذا الإجراء لا يمكن التراجع عنه. سيتم حذف الطالب وجميع البيانات المرتبطة به نهائياً.",
+                                                                    "This action cannot be undone. The student and all associated data will be permanently deleted."
+                                                                )}
                                                             </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
-                                                            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                                                            <AlertDialogCancel>{tr("إلغاء", "Cancel")}</AlertDialogCancel>
                                                             <AlertDialogAction
                                                                 onClick={() => handleDeleteUser(user.id)}
                                                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                                             >
-                                                                حذف
+                                                                {tr("حذف", "Delete")}
                                                             </AlertDialogAction>
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>
@@ -556,7 +579,7 @@ const UsersPage = () => {
                 <Card>
                     <CardContent className="p-6">
                         <div className="text-center text-muted-foreground">
-                            لا يوجد مستخدمين مسجلين حالياً
+                            {tr("لا يوجد مستخدمين مسجلين حالياً", "No registered users currently")}
                         </div>
                     </CardContent>
                 </Card>

@@ -24,6 +24,7 @@ import { Editor } from "@/components/editor";
 import { Checkbox } from "@/components/ui/checkbox";
 import { IconBadge } from "@/components/icon-badge";
 import { AttachmentsForm } from "./attachments-form";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface ChapterAttachment {
     id: string;
@@ -45,27 +46,28 @@ interface ChapterFormProps {
     chapterId: string;
 }
 
-const titleSchema = z.object({
-    title: z.string().min(1, {
-        message: "Title is required",
-    }),
-});
-
-const descriptionSchema = z.object({
-    description: z.string().min(1, {
-        message: "Description is required",
-    }),
-});
-
-const accessSchema = z.object({
-    isFree: z.boolean().default(false),
-});
-
 export const ChapterForm = ({
     initialData,
     courseId,
     chapterId
 }: ChapterFormProps) => {
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
+    const titleSchema = z.object({
+        title: z.string().min(1, {
+            message: tr("عنوان الفصل مطلوب", "Chapter title is required"),
+        }),
+    });
+
+    const descriptionSchema = z.object({
+        description: z.string().min(1, {
+            message: tr("وصف الفصل مطلوب", "Chapter description is required"),
+        }),
+    });
+
+    const accessSchema = z.object({
+        isFree: z.boolean().default(false),
+    });
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [isEditingDescription, setIsEditingDescription] = useState(false);
     const [isEditingAccess, setIsEditingAccess] = useState(false);
@@ -114,15 +116,15 @@ export const ChapterForm = ({
             });
 
             if (!response.ok) {
-                throw new Error('Failed to update chapter title');
+                throw new Error(tr("فشل تحديث عنوان الفصل", "Failed to update chapter title"));
             }
 
-            toast.success("Chapter title updated");
+            toast.success(tr("تم تحديث عنوان الفصل", "Chapter title updated"));
             setIsEditingTitle(false);
             router.refresh();
         } catch (error) {
             console.error("[CHAPTER_TITLE]", error);
-            toast.error("Something went wrong");
+            toast.error(tr("حدث خطأ", "Something went wrong"));
         }
     }
 
@@ -137,15 +139,15 @@ export const ChapterForm = ({
             });
 
             if (!response.ok) {
-                throw new Error('Failed to update chapter description');
+                throw new Error(tr("فشل تحديث وصف الفصل", "Failed to update chapter description"));
             }
 
-            toast.success("Chapter description updated");
+            toast.success(tr("تم تحديث وصف الفصل", "Chapter description updated"));
             setIsEditingDescription(false);
             router.refresh();
         } catch (error) {
             console.error("[CHAPTER_DESCRIPTION]", error);
-            toast.error("Something went wrong");
+            toast.error(tr("حدث خطأ", "Something went wrong"));
         }
     }
 
@@ -159,12 +161,12 @@ export const ChapterForm = ({
                 body: JSON.stringify(values),
             });
 
-            toast.success("Chapter access updated");
+            toast.success(tr("تم تحديث إعدادات الوصول", "Chapter access updated"));
             setIsEditingAccess(false);
             router.refresh();
         } catch (error) {
             console.error("[CHAPTER_ACCESS]", error);
-            toast.error("Something went wrong");
+            toast.error(tr("حدث خطأ", "Something went wrong"));
         }
     }
 
@@ -174,10 +176,10 @@ export const ChapterForm = ({
             
             await axios.patch(`/api/courses/${courseId}/chapters/${chapterId}/publish`);
             
-            toast.success(initialData.isPublished ? "تم إلغاء النشر" : "تم النشر");
+            toast.success(initialData.isPublished ? tr("تم إلغاء النشر", "Unpublished successfully") : tr("تم النشر", "Published successfully"));
             router.refresh();
         } catch {
-            toast.error("Something went wrong");
+            toast.error(tr("حدث خطأ", "Something went wrong"));
         } finally {
             setIsLoading(false);
         }
@@ -192,20 +194,20 @@ export const ChapterForm = ({
             <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
                 <h2 className="text-xl">
-                    إعدادات الفصل
+                    {tr("إعدادات الفصل", "Chapter settings")}
                 </h2>
             </div>
             <div className="space-y-4">
                 <div className="border bg-card rounded-md p-4">
                     <div className="font-medium flex items-center justify-between">
-                        عنوان الفصل
+                        {tr("عنوان الفصل", "Chapter title")}
                         <Button onClick={() => setIsEditingTitle(!isEditingTitle)} variant="ghost">
                             {isEditingTitle ? (
-                                <>إلغاء</>
+                                <>{tr("إلغاء", "Cancel")}</>
                             ) : (
                                 <>
-                                    <Pencil className="h-4 w-4 mr-2" />
-                                    تعديل العنوان
+                                    <Pencil className="h-4 w-4 rtl:mr-2 ltr:ml-2" />
+                                    {tr("تعديل العنوان", "Edit title")}
                                 </>
                             )}
                         </Button>
@@ -215,7 +217,7 @@ export const ChapterForm = ({
                             "text-sm mt-2",
                             !initialData.title && "text-muted-foreground italic"
                         )}>
-                            {initialData.title || "لا يوجد عنوان"}
+                            {initialData.title || tr("لا يوجد عنوان", "No title")}
                         </p>
                     )}
                     {isEditingTitle && (
@@ -232,7 +234,7 @@ export const ChapterForm = ({
                                             <FormControl>
                                                 <Input
                                                     disabled={isSubmittingTitle}
-                                                    placeholder="e.g. 'Introduction to the course'"
+                                                    placeholder={tr("مثال: مقدمة الفصل", "e.g. Chapter introduction")}
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -245,7 +247,7 @@ export const ChapterForm = ({
                                         disabled={!isValidTitle || isSubmittingTitle}
                                         type="submit"
                                     >
-                                        حفظ
+                                        {tr("حفظ", "Save")}
                                     </Button>
                                 </div>
                             </form>
@@ -254,14 +256,14 @@ export const ChapterForm = ({
                 </div>
                 <div className="border bg-card rounded-md p-4">
                     <div className="font-medium flex items-center justify-between">
-                        وصف الفصل
+                        {tr("وصف الفصل", "Chapter description")}
                         <Button onClick={() => setIsEditingDescription(!isEditingDescription)} variant="ghost">
                             {isEditingDescription ? (
-                                <>إلغاء</>
+                                <>{tr("إلغاء", "Cancel")}</>
                             ) : (
                                 <>
-                                    <Pencil className="h-4 w-4 mr-2" />
-                                    تعديل الوصف
+                                    <Pencil className="h-4 w-4 rtl:mr-2 ltr:ml-2" />
+                                    {tr("تعديل الوصف", "Edit description")}
                                 </>
                             )}
                         </Button>
@@ -271,7 +273,7 @@ export const ChapterForm = ({
                             "text-sm mt-2",
                             !initialData.description && "text-muted-foreground italic"
                         )}>
-                            {!initialData.description && "لا يوجد وصف"}
+                            {!initialData.description && tr("لا يوجد وصف", "No description")}
                             {initialData.description && (
                                 <div 
                                     className="prose prose-sm max-w-none space-y-4"
@@ -295,7 +297,7 @@ export const ChapterForm = ({
                                                 <Editor
                                                     onChange={field.onChange}
                                                     value={field.value}
-                                                    placeholder="e.g. 'This chapter will cover the basics of...'"
+                                                    placeholder={tr("مثال: سيتناول هذا الفصل أساسيات...", "e.g. This chapter will cover the basics of...")}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -307,7 +309,7 @@ export const ChapterForm = ({
                                         disabled={!isValidDescription || isSubmittingDescription}
                                         type="submit"
                                     >
-                                        حفظ
+                                        {tr("حفظ", "Save")}
                                     </Button>
                                 </div>
                             </form>
@@ -320,20 +322,20 @@ export const ChapterForm = ({
                 <div className="flex items-center gap-x-2">
                     <IconBadge icon={Eye} />
                     <h2 className="text-xl">
-                        إعدادات الوصول
+                        {tr("إعدادات الوصول", "Access settings")}
                     </h2>
                 </div>
                 <div className="space-y-4 mt-4">
                     <div className="border bg-card rounded-md p-4">
                         <div className="font-medium flex items-center justify-between">
-                            إعدادات الوصول
+                            {tr("إعدادات الوصول", "Access settings")}
                             <Button onClick={() => setIsEditingAccess(!isEditingAccess)} variant="ghost">
                                 {isEditingAccess ? (
-                                    <>الغاء</>
+                                    <>{tr("إلغاء", "Cancel")}</>
                                 ) : (
                                     <>
-                                        <Pencil className="h-4 w-4 mr-2" />
-                                        تعديل الوصول
+                                        <Pencil className="h-4 w-4 rtl:mr-2 ltr:ml-2" />
+                                        {tr("تعديل الوصول", "Edit access")}
                                     </>
                                 )}
                             </Button>
@@ -343,7 +345,7 @@ export const ChapterForm = ({
                                 "text-sm mt-2",
                                 !initialData.isFree && "text-muted-foreground italic"
                             )}>
-                                {initialData.isFree ? "هذا الفصل مجاني للمعاينة" : "هذا الفصل غير مجاني"}
+                                {initialData.isFree ? tr("هذا الفصل مجاني للمعاينة", "This chapter is free for preview") : tr("هذا الفصل غير مجاني", "This chapter is not free")}
                             </p>
                         )}
                         {isEditingAccess && (
@@ -365,7 +367,7 @@ export const ChapterForm = ({
                                                 </FormControl>
                                                 <div className="space-y-1 leading-none">
                                                     <FormDescription>
-                                                        قم بالتحقق من هذا المربع إذا أردت جعل هذا الفصل مجانيًا للمعاينة
+                                                        {tr("قم بالتحقق من هذا المربع إذا أردت جعل هذا الفصل مجانيًا للمعاينة", "Check this box if you want to make this chapter free for preview")}
                                                     </FormDescription>
                                                 </div>
                                             </FormItem>
@@ -376,7 +378,7 @@ export const ChapterForm = ({
                                             disabled={!isValidAccess || isSubmittingAccess}
                                             type="submit"
                                         >
-                                            حفظ
+                                            {tr("حفظ", "Save")}
                                         </Button>
                                     </div>
                                 </form>
@@ -390,7 +392,7 @@ export const ChapterForm = ({
                 <div className="flex items-center gap-x-2">
                     <IconBadge icon={Files} />
                     <h2 className="text-xl">
-                        مستندات الفصل
+                        {tr("مستندات الفصل", "Chapter documents")}
                     </h2>
                 </div>
                 <AttachmentsForm
@@ -404,12 +406,12 @@ export const ChapterForm = ({
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h3 className="text-lg font-semibold">
-                            {initialData.isPublished ? "الفصل منشور" : "الفصل غير منشور"}
+                            {initialData.isPublished ? tr("الفصل منشور", "Chapter is published") : tr("الفصل غير منشور", "Chapter is unpublished")}
                         </h3>
                         <p className="text-sm text-muted-foreground">
                             {initialData.isPublished
-                                ? "يمكن للطلاب مشاهدة هذا الفصل الآن. يمكنك إلغاء النشر لإخفائه مؤقتًا."
-                                : "لن يكون هذا الفصل مرئيًا للطلاب حتى يتم نشره."}
+                                ? tr("يمكن للطلاب مشاهدة هذا الفصل الآن. يمكنك إلغاء النشر لإخفائه مؤقتًا.", "Students can now view this chapter. You can unpublish it to hide it temporarily.")
+                                : tr("لن يكون هذا الفصل مرئيًا للطلاب حتى يتم نشره.", "This chapter will not be visible to students until it is published.")}
                         </p>
                     </div>
                     <Button
@@ -420,13 +422,13 @@ export const ChapterForm = ({
                     >
                         {initialData.isPublished ? (
                             <>
-                                <EyeOff className="h-4 w-4 mr-2" />
-                                إلغاء النشر
+                                <EyeOff className="h-4 w-4 rtl:mr-2 ltr:ml-2" />
+                                {tr("إلغاء النشر", "Unpublish")}
                             </>
                         ) : (
                             <>
-                                <Eye className="h-4 w-4 mr-2" />
-                                نشر الفصل
+                                <Eye className="h-4 w-4 rtl:mr-2 ltr:ml-2" />
+                                {tr("نشر الفصل", "Publish chapter")}
                             </>
                         )}
                     </Button>

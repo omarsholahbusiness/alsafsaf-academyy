@@ -6,6 +6,8 @@ import { Footer } from "@/components/footer";
 import { NavigationLoading } from "@/components/navigation-loading";
 import { Suspense } from "react";
 import { theme } from "@/lib/theme";
+import { cookies } from "next/headers";
+import { getDirFromLocale, normalizeLocale, LOCALE_COOKIE_KEY } from "@/lib/i18n";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,19 +34,25 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const locale = normalizeLocale(cookieStore.get(LOCALE_COOKIE_KEY)?.value);
+
   return (
     <html
       suppressHydrationWarning
-      lang="ar"
-      dir="rtl"
+      lang={locale}
+      dir={getDirFromLocale(locale)}
       className={`${geistSans.variable} ${geistMono.variable} ${cairo.variable}`}
     >
-      <body suppressHydrationWarning className="font-playpen-sans-arabic">
+      <body
+        suppressHydrationWarning
+        className={locale === "ar" ? "font-playpen-sans-arabic" : undefined}
+      >
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -56,7 +64,7 @@ export default function RootLayout({
             `,
           }}
         />
-        <Providers>
+        <Providers initialLocale={locale}>
           <Suspense fallback={null}>
             <NavigationLoading />
           </Suspense>

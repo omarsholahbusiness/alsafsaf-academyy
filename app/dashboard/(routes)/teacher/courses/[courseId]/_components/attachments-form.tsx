@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import axios from "axios";
 import { UploadButton } from "@/lib/uploadthing";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface AttachmentsFormProps {
     initialData: {
@@ -24,6 +25,8 @@ export const AttachmentsForm = ({
     initialData,
     courseId
 }: AttachmentsFormProps) => {
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
     const router = useRouter();
 
@@ -31,10 +34,10 @@ export const AttachmentsForm = ({
         try {
             setIsDeleting(id);
             await axios.delete(`/api/courses/${courseId}/attachments/${id}`);
-            toast.success("تم حذف الملف");
+            toast.success(tr("تم حذف الملف", "File deleted"));
             router.refresh();
         } catch {
-            toast.error("حدث خطأ");
+            toast.error(tr("حدث خطأ", "Something went wrong"));
         } finally {
             setIsDeleting(null);
         }
@@ -46,7 +49,7 @@ export const AttachmentsForm = ({
                 <div className="flex items-center gap-x-2">
                     <File className="h-5 w-5" />
                     <h2 className="text-lg font-medium">
-                        الملفات والمرفقات
+                        {tr("الملفات والمرفقات", "Files and attachments")}
                     </h2>
                 </div>
                 <UploadButton
@@ -58,22 +61,22 @@ export const AttachmentsForm = ({
                                     url: res[0].url,
                                     name: res[0].name
                                 });
-                                toast.success("تم رفع الملف");
+                                toast.success(tr("تم رفع الملف", "File uploaded"));
                                 router.refresh();
                             } catch {
-                                toast.error("حدث خطأ");
+                                toast.error(tr("حدث خطأ", "Something went wrong"));
                             }
                         }
                     }}
                     onUploadError={(error: Error) => {
-                        toast.error(`حدث خطأ: ${error.message}`);
+                        toast.error(`${tr("حدث خطأ", "Error")}: ${error.message}`);
                     }}
                 />
             </div>
             {initialData.attachments.length === 0 && (
                 <div className="flex items-center justify-center h-60 bg-muted rounded-md mt-4">
                     <p className="text-sm text-muted-foreground">
-                        لا يوجد ملفات حاليا
+                        {tr("لا يوجد ملفات حاليا", "No files yet")}
                     </p>
                 </div>
             )}
@@ -84,11 +87,11 @@ export const AttachmentsForm = ({
                             key={attachment.id}
                             className="flex items-center p-3 w-full bg-muted rounded-md border"
                         >
-                            <File className="h-4 w-4 mr-2 flex-shrink-0 text-muted-foreground" />
+                            <File className="h-4 w-4 rtl:mr-2 ltr:ml-2 flex-shrink-0 text-muted-foreground" />
                             <p className="text-sm line-clamp-1">
                                 {attachment.name}
                             </p>
-                            <div className="ml-auto flex items-center gap-x-2">
+                            <div className="rtl:mr-auto ltr:ml-auto flex items-center gap-x-2">
                                 {isDeleting === attachment.id && (
                                     <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                                 )}

@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useAuth } from "@clerk/nextjs";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 const formSchema = z.object({
     title: z.string().min(1, {
@@ -31,6 +32,8 @@ const formSchema = z.object({
 const CreatePage = () => {
 
     const router = useRouter();
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -54,9 +57,9 @@ const CreatePage = () => {
           });
       
           router.push(`/dashboard/teacher/courses/${response.data.id}`);
-          toast.success("تم إنشاء الكورس");
+          toast.success(tr("تم إنشاء الكورس", "Course created"));
         } catch {
-          toast.error("حدث خطأ");
+          toast.error(tr("حدث خطأ", "Something went wrong"));
         }
       };
 
@@ -64,10 +67,13 @@ const CreatePage = () => {
         <div className="max-w-5xl mx-auto flex md:items-center md:justify-center h-full p-6">
             <div>
                 <h1 className="text-2xl">
-                    اسم الكورس
+                    {tr("اسم الكورس", "Course name")}
                 </h1>
                 <p className="text-sm text-slate-600">
-                    ماذا تريد أن تسمي دورتك؟ لا تقلق، يمكنك تغيير هذا لاحقاً.
+                    {tr(
+                        "ماذا تريد أن تسمي دورتك؟ لا تقلق، يمكنك تغيير هذا لاحقاً.",
+                        "What would you like to name your course? Don't worry, you can change this later."
+                    )}
                 </p>
                 <Form {...form}>
                     <form
@@ -82,17 +88,17 @@ const CreatePage = () => {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>
-                                        عنوان الكورس
+                                        {tr("عنوان الكورس", "Course title")}
                                     </FormLabel>
                                     <FormControl>
                                         <Input
                                             disabled={isSubmitting}
-                                            placeholder="e.g. 'تطوير الويب المتقدم'"
+                                            placeholder={tr("مثال: تطوير الويب المتقدم", "e.g. Advanced Web Development")}
                                             {...field}
                                         />
                                     </FormControl>
                                     <FormDescription>
-                                        ماذا ستعلم في هذه الكورس؟
+                                        {tr("ماذا ستعلم في هذه الكورس؟", "What will you teach in this course?")}
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -106,14 +112,14 @@ const CreatePage = () => {
                                     variant="ghost"
                                     type="button"
                                 >
-                                    إلغاء
+                                    {tr("إلغاء", "Cancel")}
                                 </Button>
                             </Link>
                             <Button
                                 type="submit"
                                 disabled={!isValid || isSubmitting}
                             >
-                                استمر
+                                {tr("استمر", "Continue")}
                             </Button>
                         </div>
 

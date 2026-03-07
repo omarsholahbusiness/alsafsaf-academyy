@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Search, Plus, Edit, Eye, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigationRouter } from "@/lib/hooks/use-navigation-router";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface Quiz {
     id: string;
@@ -37,6 +38,8 @@ interface Question {
 
 const QuizzesPage = () => {
     const router = useNavigationRouter();
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -61,7 +64,7 @@ const QuizzesPage = () => {
     };
 
     const handleDeleteQuiz = async (quiz: Quiz) => {
-        if (!confirm("هل أنت متأكد من حذف هذا الاختبار؟")) {
+        if (!confirm(tr("هل أنت متأكد من حذف هذا الاختبار؟", "Are you sure you want to delete this quiz?"))) {
             return;
         }
 
@@ -72,14 +75,14 @@ const QuizzesPage = () => {
             });
 
             if (response.ok) {
-                toast.success("تم حذف الاختبار بنجاح");
+                toast.success(tr("تم حذف الاختبار بنجاح", "Quiz deleted successfully"));
                 fetchQuizzes();
             } else {
-                toast.error("حدث خطأ أثناء حذف الاختبار");
+                toast.error(tr("حدث خطأ أثناء حذف الاختبار", "An error occurred while deleting the quiz"));
             }
         } catch (error) {
             console.error("Error deleting quiz:", error);
-            toast.error("حدث خطأ أثناء حذف الاختبار");
+            toast.error(tr("حدث خطأ أثناء حذف الاختبار", "An error occurred while deleting the quiz"));
         } finally {
             setIsDeleting(null);
         }
@@ -97,7 +100,7 @@ const QuizzesPage = () => {
     if (loading) {
         return (
             <div className="p-6">
-                <div className="text-center">جاري التحميل...</div>
+                <div className="text-center">{tr("جاري التحميل...", "Loading...")}</div>
             </div>
         );
     }
@@ -106,21 +109,21 @@ const QuizzesPage = () => {
         <div className="p-6 space-y-6">
                         <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                    إدارة الاختبارات
+                    {tr("إدارة الاختبارات", "Quiz management")}
                 </h1>
                 <Button onClick={() => router.push("/dashboard/teacher/quizzes/create")} className="bg-brand hover:bg-brand/90 text-white">
-                    <Plus className="h-4 w-4 mr-2" />
-                    إنشاء اختبار جديد
+                    <Plus className="h-4 w-4 rtl:ml-2 ltr:mr-2" />
+                    {tr("إنشاء اختبار جديد", "Create new quiz")}
                 </Button>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>الاختبارات</CardTitle>
-                    <div className="flex items-center space-x-2">
+                    <CardTitle>{tr("الاختبارات", "Quizzes")}</CardTitle>
+                    <div className="flex items-center rtl:space-x-reverse space-x-2">
                         <Search className="h-4 w-4 text-muted-foreground" />
                         <Input
-                            placeholder="البحث في الاختبارات..."
+                            placeholder={tr("البحث في الاختبارات...", "Search quizzes...")}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="max-w-sm"
@@ -131,13 +134,13 @@ const QuizzesPage = () => {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="text-right">عنوان الاختبار</TableHead>
-                                <TableHead className="text-right">الكورس</TableHead>
-                                <TableHead className="text-right">الموقع</TableHead>
-                                <TableHead className="text-right">الحالة</TableHead>
-                                <TableHead className="text-right">عدد الأسئلة</TableHead>
-                                <TableHead className="text-right">تاريخ الإنشاء</TableHead>
-                                <TableHead className="text-right">الإجراءات</TableHead>
+                                <TableHead className="text-right">{tr("عنوان الاختبار", "Quiz title")}</TableHead>
+                                <TableHead className="text-right">{tr("الكورس", "Course")}</TableHead>
+                                <TableHead className="text-right">{tr("الموقع", "Position")}</TableHead>
+                                <TableHead className="text-right">{tr("الحالة", "Status")}</TableHead>
+                                <TableHead className="text-right">{tr("عدد الأسئلة", "Questions count")}</TableHead>
+                                <TableHead className="text-right">{tr("تاريخ الإنشاء", "Created at")}</TableHead>
+                                <TableHead className="text-right">{tr("الإجراءات", "Actions")}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -158,26 +161,26 @@ const QuizzesPage = () => {
                                     </TableCell>
                                     <TableCell>
                                         <Badge variant={quiz.isPublished ? "default" : "secondary"}>
-                                            {quiz.isPublished ? "منشور" : "مسودة"}
+                                            {quiz.isPublished ? tr("منشور", "Published") : tr("مسودة", "Draft")}
                                         </Badge>
                                     </TableCell>
                                     <TableCell>
                                         <Badge variant="secondary">
-                                            {quiz.questions.length} سؤال
+                                            {quiz.questions.length} {tr("سؤال", "questions")}
                                         </Badge>
                                     </TableCell>
                                     <TableCell>
-                                        {new Date(quiz.createdAt).toLocaleDateString("ar-EG")}
+                                        {new Date(quiz.createdAt).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US")}
                                     </TableCell>
                                     <TableCell>
-                                        <div className="flex items-center space-x-2">
+                                        <div className="flex items-center rtl:space-x-reverse space-x-2">
                                             <Button 
                                                 size="sm" 
                                                 className="bg-brand hover:bg-brand/90 text-white"
                                                 onClick={() => handleViewQuiz(quiz)}
                                             >
                                                 <Eye className="h-4 w-4" />
-                                                عرض
+                                                {tr("عرض", "View")}
                                             </Button>
                                             <Button 
                                                 size="sm" 
@@ -185,7 +188,7 @@ const QuizzesPage = () => {
                                                 onClick={() => router.push(`/dashboard/teacher/quizzes/${quiz.id}/edit`)}
                                             >
                                                 <Edit className="h-4 w-4" />
-                                                تعديل
+                                                {tr("تعديل", "Edit")}
                                             </Button>
                                             <Button 
                                                 size="sm" 
@@ -203,15 +206,15 @@ const QuizzesPage = () => {
                                                             }),
                                                         });
                                                         if (response.ok) {
-                                                            toast.success(quiz.isPublished ? "تم إلغاء النشر" : "تم النشر بنجاح");
+                                                            toast.success(quiz.isPublished ? tr("تم إلغاء النشر", "Unpublished successfully") : tr("تم النشر بنجاح", "Published successfully"));
                                                             fetchQuizzes();
                                                         }
                                                     } catch (error) {
-                                                        toast.error("حدث خطأ");
+                                                        toast.error(tr("حدث خطأ", "An error occurred"));
                                                     }
                                                 }}
                                             >
-                                                {quiz.isPublished ? "إلغاء النشر" : "نشر"}
+                                                {quiz.isPublished ? tr("إلغاء النشر", "Unpublish") : tr("نشر", "Publish")}
                                             </Button>
 
                                             <Button 
@@ -221,7 +224,7 @@ const QuizzesPage = () => {
                                                 disabled={isDeleting === quiz.id}
                                             >
                                                 <Trash2 className="h-4 w-4" />
-                                                {isDeleting === quiz.id ? "جاري الحذف..." : "حذف"}
+                                                {isDeleting === quiz.id ? tr("جاري الحذف...", "Deleting...") : tr("حذف", "Delete")}
                                             </Button>
                                         </div>
                                     </TableCell>

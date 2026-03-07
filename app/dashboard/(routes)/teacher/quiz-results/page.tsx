@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, ArrowLeft, Eye, Download, Filter } from "lucide-react";
+import { Search, ArrowLeft, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface QuizResult {
     id: string;
@@ -46,13 +47,15 @@ interface QuizAnswer {
 
 const QuizResultsContent = () => {
     const router = useRouter();
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const searchParams = useSearchParams();
     const quizId = searchParams.get('quizId');
     
     const [results, setResults] = useState<QuizResult[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-    const [quizDetails, setQuizDetails] = useState<any>(null);
+    const [quizDetails, setQuizDetails] = useState<{ title?: string; course?: { title?: string }; questions?: unknown[] } | null>(null);
     const [filteredResults, setFilteredResults] = useState<QuizResult[]>([]);
 
     useEffect(() => {
@@ -60,7 +63,7 @@ const QuizResultsContent = () => {
             fetchQuizResults();
             fetchQuizDetails();
         } else {
-            toast.error("لم يتم تحديد الاختبار");
+            toast.error(tr("لم يتم تحديد الاختبار", "Quiz is not specified"));
             router.push("/dashboard/teacher/quizzes");
         }
     }, [quizId]);
@@ -86,11 +89,11 @@ const QuizResultsContent = () => {
                 const data = await response.json();
                 setResults(data);
             } else {
-                toast.error("حدث خطأ أثناء تحميل النتائج");
+                toast.error(tr("حدث خطأ أثناء تحميل النتائج", "An error occurred while loading results"));
             }
         } catch (error) {
             console.error("Error fetching quiz results:", error);
-            toast.error("حدث خطأ أثناء تحميل النتائج");
+            toast.error(tr("حدث خطأ أثناء تحميل النتائج", "An error occurred while loading results"));
         } finally {
             setLoading(false);
         }
@@ -125,17 +128,17 @@ const QuizResultsContent = () => {
     };
 
     const getGradeBadge = (percentage: number) => {
-        if (percentage >= 90) return { variant: "default" as const, text: "ممتاز" };
-        if (percentage >= 80) return { variant: "default" as const, text: "جيد جداً" };
-        if (percentage >= 70) return { variant: "secondary" as const, text: "جيد" };
-        if (percentage >= 60) return { variant: "outline" as const, text: "مقبول" };
-        return { variant: "destructive" as const, text: "ضعيف" };
+        if (percentage >= 90) return { variant: "default" as const, text: tr("ممتاز", "Excellent") };
+        if (percentage >= 80) return { variant: "default" as const, text: tr("جيد جداً", "Very good") };
+        if (percentage >= 70) return { variant: "secondary" as const, text: tr("جيد", "Good") };
+        if (percentage >= 60) return { variant: "outline" as const, text: tr("مقبول", "Pass") };
+        return { variant: "destructive" as const, text: tr("ضعيف", "Weak") };
     };
 
     if (loading) {
         return (
             <div className="p-6">
-                <div className="text-center">جاري التحميل...</div>
+                <div className="text-center">{tr("جاري التحميل...", "Loading...")}</div>
             </div>
         );
     }
@@ -143,7 +146,7 @@ const QuizResultsContent = () => {
     if (!quizId) {
         return (
             <div className="p-6">
-                <div className="text-center">لم يتم تحديد الاختبار</div>
+                <div className="text-center">{tr("لم يتم تحديد الاختبار", "Quiz is not specified")}</div>
             </div>
         );
     }
@@ -151,16 +154,16 @@ const QuizResultsContent = () => {
     return (
         <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center rtl:space-x-reverse space-x-4">
                     <Button
                         variant="outline"
                         onClick={() => router.push("/dashboard/teacher/quizzes")}
                     >
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        العودة
+                        <ArrowLeft className="h-4 w-4 rtl:ml-2 ltr:mr-2 rtl:rotate-0 ltr:rotate-180" />
+                        {tr("العودة", "Back")}
                     </Button>
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                        نتائج الاختبار: {quizDetails?.title || "جاري التحميل..."}
+                        {tr("نتائج الاختبار", "Quiz results")}: {quizDetails?.title || tr("جاري التحميل...", "Loading...")}
                     </h1>
                 </div>
             </div>
@@ -168,22 +171,22 @@ const QuizResultsContent = () => {
             {quizDetails && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>معلومات الاختبار</CardTitle>
+                        <CardTitle>{tr("معلومات الاختبار", "Quiz information")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <h4 className="font-medium mb-1">عنوان الاختبار</h4>
+                                <h4 className="font-medium mb-1">{tr("عنوان الاختبار", "Quiz title")}</h4>
                                 <p className="text-sm text-muted-foreground">{quizDetails.title}</p>
                             </div>
                             <div>
-                                <h4 className="font-medium mb-1">الكورس</h4>
+                                <h4 className="font-medium mb-1">{tr("الكورس", "Course")}</h4>
                                 <p className="text-sm text-muted-foreground">{quizDetails.course?.title}</p>
                             </div>
                             <div>
-                                <h4 className="font-medium mb-1">عدد الأسئلة</h4>
+                                <h4 className="font-medium mb-1">{tr("عدد الأسئلة", "Questions count")}</h4>
                                 <Badge variant="secondary">
-                                    {quizDetails.questions?.length || 0} سؤال
+                                    {quizDetails.questions?.length || 0} {tr("سؤال", "questions")}
                                 </Badge>
                             </div>
                         </div>
@@ -194,16 +197,16 @@ const QuizResultsContent = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">إجمالي النتائج</CardTitle>
+                        <CardTitle className="text-sm font-medium">{tr("إجمالي النتائج", "Total results")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{results.length}</div>
-                        <p className="text-xs text-muted-foreground">نتيجة</p>
+                        <p className="text-xs text-muted-foreground">{tr("نتيجة", "results")}</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">متوسط الدرجات</CardTitle>
+                        <CardTitle className="text-sm font-medium">{tr("متوسط الدرجات", "Average score")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
@@ -212,12 +215,12 @@ const QuizResultsContent = () => {
                                 : 0
                             }%
                         </div>
-                        <p className="text-xs text-muted-foreground">متوسط</p>
+                        <p className="text-xs text-muted-foreground">{tr("متوسط", "average")}</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">أعلى درجة</CardTitle>
+                        <CardTitle className="text-sm font-medium">{tr("أعلى درجة", "Highest score")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-green-600">
@@ -226,12 +229,12 @@ const QuizResultsContent = () => {
                                 : 0
                             }%
                         </div>
-                        <p className="text-xs text-muted-foreground">أفضل نتيجة</p>
+                        <p className="text-xs text-muted-foreground">{tr("أفضل نتيجة", "Best result")}</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">أدنى درجة</CardTitle>
+                        <CardTitle className="text-sm font-medium">{tr("أدنى درجة", "Lowest score")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-red-600">
@@ -240,18 +243,18 @@ const QuizResultsContent = () => {
                                 : 0
                             }%
                         </div>
-                        <p className="text-xs text-muted-foreground">أسوأ نتيجة</p>
+                        <p className="text-xs text-muted-foreground">{tr("أسوأ نتيجة", "Worst result")}</p>
                     </CardContent>
                 </Card>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>نتائج الطلاب</CardTitle>
-                    <div className="flex items-center space-x-2">
+                    <CardTitle>{tr("نتائج الطلاب", "Student results")}</CardTitle>
+                    <div className="flex items-center rtl:space-x-reverse space-x-2">
                         <Search className="h-4 w-4 text-muted-foreground" />
                         <Input
-                            placeholder="البحث في الطلاب..."
+                            placeholder={tr("البحث في الطلاب...", "Search students...")}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="max-w-sm"
@@ -262,12 +265,12 @@ const QuizResultsContent = () => {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="text-right">الطالب</TableHead>
-                                <TableHead className="text-right">الدرجة</TableHead>
-                                <TableHead className="text-right">النسبة المئوية</TableHead>
-                                <TableHead className="text-right">التقييم</TableHead>
-                                <TableHead className="text-right">تاريخ التقديم</TableHead>
-                                <TableHead className="text-right">الإجراءات</TableHead>
+                                <TableHead className="text-right">{tr("الطالب", "Student")}</TableHead>
+                                <TableHead className="text-right">{tr("الدرجة", "Score")}</TableHead>
+                                <TableHead className="text-right">{tr("النسبة المئوية", "Percentage")}</TableHead>
+                                <TableHead className="text-right">{tr("التقييم", "Evaluation")}</TableHead>
+                                <TableHead className="text-right">{tr("تاريخ التقديم", "Submission date")}</TableHead>
+                                <TableHead className="text-right">{tr("الإجراءات", "Actions")}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -302,10 +305,10 @@ const QuizResultsContent = () => {
                                         </TableCell>
                                         <TableCell>
                                             <div className="text-sm text-muted-foreground">
-                                                {new Date(result.submittedAt).toLocaleDateString("ar-EG")}
+                                                {new Date(result.submittedAt).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US")}
                                             </div>
                                             <div className="text-xs text-muted-foreground">
-                                                {new Date(result.submittedAt).toLocaleTimeString("ar-EG")}
+                                                {new Date(result.submittedAt).toLocaleTimeString(locale === "ar" ? "ar-EG" : "en-US")}
                                             </div>
                                         </TableCell>
                                         <TableCell>
@@ -314,8 +317,8 @@ const QuizResultsContent = () => {
                                                 variant="outline"
                                                 onClick={() => handleViewDetails(result)}
                                             >
-                                                <Eye className="h-4 w-4 mr-2" />
-                                                تفاصيل
+                                                <Eye className="h-4 w-4 rtl:ml-2 ltr:mr-2" />
+                                                {tr("تفاصيل", "Details")}
                                             </Button>
                                         </TableCell>
                                     </TableRow>
@@ -326,7 +329,7 @@ const QuizResultsContent = () => {
                     
                     {filteredResults.length === 0 && (
                         <div className="text-center py-8">
-                            <p className="text-muted-foreground">لا توجد نتائج للعرض</p>
+                            <p className="text-muted-foreground">{tr("لا توجد نتائج للعرض", "No results to display")}</p>
                         </div>
                     )}
                 </CardContent>
@@ -339,7 +342,7 @@ const QuizResultsPage = () => {
     return (
         <Suspense fallback={
             <div className="p-6">
-                <div className="text-center">جاري التحميل...</div>
+                <div className="text-center">Loading...</div>
             </div>
         }>
             <QuizResultsContent />

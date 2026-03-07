@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { Edit, Search, Wallet } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface User {
     id: string;
@@ -20,6 +21,8 @@ interface User {
 }
 
 const TeacherBalancesPage = () => {
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -47,13 +50,13 @@ const TeacherBalancesPage = () => {
 
     const handleBalanceUpdate = async () => {
         if (!selectedUser || !newBalance) {
-            toast.error("يرجى إدخال رصيد جديد");
+            toast.error(tr("يرجى إدخال رصيد جديد", "Please enter a new balance"));
             return;
         }
 
         const balance = parseFloat(newBalance);
         if (isNaN(balance) || balance < 0) {
-            toast.error("يرجى إدخال رصيد صحيح");
+            toast.error(tr("يرجى إدخال رصيد صحيح", "Please enter a valid balance"));
             return;
         }
 
@@ -67,17 +70,17 @@ const TeacherBalancesPage = () => {
             });
 
             if (response.ok) {
-                toast.success("تم تحديث الرصيد بنجاح");
+                toast.success(tr("تم تحديث الرصيد بنجاح", "Balance updated successfully"));
                 setNewBalance("");
                 setIsDialogOpen(false);
                 setSelectedUser(null);
                 fetchUsers(); // Refresh the list
             } else {
-                toast.error("حدث خطأ أثناء تحديث الرصيد");
+                toast.error(tr("حدث خطأ أثناء تحديث الرصيد", "An error occurred while updating balance"));
             }
         } catch (error) {
             console.error("Error updating balance:", error);
-            toast.error("حدث خطأ أثناء تحديث الرصيد");
+            toast.error(tr("حدث خطأ أثناء تحديث الرصيد", "An error occurred while updating balance"));
         }
     };
 
@@ -91,7 +94,7 @@ const TeacherBalancesPage = () => {
     if (loading) {
         return (
             <div className="p-6">
-                <div className="text-center">جاري التحميل...</div>
+                <div className="text-center">{tr("جاري التحميل...", "Loading...")}</div>
             </div>
         );
     }
@@ -100,7 +103,7 @@ const TeacherBalancesPage = () => {
         <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                    إدارة الأرصدة
+                    {tr("إدارة الأرصدة", "Balance management")}
                 </h1>
             </div>
 
@@ -108,11 +111,11 @@ const TeacherBalancesPage = () => {
             {studentUsers.length > 0 && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>قائمة الطلاب</CardTitle>
-                        <div className="flex items-center space-x-2">
+                        <CardTitle>{tr("قائمة الطلاب", "Students list")}</CardTitle>
+                        <div className="flex items-center rtl:space-x-reverse space-x-2">
                             <Search className="h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="البحث بالاسم أو رقم الهاتف..."
+                                placeholder={tr("البحث بالاسم أو رقم الهاتف...", "Search by name or phone number...")}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="max-w-sm"
@@ -123,11 +126,11 @@ const TeacherBalancesPage = () => {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="text-right">الاسم</TableHead>
-                                    <TableHead className="text-right">رقم الهاتف</TableHead>
-                                    <TableHead className="text-right">الدور</TableHead>
-                                    <TableHead className="text-right">الرصيد الحالي</TableHead>
-                                    <TableHead className="text-right">الإجراءات</TableHead>
+                                    <TableHead className="text-right">{tr("الاسم", "Name")}</TableHead>
+                                    <TableHead className="text-right">{tr("رقم الهاتف", "Phone number")}</TableHead>
+                                    <TableHead className="text-right">{tr("الدور", "Role")}</TableHead>
+                                    <TableHead className="text-right">{tr("الرصيد الحالي", "Current balance")}</TableHead>
+                                    <TableHead className="text-right">{tr("الإجراءات", "Actions")}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -139,13 +142,13 @@ const TeacherBalancesPage = () => {
                                         <TableCell>{user.phoneNumber}</TableCell>
                                         <TableCell>
                                             <Badge variant="secondary">
-                                                طالب
+                                                {tr("طالب", "Student")}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
                                             <Badge variant="outline" className="flex items-center gap-1">
                                                 <Wallet className="h-3 w-3" />
-                                                {user.balance} جنيه
+                                                {user.balance} {tr("جنيه", "EGP")}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
@@ -159,7 +162,7 @@ const TeacherBalancesPage = () => {
                                                 }}
                                             >
                                                 <Edit className="h-4 w-4" />
-                                                تعديل الرصيد
+                                                {tr("تعديل الرصيد", "Edit balance")}
                                             </Button>
                                         </TableCell>
                                     </TableRow>
@@ -174,7 +177,7 @@ const TeacherBalancesPage = () => {
                 <Card>
                     <CardContent className="p-6">
                         <div className="text-center text-muted-foreground">
-                            لا توجد طلاب متاحين
+                            {tr("لا توجد طلاب متاحين", "No students available")}
                         </div>
                     </CardContent>
                 </Card>
@@ -194,23 +197,23 @@ const TeacherBalancesPage = () => {
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>
-                            تعديل رصيد {selectedUser?.fullName}
+                            {tr("تعديل رصيد", "Edit balance for")} {selectedUser?.fullName}
                         </DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="newBalance">الرصيد الجديد (جنيه)</Label>
+                            <Label htmlFor="newBalance">{tr("الرصيد الجديد (جنيه)", "New balance (EGP)")}</Label>
                             <Input
                                 id="newBalance"
                                 type="number"
                                 value={newBalance}
                                 onChange={(e) => setNewBalance(e.target.value)}
-                                placeholder="أدخل الرصيد الجديد"
+                                placeholder={tr("أدخل الرصيد الجديد", "Enter new balance")}
                                 min="0"
                                 step="0.01"
                             />
                         </div>
-                        <div className="flex justify-end space-x-2">
+                        <div className="flex justify-end rtl:space-x-reverse space-x-2">
                             <Button
                                 variant="outline"
                                 onClick={() => {
@@ -219,10 +222,10 @@ const TeacherBalancesPage = () => {
                                     setSelectedUser(null);
                                 }}
                             >
-                                إلغاء
+                                {tr("إلغاء", "Cancel")}
                             </Button>
                             <Button onClick={handleBalanceUpdate}>
-                                تحديث الرصيد
+                                {tr("تحديث الرصيد", "Update balance")}
                             </Button>
                         </div>
                     </div>

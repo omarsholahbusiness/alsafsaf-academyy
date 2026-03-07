@@ -6,6 +6,7 @@ import { FileText, Pencil, Upload, X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FileUpload } from "@/components/file-upload";
 import toast from "react-hot-toast";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface DocumentFormProps {
     initialData: {
@@ -21,6 +22,8 @@ export const DocumentForm = ({
     courseId,
     chapterId
 }: DocumentFormProps) => {
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const [isEditing, setIsEditing] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,11 +41,11 @@ export const DocumentForm = ({
                 const decodedFilename = decodeURIComponent(filename);
                 // Remove query parameters if any
                 const cleanFilename = decodedFilename.split('?')[0];
-                return cleanFilename || 'مستند الفصل';
+                return cleanFilename || tr("مستند الفصل", "Chapter document");
             }
-            return 'مستند الفصل';
+            return tr("مستند الفصل", "Chapter document");
         } catch {
-            return 'مستند الفصل';
+            return tr("مستند الفصل", "Chapter document");
         }
     };
 
@@ -83,12 +86,12 @@ export const DocumentForm = ({
                 throw new Error('Failed to upload document');
             }
 
-            toast.success("تم رفع المستند بنجاح");
+            toast.success(tr("تم رفع المستند بنجاح", "Document uploaded successfully"));
             setIsEditing(false);
             router.refresh();
         } catch (error) {
             console.error("[CHAPTER_DOCUMENT]", error);
-            toast.error("حدث خطأ ما");
+            toast.error(tr("حدث خطأ ما", "Something went wrong"));
         } finally {
             setIsSubmitting(false);
         }
@@ -105,11 +108,11 @@ export const DocumentForm = ({
                 throw new Error('Failed to delete document');
             }
 
-            toast.success("تم حذف المستند بنجاح");
+            toast.success(tr("تم حذف المستند بنجاح", "Document deleted successfully"));
             router.refresh();
         } catch (error) {
             console.error("[CHAPTER_DOCUMENT_DELETE]", error);
-            toast.error("حدث خطأ ما");
+            toast.error(tr("حدث خطأ ما", "Something went wrong"));
         } finally {
             setIsSubmitting(false);
         }
@@ -122,14 +125,14 @@ export const DocumentForm = ({
     return (
         <div className="mt-6 border bg-card rounded-md p-4">
             <div className="font-medium flex items-center justify-between">
-                مستند الفصل
+                {tr("مستند الفصل", "Chapter document")}
                 <Button onClick={() => setIsEditing(!isEditing)} variant="ghost">
                     {isEditing ? (
-                        <>إلغاء</>
+                        <>{tr("إلغاء", "Cancel")}</>
                     ) : (
                         <>
-                            <Pencil className="h-4 w-4 mr-2" />
-                            تعديل المستند
+                            <Pencil className="h-4 w-4 rtl:mr-2 ltr:ml-2" />
+                            {tr("تعديل المستند", "Edit document")}
                         </>
                     )}
                 </Button>
@@ -139,20 +142,20 @@ export const DocumentForm = ({
                 <div className="mt-2">
                     {initialData.documentUrl ? (
                         <div className="flex items-center p-3 w-full bg-secondary/50 border-secondary/50 border text-secondary-foreground rounded-md">
-                            <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
+                            <FileText className="h-4 w-4 rtl:mr-2 ltr:ml-2 flex-shrink-0" />
                             <div className="flex flex-col min-w-0 flex-1">
                                 <p className="text-sm font-medium truncate">
                                     {initialData.documentName || getFilenameFromUrl(initialData.documentUrl || '')}
                                 </p>
-                                <p className="text-xs text-muted-foreground">مستند الفصل</p>
+                                <p className="text-xs text-muted-foreground">{tr("مستند الفصل", "Chapter document")}</p>
                             </div>
-                            <div className="ml-auto flex items-center gap-2 flex-shrink-0">
+                            <div className="rtl:mr-auto ltr:ml-auto flex items-center gap-2 flex-shrink-0">
                                 <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => window.open(initialData.documentUrl!, '_blank')}
                                 >
-                                    عرض
+                                    {tr("عرض", "View")}
                                 </Button>
                                 <Button
                                     variant="ghost"
@@ -165,7 +168,7 @@ export const DocumentForm = ({
                                     className="flex items-center gap-1"
                                 >
                                     <Download className="h-3 w-3" />
-                                    تحميل
+                                    {tr("تحميل", "Download")}
                                 </Button>
                                 <Button
                                     variant="ghost"
@@ -183,7 +186,7 @@ export const DocumentForm = ({
                         </div>
                     ) : (
                         <p className="text-sm mt-2 text-muted-foreground italic">
-                            لا يوجد مستند مرفوع
+                            {tr("لا يوجد مستند مرفوع", "No uploaded document")}
                         </p>
                     )}
                 </div>
@@ -200,7 +203,7 @@ export const DocumentForm = ({
                         }}
                     />
                     <div className="text-xs text-muted-foreground mt-4">
-                        أضف مستندات إضافية قد يحتاجها الطلاب لفهم الفصل بشكل أفضل.
+                        {tr("أضف مستندات إضافية قد يحتاجها الطلاب لفهم الفصل بشكل أفضل.", "Add supporting documents students may need to better understand this chapter.")}
                     </div>
                 </div>
             )}

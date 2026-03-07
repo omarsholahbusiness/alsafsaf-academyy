@@ -4,8 +4,10 @@ import { useEffect, useRef, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useNavigation } from "@/lib/contexts/navigation-context";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 const NavigationLoadingContent = () => {
+  const { locale } = useLanguage();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { isNavigating, startNavigating, stopNavigating } = useNavigation();
@@ -226,10 +228,10 @@ const NavigationLoadingContent = () => {
         {/* Loading Text */}
         <div className="text-center space-y-1">
           <p className="text-base font-bold bg-gradient-to-r from-brand to-brand/80 bg-clip-text text-transparent">
-            جاري التحميل...
+            {locale === "ar" ? "جاري التحميل..." : "Loading..."}
           </p>
           <p className="text-xs text-muted-foreground">
-            يرجى الانتظار
+            {locale === "ar" ? "يرجى الانتظار" : "Please wait"}
           </p>
         </div>
         

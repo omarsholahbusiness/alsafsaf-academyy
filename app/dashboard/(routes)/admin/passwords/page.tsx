@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { Eye, Edit, Search, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from "@/components/providers/rtl-provider";
 
 interface User {
     id: string;
@@ -19,6 +20,8 @@ interface User {
 }
 
 const PasswordsPage = () => {
+    const { locale } = useLanguage();
+    const tr = (arText: string, enText: string) => (locale === "ar" ? arText : enText);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -47,7 +50,7 @@ const PasswordsPage = () => {
 
     const handlePasswordChange = async () => {
         if (!selectedUser || !newPassword) {
-            toast.error("يرجى إدخال كلمة مرور جديدة");
+            toast.error(tr("يرجى إدخال كلمة مرور جديدة", "Please enter a new password"));
             return;
         }
 
@@ -61,16 +64,16 @@ const PasswordsPage = () => {
             });
 
             if (response.ok) {
-                toast.success("تم تغيير كلمة المرور بنجاح");
+                toast.success(tr("تم تغيير كلمة المرور بنجاح", "Password changed successfully"));
                 setNewPassword("");
                 setIsDialogOpen(false);
                 setSelectedUser(null);
             } else {
-                toast.error("حدث خطأ أثناء تغيير كلمة المرور");
+                toast.error(tr("حدث خطأ أثناء تغيير كلمة المرور", "An error occurred while changing the password"));
             }
         } catch (error) {
             console.error("Error changing password:", error);
-            toast.error("حدث خطأ أثناء تغيير كلمة المرور");
+            toast.error(tr("حدث خطأ أثناء تغيير كلمة المرور", "An error occurred while changing the password"));
         }
     };
 
@@ -85,7 +88,7 @@ const PasswordsPage = () => {
     if (loading) {
         return (
             <div className="p-6">
-                <div className="text-center">جاري التحميل...</div>
+                <div className="text-center">{tr("جاري التحميل...", "Loading...")}</div>
             </div>
         );
     }
@@ -94,7 +97,7 @@ const PasswordsPage = () => {
         <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                    إدارة كلمات المرور
+                    {tr("إدارة كلمات المرور", "Password management")}
                 </h1>
             </div>
 
@@ -102,11 +105,11 @@ const PasswordsPage = () => {
             {staffUsers.length > 0 && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>المشرفين والمعلمين</CardTitle>
+                        <CardTitle>{tr("المشرفين والمعلمين", "Admins and teachers")}</CardTitle>
                         <div className="flex items-center space-x-2">
                             <Search className="h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="البحث بالاسم أو رقم الهاتف..."
+                                placeholder={tr("البحث بالاسم أو رقم الهاتف...", "Search by name or phone number...")}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="max-w-sm"
@@ -117,10 +120,10 @@ const PasswordsPage = () => {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="text-right">الاسم</TableHead>
-                                    <TableHead className="text-right">رقم الهاتف</TableHead>
-                                    <TableHead className="text-right">الدور</TableHead>
-                                    <TableHead className="text-right">الإجراءات</TableHead>
+                                    <TableHead className="text-right">{tr("الاسم", "Name")}</TableHead>
+                                    <TableHead className="text-right">{tr("رقم الهاتف", "Phone number")}</TableHead>
+                                    <TableHead className="text-right">{tr("الدور", "Role")}</TableHead>
+                                    <TableHead className="text-right">{tr("الإجراءات", "Actions")}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -139,8 +142,8 @@ const PasswordsPage = () => {
                                                     ""
                                                 }
                                             >
-                                                {user.role === "TEACHER" ? "معلم" : 
-                                                 user.role === "ADMIN" ? "مشرف" : user.role}
+                                                {user.role === "TEACHER" ? tr("معلم", "Teacher") : 
+                                                 user.role === "ADMIN" ? tr("مشرف", "Admin") : user.role}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
@@ -153,7 +156,7 @@ const PasswordsPage = () => {
                                                 }}
                                             >
                                                 <Edit className="h-4 w-4" />
-                                                تغيير كلمة المرور
+                                                {tr("تغيير كلمة المرور", "Change password")}
                                             </Button>
                                         </TableCell>
                                     </TableRow>
@@ -168,11 +171,11 @@ const PasswordsPage = () => {
             {studentUsers.length > 0 && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>قائمة الطلاب</CardTitle>
+                        <CardTitle>{tr("قائمة الطلاب", "Students list")}</CardTitle>
                         <div className="flex items-center space-x-2">
                             <Search className="h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="البحث بالاسم أو رقم الهاتف..."
+                                placeholder={tr("البحث بالاسم أو رقم الهاتف...", "Search by name or phone number...")}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="max-w-sm"
@@ -183,10 +186,10 @@ const PasswordsPage = () => {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="text-right">الاسم</TableHead>
-                                    <TableHead className="text-right">رقم الهاتف</TableHead>
-                                    <TableHead className="text-right">الدور</TableHead>
-                                    <TableHead className="text-right">الإجراءات</TableHead>
+                                    <TableHead className="text-right">{tr("الاسم", "Name")}</TableHead>
+                                    <TableHead className="text-right">{tr("رقم الهاتف", "Phone number")}</TableHead>
+                                    <TableHead className="text-right">{tr("الدور", "Role")}</TableHead>
+                                    <TableHead className="text-right">{tr("الإجراءات", "Actions")}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -198,7 +201,7 @@ const PasswordsPage = () => {
                                         <TableCell>{user.phoneNumber}</TableCell>
                                         <TableCell>
                                             <Badge variant="secondary">
-                                                طالب
+                                                {tr("طالب", "Student")}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
@@ -211,7 +214,7 @@ const PasswordsPage = () => {
                                                 }}
                                             >
                                                 <Edit className="h-4 w-4" />
-                                                تغيير كلمة المرور
+                                                {tr("تغيير كلمة المرور", "Change password")}
                                             </Button>
                                         </TableCell>
                                     </TableRow>
@@ -236,25 +239,25 @@ const PasswordsPage = () => {
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>
-                            تغيير كلمة مرور {selectedUser?.fullName}
+                            {tr("تغيير كلمة مرور", "Change password for")} {selectedUser?.fullName}
                         </DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="newPassword">كلمة المرور الجديدة</Label>
+                            <Label htmlFor="newPassword">{tr("كلمة المرور الجديدة", "New password")}</Label>
                             <div className="relative">
                                 <Input
                                     id="newPassword"
                                     type={showPassword ? "text" : "password"}
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
-                                    placeholder="أدخل كلمة المرور الجديدة"
+                                    placeholder={tr("أدخل كلمة المرور الجديدة", "Enter new password")}
                                 />
                                 <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
-                                    className="absolute left-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                    className="absolute rtl:left-0 ltr:right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
                                     {showPassword ? (
@@ -274,10 +277,10 @@ const PasswordsPage = () => {
                                     setSelectedUser(null);
                                 }}
                             >
-                                إلغاء
+                                {tr("إلغاء", "Cancel")}
                             </Button>
                             <Button onClick={handlePasswordChange}>
-                                تغيير كلمة المرور
+                                {tr("تغيير كلمة المرور", "Change password")}
                             </Button>
                         </div>
                     </div>
