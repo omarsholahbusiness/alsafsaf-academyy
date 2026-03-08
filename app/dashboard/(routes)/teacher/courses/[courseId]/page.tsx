@@ -83,17 +83,17 @@ export default async function CourseIdPage({
     };
 
     return (
-        <>
+        <div className="min-w-0 overflow-x-hidden">
             {!course.isPublished && (
                 <Banner
                     variant="warning"
                     label={tr("هذه الكورس غير منشورة. لن تكون مرئية للطلاب.", "This course is unpublished. It will not be visible to students.")}
                 />
             )}
-            <div className="p-6">
-                <div className="flex items-center justify-between">
-                    <div className="flex flex-col gap-y-2">
-                        <h1 className="text-2xl font-medium">
+            <div className="p-4 sm:p-6 min-w-0">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex flex-col gap-y-2 min-w-0">
+                        <h1 className="text-xl sm:text-2xl font-medium">
                             {tr("إعداد الكورس", "Course setup")}
                         </h1>
                         <span className="text-sm text-slate-700">
@@ -126,14 +126,16 @@ export default async function CourseIdPage({
                             </div>
                         )}
                     </div>
-                    <Actions
-                        disabled={!isComplete}
-                        courseId={courseId}
-                        isPublished={course.isPublished}
-                    />
+                    <div className="shrink-0">
+                        <Actions
+                            disabled={!isComplete}
+                            courseId={courseId}
+                            isPublished={course.isPublished}
+                        />
+                    </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
-                    <div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8 sm:mt-12 lg:mt-16">
+                    <div className="min-w-0">
                         <div className="flex items-center gap-x-2">
                             <IconBadge icon={LayoutDashboard} />
                             <h2 className="text-xl">
@@ -153,7 +155,7 @@ export default async function CourseIdPage({
                             courseId={course.id}
                         />
                     </div>
-                    <div className="space-y-6">
+                    <div className="space-y-6 min-w-0">
                         <div>
                             <div className="flex items-center gap-x-2">
                                 <IconBadge icon={LayoutDashboard} />
@@ -181,6 +183,6 @@ export default async function CourseIdPage({
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 }

@@ -53,11 +53,11 @@ const CoursesPage = async () => {
     const hasUnpublishedCourses = unpublishedCourses.length > 0;
 
     return (
-        <div className="p-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold">{tr("الكورسات الخاصة بك", "Your courses")}</h1>
-                <Link href="/dashboard/teacher/courses/create">
-                    <Button className="bg-brand hover:bg-brand/90 text-white">
+        <div className="p-4 sm:p-6 min-w-0">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h1 className="text-xl sm:text-2xl font-bold shrink-0">{tr("الكورسات الخاصة بك", "Your courses")}</h1>
+                <Link href="/dashboard/teacher/courses/create" className="w-full sm:w-auto">
+                    <Button className="bg-brand hover:bg-brand/90 text-white w-full sm:w-auto">
                         <PlusCircle className="h-4 w-4 rtl:ml-2 ltr:mr-2" />
                         {tr("إنشاء كورس جديدة", "Create a new course")}
                     </Button>
@@ -65,7 +65,7 @@ const CoursesPage = async () => {
             </div>
 
             {hasUnpublishedCourses && (
-                <Alert className="mt-6 border-orange-200 bg-orange-50">
+                <Alert className="mt-4 sm:mt-6 border-orange-200 bg-orange-50">
                     <AlertCircle className="h-4 w-4 text-orange-600" />
                     <AlertDescription className="text-orange-800">
                         <div className="mb-2">
@@ -82,7 +82,7 @@ const CoursesPage = async () => {
                 </Alert>
             )}
 
-            <div className="mt-6">
+            <div className="mt-4 sm:mt-6 min-w-0 overflow-hidden">
                 <CoursesTable columns={columns} data={courses} />
             </div>
         </div>

@@ -12,7 +12,7 @@ export const Banner = ({
 }: BannerProps) => {
     return (
         <div className={cn(
-            "flex items-center gap-x-2 p-3 text-sm rounded-md",
+            "flex items-center gap-x-2 p-3 text-sm rounded-md min-w-0",
             variant === "default" && "bg-primary/10 text-primary",
             variant === "warning" && "bg-destructive/10 text-destructive",
             variant === "success" && "bg-emerald-500/10 text-emerald-500"

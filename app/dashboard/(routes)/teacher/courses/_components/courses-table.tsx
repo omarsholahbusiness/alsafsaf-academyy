@@ -97,9 +97,9 @@ export function CoursesTable<TData extends { id: string }, TValue>({
     };
 
     return (
-        <div>
+        <div className="min-w-0">
             <div className="flex items-center py-4">
-                <div className="relative w-full max-w-sm">
+                <div className="relative w-full min-w-0 max-w-sm">
                     <Search className="absolute h-4 w-4 top-3 rtl:left-3 ltr:right-3 text-muted-foreground" />
                     <Input
                         placeholder={tr("ابحث عن الكورسات...", "Search courses...")}
@@ -109,8 +109,8 @@ export function CoursesTable<TData extends { id: string }, TValue>({
                     />
                 </div>
             </div>
-            <div className="rounded-md border">
-                <Table>
+            <div className="rounded-md border overflow-x-auto">
+                <Table className="min-w-[640px]">
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
@@ -191,7 +191,7 @@ export function CoursesTable<TData extends { id: string }, TValue>({
                     </TableBody>
                 </Table>
             </div>
-            <div className="flex items-center justify-end rtl:space-x-reverse space-x-2 py-4">
+            <div className="flex flex-wrap items-center justify-end gap-2 py-4 rtl:space-x-reverse sm:space-x-2">
                 <Button
                     variant="outline"
                     size="sm"

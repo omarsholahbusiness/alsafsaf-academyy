@@ -64,6 +64,29 @@ export default async function RootLayout({
             `,
           }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                function stripFdProcessedId() {
+                  try {
+                    document.querySelectorAll('[fdprocessedid]').forEach(function(el) {
+                      el.removeAttribute('fdprocessedid');
+                    });
+                  } catch (e) {}
+                }
+                stripFdProcessedId();
+                if (typeof requestAnimationFrame !== 'undefined') requestAnimationFrame(stripFdProcessedId);
+                setTimeout(stripFdProcessedId, 0);
+                document.addEventListener('DOMContentLoaded', stripFdProcessedId);
+                if (document.body) {
+                  var obs = new MutationObserver(stripFdProcessedId);
+                  obs.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['fdprocessedid'] });
+                }
+              })();
+            `,
+          }}
+        />
         <Providers initialLocale={locale}>
           <Suspense fallback={null}>
             <NavigationLoading />
